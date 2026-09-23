@@ -374,7 +374,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 const SizedBox(width: 16),
               ],
       ),
-      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),

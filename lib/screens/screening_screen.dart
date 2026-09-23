@@ -493,7 +493,6 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
   Widget _buildStep2(BuildContext context) {
     final loc = widget.loc;
     final isMl = loc.isMalayalam;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
