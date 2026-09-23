@@ -10,7 +10,6 @@ import '../services/localization_service.dart';
 import '../services/pdf_export_service.dart';
 import '../services/qr_packet_service.dart';
 import '../services/self_declaration_service.dart';
-import '../widgets/disclaimer_banner.dart';
 import '../widgets/language_selector.dart';
 import 'fast_track_operator_screen.dart';
 
@@ -74,66 +73,6 @@ class _ResultsScreenState extends State<ResultsScreen>
 
     final entitlementSummary = BenefitCalculatorService.calculateSummary(potentialList);
     final leakageReport = BenefitCalculatorService.auditLeakage(controller.profile);
-
-    final matchingAlerts = widget.alertController?.repository.getAlertsFor(
-      sector: controller.profile.occupation,
-      district: controller.profile.district,
-    ) ?? [];
-
-    final safetyAdvisoryBanner = matchingAlerts.isNotEmpty && widget.onOpenAlerts != null
-        ? Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: InkWell(
-              onTap: () {
-                widget.alertController?.syncWithProfile(
-                  sector: controller.profile.occupation,
-                  district: controller.profile.district,
-                );
-                widget.onOpenAlerts!();
-              },
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF261D12) : const Color(0xFFFFFBEB),
-                  border: Border.all(
-                    color: isDark ? const Color(0xFFD97706) : const Color(0xFFF59E0B),
-                    width: 1.2,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.shield_rounded, color: Color(0xFFD97706), size: 20),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        isMl
-                            ? 'ജാഗ്രതാ നിർദ്ദേശം: ${controller.profile.district ?? ""} മേഖലയിൽ ${matchingAlerts.length} സുരക്ഷാ മുന്നറിയിപ്പുകൾ സജീവമാണ് (ഡെമോ വിവരങ്ങൾ)'
-                            : 'Safety Advisory: ${matchingAlerts.length} active alerts relevant to ${controller.profile.district ?? "your sector"} (Demo Feed)',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? const Color(0xFFFFD166) : const Color(0xFF92400E),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      isMl ? 'കാണുക' : 'View',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? const Color(0xFFFFD166) : const Color(0xFFD97706),
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFFD97706)),
-                  ],
-                ),
-              ),
-            ),
-          )
-        : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -273,24 +212,16 @@ class _ResultsScreenState extends State<ResultsScreen>
                 children: [
                   // Left Column: Scheme Cards TabBarView (expands across available screen)
                   Expanded(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 12, 12, 6),
-                          child: DisclaimerBanner(loc: loc, compact: true),
-                        ),
-                        if (safetyAdvisoryBanner != null) safetyAdvisoryBanner,
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: [
-                              _buildSchemeList(potentialList, isMl, isDark),
-                              _buildSchemeList(incompleteList, isMl, isDark),
-                              _buildSchemeList(notMatchedList, isMl, isDark),
-                            ],
-                          ),
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildSchemeList(potentialList, isMl, isDark),
+                          _buildSchemeList(incompleteList, isMl, isDark),
+                          _buildSchemeList(notMatchedList, isMl, isDark),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(width: 24),
@@ -328,13 +259,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                 constraints: const BoxConstraints(maxWidth: 820),
                 child: Column(
                   children: [
-                    // Top Notice Banner
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                      child: DisclaimerBanner(loc: loc, compact: true),
-                    ),
-
-                    if (safetyAdvisoryBanner != null) safetyAdvisoryBanner,
+                    const SizedBox(height: 8),
 
                     // Entitlement Value Summary Card
                     _buildValueSummaryCard(entitlementSummary, isMl, isDark),
