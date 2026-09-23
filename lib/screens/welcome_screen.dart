@@ -29,7 +29,9 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final isMl = loc.isMalayalam;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 620;
+    final isMl = loc.currentLanguage == 'ml';
 
     return Scaffold(
       appBar: AppBar(
@@ -37,36 +39,92 @@ class WelcomeScreen extends StatelessWidget {
           loc.tr('appTitle'),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          if (onOpenAlerts != null)
-            IconButton(
-              tooltip: loc.tr('safetyAlerts'),
-              icon: Badge(
-                isLabelVisible: (alertController?.unreadCount ?? 0) > 0,
-                label: Text('${alertController?.unreadCount ?? 0}'),
-                child: const Icon(Icons.shield_outlined),
-              ),
-              onPressed: onOpenAlerts,
-            ),
-          IconButton(
-            tooltip: loc.tr('schemeDirectory'),
-            icon: const Icon(Icons.menu_book_rounded),
-            onPressed: onOpenDirectory,
-          ),
-          IconButton(
-            tooltip: loc.tr('highContrast'),
-            icon: Icon(controller.highContrast ? Icons.contrast : Icons.contrast_outlined),
-            onPressed: () => controller.toggleHighContrast(),
-          ),
-          IconButton(
-            tooltip: loc.tr('fontSize'),
-            icon: Icon(controller.largeText ? Icons.text_fields : Icons.format_size),
-            onPressed: () => controller.toggleLargeText(),
-          ),
-          const SizedBox(width: 8),
-          LanguageSelector(loc: loc),
-          const SizedBox(width: 16),
-        ],
+        actions: isMobile
+            ? [
+                IconButton(
+                  tooltip: loc.tr('schemeDirectory'),
+                  icon: const Icon(Icons.menu_book_rounded),
+                  onPressed: onOpenDirectory,
+                ),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert_rounded),
+                  onSelected: (val) {
+                    if (val == 'contrast') controller.toggleHighContrast();
+                    if (val == 'font') controller.toggleLargeText();
+                    if (val == 'alerts' && onOpenAlerts != null) onOpenAlerts!();
+                  },
+                  itemBuilder: (ctx) => [
+                    if (onOpenAlerts != null)
+                      PopupMenuItem(
+                        value: 'alerts',
+                        child: Row(
+                          children: [
+                            Badge(
+                              isLabelVisible: (alertController?.unreadCount ?? 0) > 0,
+                              label: Text('${alertController?.unreadCount ?? 0}'),
+                              child: const Icon(Icons.shield_outlined, size: 20),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(loc.tr('safetyAlerts')),
+                          ],
+                        ),
+                      ),
+                    PopupMenuItem(
+                      value: 'contrast',
+                      child: Row(
+                        children: [
+                          Icon(controller.highContrast ? Icons.contrast : Icons.contrast_outlined, size: 20),
+                          const SizedBox(width: 10),
+                          Text(loc.tr('highContrast')),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'font',
+                      child: Row(
+                        children: [
+                          Icon(controller.largeText ? Icons.text_fields : Icons.format_size, size: 20),
+                          const SizedBox(width: 10),
+                          Text(loc.tr('fontSize')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 4),
+                LanguageSelector(loc: loc, compact: true),
+                const SizedBox(width: 10),
+              ]
+            : [
+                if (onOpenAlerts != null)
+                  IconButton(
+                    tooltip: loc.tr('safetyAlerts'),
+                    icon: Badge(
+                      isLabelVisible: (alertController?.unreadCount ?? 0) > 0,
+                      label: Text('${alertController?.unreadCount ?? 0}'),
+                      child: const Icon(Icons.shield_outlined),
+                    ),
+                    onPressed: onOpenAlerts,
+                  ),
+                IconButton(
+                  tooltip: loc.tr('schemeDirectory'),
+                  icon: const Icon(Icons.menu_book_rounded),
+                  onPressed: onOpenDirectory,
+                ),
+                IconButton(
+                  tooltip: loc.tr('highContrast'),
+                  icon: Icon(controller.highContrast ? Icons.contrast : Icons.contrast_outlined),
+                  onPressed: () => controller.toggleHighContrast(),
+                ),
+                IconButton(
+                  tooltip: loc.tr('fontSize'),
+                  icon: Icon(controller.largeText ? Icons.text_fields : Icons.format_size),
+                  onPressed: () => controller.toggleLargeText(),
+                ),
+                const SizedBox(width: 8),
+                LanguageSelector(loc: loc),
+                const SizedBox(width: 16),
+              ],
       ),
       body: Center(
         child: SingleChildScrollView(

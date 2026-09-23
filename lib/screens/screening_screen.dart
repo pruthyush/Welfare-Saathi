@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/screening_controller.dart';
 import '../services/localization_service.dart';
 import '../widgets/language_selector.dart';
+import '../widgets/ration_card_selector.dart';
 
 class ScreeningScreen extends StatefulWidget {
   final ScreeningController controller;
@@ -163,6 +164,7 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
 
               Expanded(
                 child: SingleChildScrollView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -377,6 +379,7 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
               child: TextFormField(
                 controller: _ageController,
                 keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   hintText: loc.tr('ageHint'),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -468,6 +471,7 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
           TextFormField(
             controller: _yearsController,
             keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               hintText: isMl ? 'ഉദാ: 6' : 'e.g. 6',
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -525,6 +529,7 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
         TextFormField(
           controller: _incomeController,
           keyboardType: TextInputType.number,
+          textInputAction: TextInputAction.done,
           decoration: InputDecoration(
             hintText: loc.tr('incomeHint'),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -542,36 +547,20 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
           loc.tr('rationCardLabel'),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        const SizedBox(height: 10),
-        DropdownButtonFormField<String?>(
-          value: _rationCardCategory,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            prefixIcon: const Icon(Icons.credit_card_outlined),
-            filled: true,
+        const SizedBox(height: 6),
+        Text(
+          isMl
+              ? 'നിങ്ങളുടെ റേഷൻ കാർഡിന്റെ നിറം തിരഞ്ഞെടുക്കുക'
+              : 'Select your Kerala Ration Card color cover',
+          style: TextStyle(
+            fontSize: 13,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.65),
           ),
-          items: [
-            DropdownMenuItem<String?>(
-              value: null,
-              child: Text(isMl ? 'തിരഞ്ഞെടുത്തിട്ടില്ല (രേഖപ്പെടുത്തിയിട്ടില്ല)' : 'Not answered / Unsure'),
-            ),
-            DropdownMenuItem<String?>(
-              value: 'AAY',
-              child: Text(isMl ? 'മഞ്ഞ കാർഡ് (AAY - അതീവ മുൻഗണന)' : 'Yellow Card (AAY - Antyodaya Anna Yojana)'),
-            ),
-            DropdownMenuItem<String?>(
-              value: 'PHH',
-              child: Text(isMl ? 'പിങ്ക് കാർഡ് (PHH - മുൻഗണന വിഭാഗം)' : 'Pink Card (PHH - Priority Household)'),
-            ),
-            DropdownMenuItem<String?>(
-              value: 'NPHH',
-              child: Text(isMl ? 'നീല കാർഡ് (NPHH - സബ്സിഡി ഇതര മുൻഗണന)' : 'Blue Card (NPHH - Non-Priority Subsidy)'),
-            ),
-            DropdownMenuItem<String?>(
-              value: 'Non-Priority',
-              child: Text(isMl ? 'വെള്ള കാർഡ് (പൊതു വിഭാഗം)' : 'White Card (Non-Priority / General)'),
-            ),
-          ],
+        ),
+        const SizedBox(height: 12),
+        RationCardSelector(
+          selectedCategory: _rationCardCategory,
+          isMalayalam: isMl,
           onChanged: (val) => setState(() => _rationCardCategory = val),
         ),
 

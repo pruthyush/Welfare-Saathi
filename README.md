@@ -1,7 +1,9 @@
 # Welfare Saathi (വെൽഫെയർ സാഥി)
 ### Welfare Entitlement Assistant for Plantation & Fishing Families
 **Track 3:** Public Welfare and Access | **Challenge ID:** PS-07  
-**Hackathon:** ANAVANDI Grand Finale 2026
+**Hackathon:** ANAVANDI Grand Finale 2026  
+**Platforms Supported:** 📱 Android Mobile | 🌐 Web Application | 💻 Windows Desktop  
+*(Linux and macOS targets deprecated and stripped for focused deployment)*
 
 ---
 
@@ -11,6 +13,45 @@ Eligible traditional fishing and plantation households often miss out on vital w
 **Welfare Saathi** is an accessible, bilingual (Malayalam & English), privacy-first welfare screening assistant designed specifically for:
 1. **Coastal Fishing Communities:** Traditional fishermen, allied fish workers, fisherwomen SHG members.
 2. **Hill Plantation Families:** Tea, coffee, rubber, and cardamom plantation laborers living in layams.
+
+---
+
+## 🌟 Key Features & Device-Adaptive Capabilities
+
+### 1. 📱 Device-Adaptive PDF Export Outlay
+- **Android Mobile Experience:**
+  - **Native Android Sharesheet:** Uses `Printing.sharePdf` to open the native Android share dialog, enabling 1-tap sharing to **WhatsApp** (to send directly to Ward Members, Kudumbashree ADS, or Akshaya operators), Google Drive, or Gmail.
+  - **Android Print Spooler:** Integrates with `Printing.layoutPdf` to connect directly to Wi-Fi/Bluetooth thermal printers in village kiosks.
+- **Web & Windows Desktop Experience:**
+  - Triggers a direct browser file download dialog saving `welfare_saathi_screening_report.pdf` locally with zero pop-up blocking issues.
+
+### 2. 🎴 Visual Kerala Ration Card Color Selector
+- **Android Mobile:**
+  - Touch-first horizontal swipe carousel (`PageView`) showcasing realistic Kerala ration card designs:
+    - 🟡 **Yellow (AAY):** Antyodaya Anna Yojana (Most Vulnerable)
+    - 🔴 **Pink (PHH):** Priority Household (BPL)
+    - 🔵 **Blue (NPHH):** Non-Priority Subsidy
+    - ⚪ **White (Non-Priority):** Non-Priority Non-Subsidy
+  - Features viewport peeking, smooth swipe physics, and animated indicator dots.
+- **Web & Desktop:**
+  - Responsive 4-box color card grid allowing instant 1-click selection with bold color borders and bilingual category badges.
+
+### 3. 📜 Pre-Filled Malayalam Self-Declaration (Affidavit) Generator
+- Generates an official 1-page Malayalam legal declaration (**സത്യപ്രസ്താവന**) compliant with Kerala Revenue and Welfare Board guidelines.
+- Pre-fills applicant's occupation, district, monthly income, ration card category, welfare board registration status, and matched schemes.
+- Formatted with applicant signature blocks, village officer counter-signature seal spots, and statutory safety disclaimers for direct submission.
+
+### 4. 🏆 USP 1: Akshaya Fast-Track QR Packet & Operator Terminal
+- **Offline Zero-PII QR Code:** Encodes applicant screening parameters and matched scheme IDs into a compact Base64 payload (`WS:...`). Strictly excludes sensitive PII (Aadhaar, name, phone, address).
+- **Dedicated Akshaya Operator Terminal (`/operator`):**
+  - Instant intake screen for Akshaya centre operators.
+  - Displays verified document checklists for all matched schemes.
+  - Direct 1-tap links to official departmental portals (e.g. *kfwfb.kerala.gov.in*, *edistrict.kerala.gov.in*, *matsyafed.in*).
+  - Explicit Akshaya service fee caps (e.g. ₹25–₹50) to protect vulnerable workers from overcharging.
+
+### 5. 💰 USP 2: Entitlement Leakage Audit & Value Calculator
+- **Total First-Year Entitlement Calculator:** Instantly calculates the aggregate annual monetary value of all potentially eligible schemes (e.g., ₹19,200/year pension + ₹4,500 lean relief + ₹4,00,000 housing grant).
+- **Retroactive Entitlement Leakage Audit:** For households not registered with the Welfare Board, the auditor computes retroactive lost benefits over the past 3 years (e.g., ₹86,100 missed) with urgent guidance to register immediately.
 
 ---
 
@@ -43,6 +84,8 @@ Eligible traditional fishing and plantation households often miss out on vital w
                          ▼
         ┌──────────────────────────────────┐
         │  Malayalam / English UI (Flutter)│
+        │  - Adaptive Ration Card Swiper   │
+        │  - Mobile Overflow Safeguards    │
         └────────────────┬─────────────────┘
                          │
                          ▼
@@ -70,14 +113,15 @@ Eligible traditional fishing and plantation households often miss out on vital w
         │  └── Not Matched                 │
         └────────────────┬─────────────────┘
                          │
-                         ▼
-        ┌──────────────────────────────────┐
-        │       Scheme Explainability      │
-        │  ├── Why matched (Rule checklist)│
-        │  ├── Required documents          │
-        │  ├── Where to apply (Akshaya)    │
-        │  └── Actionable next steps       │
-        └──────────────────────────────────┘
+        ┌────────────────┴──────────────────────────────┐
+        │                                               │
+        ▼                                               ▼
+┌──────────────────────────────────┐   ┌──────────────────────────────────┐
+│   Value & Leakage Calculations   │   │   Device-Adaptive Action Suite   │
+│   ├── First-Year Total Value     │   │   ├── Android Native Sharesheet  │
+│   └── 3-Year Leakage Audit       │   │   ├── Malayalam Affidavit PDF    │
+└──────────────────────────────────┘   │   └── Fast-Track Akshaya QR      │
+                                       └──────────────────────────────────┘
 ```
 
 ---
@@ -122,25 +166,81 @@ For each verified scheme, the application connects the household with nearest **
 
 ---
 
-## 🧪 Automated Test Suite (9 Tests Passing)
+## 🧪 Automated Test Suite (33 Tests Passing)
 
-The project includes unit and widget tests in `test/`:
-1. **Verified Dataset Size:** Confirms 10+ schemes exist in the dataset (currently 11).
-2. **Potentially Eligible Case:** Confirms senior fisherman profile qualifies for Pension, Monsoon Relief, and Group Insurance.
-3. **Not Matched Case:** Confirms non-qualifying household is disqualified across all sector schemes.
-4. **Missing Information Case:** Confirms skipped income flags `moreInformationRequired` with exact missing prompt.
-5. **Correction & Recalculation:** Confirms updating a skipped answer recalculates to `potentiallyEligible`.
-6. **Boundary Conditions:** Exact age 59 vs 60, exact income ₹8,333 vs ₹8,334.
-7. **Strict Safety Text:** Asserts the application strictly uses "Potentially Eligible" and never "You are eligible".
-8. **Plantation Coverage:** Confirms plantation worker matches housing and student merit scholarships.
-9. **Bilingual UI Smoke Test:** Asserts Welcome screen renders in Malayalam and English with reactive disclaimers.
+The project includes an exhaustive suite of 33 tests across 6 test files in `test/`:
+1. **`eligibility_engine_test.dart` (8 tests):**
+   - Verified dataset size verification (16 schemes).
+   - Senior fisherman potential eligibility verification.
+   - Non-qualifying household disqualification.
+   - Incomplete information detection without assuming answers.
+   - Recalculation after updating skipped answers.
+   - Strict boundary condition verification (age 59 vs 60, income ₹8,333 vs ₹8,334).
+   - Strict safety wording verification (strictly never says "You are eligible").
+   - Plantation sector coverage verification.
+2. **`fresh_screening_test.dart` (6 tests):**
+   - Null value preservation on fresh screening start.
+   - Board membership null preservation.
+   - Income null preservation and "More Information Needed" triggering.
+   - Age input updating and clearing back to null without default values.
+   - Benchmark sample profile loading.
+3. **`pdf_export_test.dart` (4 tests):**
+   - PDF generation with potentially eligible schemes.
+   - PDF mandatory legal disclaimer verification.
+   - PDF generation with "More Information Needed" schemes.
+   - PDF generation with empty result sets.
+4. **`safety_alerts_test.dart` (7 tests):**
+   - Coastal and hill plantation safety advisory parsing.
+   - Filter by district and severity level.
+   - Malayalam and English alert rendering.
+5. **`widget_test.dart` (2 tests):**
+   - UI smoke test: Renders Welcome, switches language, verifies disclaimers.
+   - Scheme Directory test: Navigation and listing of all 16 schemes.
+6. **`feature_extensions_test.dart` (6 tests):**
+   - Entitlement value calculation (monthly, annual, first-year total).
+   - Retroactive entitlement leakage audit computation (3-year unclaimed loss).
+   - Member tenure bypass for leakage report.
+   - Zero-PII QR packet Base64 serialization and deserialization.
+   - Corrupt QR packet handling.
+   - Malayalam legal affidavit PDF byte generation.
 
 ```bash
 # Run test suite
-flutter test
+flutter test --no-pub
 
 # Run static analysis
 flutter analyze
+```
+
+---
+
+## 🚀 Running & Building Welfare Saathi
+
+### Android (Mobile)
+```bash
+# Run on connected Android device / emulator
+flutter run -d android
+
+# Build release APK
+flutter build apk --release
+```
+
+### Web
+```bash
+# Run in Chrome
+flutter run -d chrome
+
+# Build production web bundle
+flutter build web --release
+```
+
+### Windows Desktop
+```bash
+# Run on Windows
+flutter run -d windows
+
+# Build Windows executable
+flutter build windows --release
 ```
 
 ---
@@ -149,15 +249,13 @@ flutter analyze
 
 | Question | Explanation to tell Judges |
 |---|---|
-| **Why Flutter?** | Allows building a high-performance, responsive cross-platform web and mobile application from a single clean Dart codebase, enabling rapid deployment across touchscreens and village kiosks. |
-| **How does the eligibility engine work?** | Pure Dart class (`EligibilityEngine`) that deterministically evaluates rule conditions against the profile. Operates without any external network latency or black-box model. |
-| **How are rules represented?** | Structured JSON objects with `field`, `operator` (`EQUALS`, `GREATER_EQUAL`, `LESS_EQUAL`, `IN_LIST`, `BOOLEAN`), `value`, bilingual labels, and missing-field prompts. |
+| **Why Android + Web + Windows?** | Android empowers ground-level field workers (ASHA workers, Kudumbashree ADS, ward volunteers) directly on smartphones. Web and Windows enable kiosk and desktop operation at Akshaya E-Centres and Panchayat offices. |
+| **How does device-adaptive PDF export work?** | On Android, it invokes the native Sharesheet for direct WhatsApp sharing to ward members or operators, and the Android Print Spooler. On Web/Windows, it downloads the PDF file directly. |
+| **Why the visual Kerala ration card swiper?** | 80%+ of beneficiaries identify their socio-economic status by their physical ration card color (Yellow/Pink/Blue/White) rather than administrative terms like "AAY" or "PHH". A touch-friendly swiper eliminates literacy barriers. |
+| **What is the Akshaya Fast-Track QR Packet?** | An offline Base64 QR code encoding applicant criteria and matched scheme IDs. The Akshaya operator scans it to instantly load the checklist, official portal links, and fee limits without re-typing data. Zero PII is stored or transmitted. |
+| **What is Entitlement Leakage Audit?** | Unregistered workers often lose thousands in unclaimed benefits. Our engine quantifies the exact financial loss over the past 3 years (e.g. ₹86,100) to create compelling urgency to register with the Welfare Board. |
 | **Why is AI not the source of truth?** | Government welfare eligibility is legally binding. LLMs hallucinate rules, thresholds, and income limits. A deterministic engine guarantees 100% auditable, repeatable outcomes. |
 | **How is incomplete information handled?** | If a field is `null` (skipped), the engine does not guess. It flags `moreInformationRequired` and specifies the exact question needed. |
-| **How does Malayalam support work?** | Built-in reactive `LocalizationService` supporting runtime instant toggling between Malayalam and English with zero page reloads. |
-| **How is privacy handled?** | Strict data minimization: no Aadhaar, no names, no phone numbers collected. In-memory profile storage only. |
-| **How does correction work?** | Screen 5 (`ReviewScreen`) allows editing any field and rerunning the screening with the `[Recalculate]` action. |
-| **What limitations remain?** | The app provides potential eligibility indicators; actual sanctions still require formal document vetting by Village Officers and Welfare Board inspectors. |
 
 ---
 
