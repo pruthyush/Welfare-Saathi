@@ -29,44 +29,51 @@ void main() {
     );
   });
 
-  group('AUTHENTICATION FLOW TESTS', () {
+  group('PHONE NUMBER AUTHENTICATION FLOW TESTS', () {
     test('1. Unauthenticated state is initial and reports no current user', () {
       expect(mockAuth.isAuthenticated, isFalse);
       expect(mockAuth.currentUser, isNull);
     });
 
-    test('2. Sign up with valid credentials authenticates user and issues UID', () async {
-      await mockAuth.signUpWithEmailPassword(
-        email: 'fisherman.alappuzha@example.com',
-        password: 'securePassword123',
-      );
+    test('2. Send OTP with valid 10-digit mobile number sets pending phone number with +91', () async {
+      await mockAuth.sendOtp(phoneNumber: '9847123456');
+
+      expect(mockAuth.pendingPhoneNumber, equals('+919847123456'));
+      expect(mockAuth.isAuthenticated, isFalse);
+    });
+
+    test('3. Verify OTP with valid 6-digit code authenticates user and sets display format', () async {
+      await mockAuth.sendOtp(phoneNumber: '9847123456');
+      await mockAuth.verifyOtp(otpCode: '123456');
 
       expect(mockAuth.isAuthenticated, isTrue);
       expect(mockAuth.currentUser, isNotNull);
-      expect(mockAuth.currentUser!.email, equals('fisherman.alappuzha@example.com'));
+      expect(mockAuth.currentUser!.phoneNumber, equals('+919847123456'));
+      expect(mockAuth.currentUser!.displayPhoneNumber, equals('+91 98471 23456'));
       expect(mockAuth.currentUser!.uid, isNotEmpty);
     });
 
-    test('3. Sign in with valid credentials authenticates user', () async {
-      await mockAuth.signInWithEmailPassword(
-        email: 'plantation.worker@example.com',
-        password: 'password123',
+    test('4. Direct sign-in helper authenticates user with phone and OTP', () async {
+      await mockAuth.signInWithPhoneNumber(
+        phoneNumber: '9447012345',
+        otp: '123456',
       );
 
       expect(mockAuth.isAuthenticated, isTrue);
-      expect(mockAuth.currentUser!.email, equals('plantation.worker@example.com'));
+      expect(mockAuth.currentUser!.phoneNumber, equals('+919447012345'));
     });
 
-    test('4. Sign out clears authentication state completely', () async {
-      await mockAuth.signInWithEmailPassword(
-        email: 'test@example.com',
-        password: 'password123',
+    test('5. Sign out clears authentication state completely', () async {
+      await mockAuth.signInWithPhoneNumber(
+        phoneNumber: '9847123456',
+        otp: '123456',
       );
       expect(mockAuth.isAuthenticated, isTrue);
 
       await mockAuth.signOut();
       expect(mockAuth.isAuthenticated, isFalse);
       expect(mockAuth.currentUser, isNull);
+      expect(mockAuth.pendingPhoneNumber, isNull);
     });
   });
 

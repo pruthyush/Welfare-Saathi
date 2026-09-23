@@ -161,7 +161,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           if (auth != null)
             if (isAuthenticated)
               PopupMenuButton<String>(
-                tooltip: currentUser?.email ?? 'User Account',
+                tooltip: currentUser?.displayPhoneNumber ?? 'User Account',
                 icon: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
@@ -176,13 +176,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.account_circle,
-                        size: 20,
+                        Icons.phone_android_rounded,
+                        size: 18,
                         color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        currentUser?.email.split('@').first ?? 'User',
+                        currentUser?.displayPhoneNumber ?? 'User',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -205,7 +205,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          currentUser?.email ?? '',
+                          currentUser?.displayPhoneNumber ?? '',
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                         const SizedBox(height: 2),
@@ -610,8 +610,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     const SizedBox(height: 2),
                     Text(
                       isMl
-                          ? 'അക്കൗണ്ട്: ${widget.authService?.currentUser?.email}'
-                          : 'Account: ${widget.authService?.currentUser?.email}',
+                          ? 'അക്കൗണ്ട്: ${widget.authService?.currentUser?.displayPhoneNumber}'
+                          : 'Account: ${widget.authService?.currentUser?.displayPhoneNumber}',
                       style: TextStyle(
                         fontSize: 12,
                         color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
@@ -784,8 +784,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     const SizedBox(height: 2),
                     Text(
                       isMl
-                          ? 'നിങ്ങൾ ലോഗിൻ ചെയ്തിട്ടുണ്ട് (${widget.authService?.currentUser?.email}). പരിശോധന പൂർത്തിയാക്കുമ്പോൾ വിവരങ്ങൾ തനിയെ സേവ് ആകും.'
-                          : 'Signed in as ${widget.authService?.currentUser?.email}. Complete screening once to save your profile.',
+                          ? 'നിങ്ങൾ ലോഗിൻ ചെയ്തിട്ടുണ്ട് (${widget.authService?.currentUser?.displayPhoneNumber}). പരിശോധന പൂർത്തിയാക്കുമ്പോൾ വിവരങ്ങൾ തനിയെ സേവ് ആകും.'
+                          : 'Signed in as ${widget.authService?.currentUser?.displayPhoneNumber}. Complete screening once to save your profile.',
                       style: const TextStyle(fontSize: 12),
                     ),
                   ],

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
 import '../services/localization_service.dart';
 
-/// Modal dialog for user authentication (Login / Sign Up).
+/// Modal dialog for Phone Number & OTP Authentication.
 ///
+/// Tailored for rural plantation workers and fisherfolk in Kerala.
 /// Strictly emphasizes that this account is for local profile saving and
 /// safety alerts, and does NOT constitute an official government registration.
 class AuthDialog extends StatefulWidget {
@@ -40,22 +42,22 @@ class AuthDialog extends StatefulWidget {
 }
 
 class _AuthDialogState extends State<AuthDialog> {
-  bool _isSignUp = false;
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _otpController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  bool _isOtpSent = false;
   bool _isLoading = false;
   String? _errorMessage;
-  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _phoneController.dispose();
+    _otpController.dispose();
     super.dispose();
   }
 
-  Future<void> _submit() async {
+  Future<void> _sendOtp() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -64,18 +66,42 @@ class _AuthDialogState extends State<AuthDialog> {
     });
 
     try {
-      if (_isSignUp) {
-        await widget.authService.signUpWithEmailPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-      } else {
-        await widget.authService.signInWithEmailPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
+      final raw = _phoneController.text.trim();
+      await widget.authService.sendOtp(phoneNumber: raw);
+      if (mounted) {
+        setState(() {
+          _isOtpSent = true;
+          _isLoading = false;
+        });
       }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
+  Future<void> _verifyOtp() async {
+    final otp = _otpController.text.trim();
+    if (otp.length != 6) {
+      setState(() {
+        _errorMessage = widget.loc.isMalayalam
+            ? 'ദയവായി 6 അക്ക ഒ.ടി.പി നൽകുക'
+            : 'Please enter a 6-digit OTP code';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await widget.authService.verifyOtp(otpCode: otp);
       if (mounted) {
         Navigator.pop(context);
         widget.onAuthenticated();
@@ -84,11 +110,8 @@ class _AuthDialogState extends State<AuthDialog> {
       if (mounted) {
         setState(() {
           _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _isLoading = false;
         });
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
       }
     }
   }
@@ -122,7 +145,7 @@ class _AuthDialogState extends State<AuthDialog> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
-                        Icons.lock_person_rounded,
+                        Icons.phone_android_rounded,
                         color: Color(0xFF006D77),
                         size: 26,
                       ),
@@ -133,19 +156,25 @@ class _AuthDialogState extends State<AuthDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _isSignUp
-                                ? (isMl ? 'പുതിയ അക്കൗണ്ട് തുറക്കുക' : 'Create User Account')
-                                : (isMl ? 'ലോഗിൻ ചെയ്യുക' : 'Sign In to Welfare Saathi'),
+                            _isOtpSent
+                                ? (isMl ? 'ഒ.ടി.പി നൽകുക' : 'Verify Mobile OTP')
+                                : (isMl
+                                    ? 'മൊബൈൽ നമ്പർ ഉപയോഗിച്ച് പ്രവേശിക്കുക'
+                                    : 'Sign In with Mobile Number'),
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 17,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            isMl
-                                ? 'നിങ്ങളുടെ വിവരങ്ങൾ സംരക്ഷിക്കാൻ'
-                                : 'Save & retrieve household screening answers',
+                            _isOtpSent
+                                ? (isMl
+                                    ? 'നിങ്ങളുടെ ഫോണിലേക്ക് അയച്ച കോഡ് നൽകുക'
+                                    : 'Enter the 6-digit verification code')
+                                : (isMl
+                                    ? 'വിവരങ്ങൾ സുരക്ഷിതമായി സൂക്ഷിക്കാൻ'
+                                    : 'Save & retrieve household answers'),
                             style: TextStyle(
                               fontSize: 12,
                               color: isDark ? Colors.white70 : Colors.grey[700],
@@ -181,8 +210,8 @@ class _AuthDialogState extends State<AuthDialog> {
                       Expanded(
                         child: Text(
                           isMl
-                                  ? 'ശ്രദ്ധിക്കുക: ഇത് ഉപയോക്താവിന്റെ വിവരങ്ങൾ സൂക്ഷിക്കുന്നതിനുള്ള അക്കൗണ്ട് മാത്രമാണ്. ഇത് സർക്കാരിന്റെ ഔദ്യോഗിക തിരിച്ചറിയലോ അനുമതിയോ അല്ല.'
-                                  : 'Notice: This account is exclusively for saving household screening details. It is NOT an official government identity or entitlement approval.',
+                              ? 'ശ്രദ്ധിക്കുക: ഇത് ഉപയോക്താവിന്റെ വിവരങ്ങൾ സൂക്ഷിക്കുന്നതിനുള്ള അക്കൗണ്ട് മാത്രമാണ്. ഇത് സർക്കാരിന്റെ ഔദ്യോഗിക തിരിച്ചറിയലോ അനുമതിയോ അല്ല.'
+                              : 'Notice: This account is exclusively for saving household screening details. It is NOT an official government identity or entitlement approval.',
                           style: TextStyle(
                             fontSize: 11,
                             color: isDark ? const Color(0xFFFFD166) : const Color(0xFF92400E),
@@ -220,110 +249,203 @@ class _AuthDialogState extends State<AuthDialog> {
                   const SizedBox(height: 14),
                 ],
 
-                // Email Field
-                Text(
-                  isMl ? 'ഇമെയിൽ വിലാസം' : 'Email Address',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: 'name@example.com',
-                    prefixIcon: const Icon(Icons.email_outlined, size: 20),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                // STEP 1: ENTER PHONE NUMBER
+                if (!_isOtpSent) ...[
+                  Text(
+                    isMl ? 'മൊബൈൽ നമ്പർ (10 അക്കം)' : 'Mobile Number (10 digits)',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return isMl ? 'ഇമെയിൽ നൽകുക' : 'Please enter email';
-                    }
-                    if (!val.contains('@') || !val.contains('.')) {
-                      return isMl ? 'ശരിയായ ഇമെയിൽ നൽകുക' : 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 14),
-
-                // Password Field
-                Text(
-                  isMl ? 'പാസ്‌വേഡ്' : 'Password',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    hintText: '••••••••',
-                    prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        size: 20,
-                      ),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                    ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  ),
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return isMl ? 'പാസ്‌വേഡ് നൽകുക' : 'Please enter password';
-                    }
-                    if (val.length < 6) {
-                      return isMl ? 'കുറഞ്ഞത് 6 അക്ഷരങ്ങൾ വേണം' : 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // Submit Button
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF006D77),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : Text(
-                          _isSignUp
-                              ? (isMl ? 'രജിസ്റ്റർ ചെയ്യുക' : 'Create Account')
-                              : (isMl ? 'പ്രവേശിക്കുക (Sign In)' : 'Sign In'),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  const SizedBox(height: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF262626) : const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF404040) : const Color(0xFFD1D5DB),
+                          ),
                         ),
-                ),
-                const SizedBox(height: 12),
-
-                // Switch between Login and Sign Up
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _isSignUp = !_isSignUp;
-                      _errorMessage = null;
-                    });
-                  },
-                  child: Text(
-                    _isSignUp
-                        ? (isMl
-                            ? 'ഇതിനകം അക്കൗണ്ട് ഉണ്ടോ? പ്രവേശിക്കുക'
-                            : 'Already have an account? Sign In')
-                        : (isMl
-                            ? 'പുതിയ ഉപയോക്താവാണോ? അക്കൗണ്ട് തുറക്കുക'
-                            : "New user? Create an account"),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        child: const Text(
+                          '🇮🇳 +91',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _phoneController,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          decoration: InputDecoration(
+                            hintText: '98765 43210',
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                          ),
+                          validator: (val) {
+                            if (val == null || val.trim().isEmpty) {
+                              return isMl ? 'മൊബൈൽ നമ്പർ നൽകുക' : 'Enter mobile number';
+                            }
+                            if (val.trim().length != 10) {
+                              return isMl ? '10 അക്ക നമ്പർ നൽകുക' : 'Enter 10 digits';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _sendOtp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF006D77),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : Text(
+                            isMl ? 'ഒ.ടി.പി അയക്കുക (Send OTP)' : 'Send OTP',
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ],
+
+                // STEP 2: ENTER OTP
+                if (_isOtpSent) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF262626) : const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF10B981) : const Color(0xFF059669),
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.check_circle_outline, color: Color(0xFF059669), size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              '+91 ${_phoneController.text.trim()}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _isOtpSent = false;
+                              _otpController.clear();
+                              _errorMessage = null;
+                            });
+                          },
+                          child: Text(
+                            isMl ? 'മാറ്റുക' : 'Change',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Hackathon demo test hint
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF006D77).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.lightbulb_outline, size: 16, color: Color(0xFF006D77)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isMl
+                                ? 'ഡെമോ പരിശോധനയ്ക്ക് ഒ.ടി.പി ആയി 123456 ഉപയോഗിക്കാം.'
+                                : 'Demo Tip: Use code 123456 or SMS OTP for evaluation.',
+                            style: const TextStyle(fontSize: 11.5, color: Color(0xFF006D77)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  Text(
+                    isMl ? '6 അക്ക ഒ.ടി.പി നൽകുക' : 'Enter 6-Digit OTP',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _otpController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 22, letterSpacing: 8, fontWeight: FontWeight.bold),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(6),
+                    ],
+                    decoration: InputDecoration(
+                      hintText: '••••••',
+                      hintStyle: const TextStyle(letterSpacing: 8),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _verifyOtp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF006D77),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : Text(
+                            isMl ? 'സ്ഥിരീകരിക്കുക (Verify & Sign In)' : 'Verify & Sign In',
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: _isLoading ? null : _sendOtp,
+                      icon: const Icon(Icons.refresh_rounded, size: 16),
+                      label: Text(
+                        isMl ? 'ഒ.ടി.പി വീണ്ടും അയക്കുക (Resend Code)' : 'Resend Code',
+                        style: const TextStyle(fontSize: 12.5),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

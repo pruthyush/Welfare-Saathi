@@ -54,7 +54,7 @@ class FirestoreProfileRepository implements ProfileRepository {
           .doc(uid)
           .set({
         'uid': uid,
-        'email': _authService.currentUser?.email ?? '',
+        'phoneNumber': _authService.currentUser?.phoneNumber ?? '',
         'updatedAt': FieldValue.serverTimestamp(),
         'householdProfile': profile.toMap(),
       }, SetOptions(merge: true));
