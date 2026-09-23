@@ -1,0 +1,124 @@
+[
+  {
+    "id": "profile-senior-fisherman",
+    "titleEn": "Senior Coastal Fisherman (Kochi)",
+    "titleMl": "മുതിർന്ന തീരദേശ മത്സ്യത്തൊഴിലാളി (കൊച്ചി)",
+    "descriptionEn": "62-year-old fisherman with 12 years of board membership, low income, holding Pink PHH card.",
+    "descriptionMl": "12 വർഷത്തെ ബോർഡ് അംഗത്വവും പിങ്ക് റേഷൻ കാർഡുമുള്ള 62 വയസ്സുള്ള മത്സ്യത്തൊഴിലാളി.",
+    "profile": {
+      "occupation": "fishing",
+      "age": 62,
+      "district": "Ernakulam",
+      "monthlyIncome": 7500,
+      "isBoardMember": true,
+      "yearsOfMembership": 12,
+      "rationCardCategory": "PHH",
+      "housingCondition": "kutcha",
+      "hasStudentChild": false,
+      "specialStatus": "none"
+    },
+    "expectedPotentialSchemeIds": [
+      "SCHEME-01",
+      "SCHEME-02",
+      "SCHEME-03",
+      "SCHEME-05",
+      "SCHEME-11"
+    ]
+  },
+  {
+    "id": "profile-plantation-parent",
+    "titleEn": "Tea Plantation Worker Family (Munnar)",
+    "titleMl": "തേയില തോട്ടം തൊഴിലാളി കുടുംബം (മൂന്നാർ)",
+    "descriptionEn": "42-year-old plantation worker with 7 years service, dilapidated layam accommodation, child in Plus-Two.",
+    "descriptionMl": "7 വർഷം സർവീസും ജീർണ്ണിച്ച ലയത്തിൽ താമസവും പ്ലസ് ടുവിൽ പഠിക്കുന്ന കുട്ടിയുമുള്ള തോട്ടം തൊഴിലാളി.",
+    "profile": {
+      "occupation": "plantation",
+      "age": 42,
+      "district": "Idukki",
+      "monthlyIncome": 9200,
+      "isBoardMember": true,
+      "yearsOfMembership": 7,
+      "rationCardCategory": "PHH",
+      "housingCondition": "dilapidated",
+      "hasStudentChild": true,
+      "specialStatus": "none"
+    },
+    "expectedPotentialSchemeIds": [
+      "SCHEME-06",
+      "SCHEME-07",
+      "SCHEME-08"
+    ]
+  },
+  {
+    "id": "profile-incomplete-screening",
+    "titleEn": "Incomplete Profile (Skipped Income & Housing)",
+    "titleMl": "അപൂർണ്ണമായ പ്രൊഫൈൽ (വരുമാന വിവരങ്ങൾ ഒഴിവാക്കിയത്)",
+    "descriptionEn": "Active fisherman who skipped monthly income and housing condition answers to test missing info detection.",
+    "descriptionMl": "വരുമാനവും വീടിന്റെ അവസ്ഥയും ഒഴിവാക്കിയ സജീവ മത്സ്യത്തൊഴിലാളി.",
+    "profile": {
+      "occupation": "fishing",
+      "age": 61,
+      "district": "Alappuzha",
+      "monthlyIncome": null,
+      "isBoardMember": true,
+      "yearsOfMembership": 8,
+      "rationCardCategory": "PHH",
+      "housingCondition": null,
+      "hasStudentChild": false,
+      "specialStatus": "none"
+    },
+    "expectedPotentialSchemeIds": [
+      "SCHEME-02",
+      "SCHEME-05",
+      "SCHEME-11"
+    ],
+    "expectedIncompleteSchemeIds": [
+      "SCHEME-01",
+      "SCHEME-03"
+    ]
+  },
+  {
+    "id": "profile-widowed-plantation",
+    "titleEn": "Destitute Widow Plantation Worker (Wayanad)",
+    "titleMl": "നിരാലംബയായ വിധവ തോട്ടം തൊഴിലാളി (വയനാട്)",
+    "descriptionEn": "54-year-old widowed plantation laborer residing in Meppadi.",
+    "descriptionMl": "മേപ്പാടിയിൽ താമസിക്കുന്ന 54 വയസ്സുള്ള വിധവയായ തോട്ടം തൊഴിലാളി.",
+    "profile": {
+      "occupation": "plantation",
+      "age": 54,
+      "district": "Wayanad",
+      "monthlyIncome": 6500,
+      "isBoardMember": true,
+      "yearsOfMembership": 5,
+      "rationCardCategory": "AAY",
+      "housingCondition": "dilapidated",
+      "hasStudentChild": false,
+      "specialStatus": "widowed"
+    },
+    "expectedPotentialSchemeIds": [
+      "SCHEME-06",
+      "SCHEME-08",
+      "SCHEME-10"
+    ]
+  },
+  {
+    "id": "profile-not-matched",
+    "titleEn": "Ineligible / Other Sector Worker",
+    "titleMl": "മറ്റ് മേഖലയിലെ തൊഴിലാളി (അർഹതയില്ലാത്തത്)",
+    "descriptionEn": "General private sector employee with higher income and no board registration.",
+    "descriptionMl": "ക്ഷേമനിധി അംഗത്വമില്ലാത്ത ഉയർന്ന വരുമാനമുള്ള സ്വകാര്യ ജീവനക്കാരൻ.",
+    "profile": {
+      "occupation": "other",
+      "age": 35,
+      "district": "Ernakulam",
+      "monthlyIncome": 45000,
+      "isBoardMember": false,
+      "yearsOfMembership": 0,
+      "rationCardCategory": "Non-Priority",
+      "housingCondition": "pucca",
+      "hasStudentChild": false,
+      "specialStatus": "none"
+    },
+    "expectedPotentialSchemeIds": []
+  }
+]

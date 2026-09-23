@@ -1,0 +1,1250 @@
+[
+  {
+    "id": "SCHEME-01",
+    "nameEn": "Matsyathozhilali Old Age Pension Scheme",
+    "nameMl": "മത്സ്യത്തൊഴിലാളി വാർദ്ധക്യകാല പെൻഷൻ പദ്ധതി",
+    "departmentEn": "Kerala Fishermen's Welfare Fund Board (Matsyaboard)",
+    "departmentMl": "കേരള മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി ബോർഡ് (മത്സ്യബോർഡ്)",
+    "category": "fishing",
+    "descriptionEn": "Monthly pension support of ₹1,600 provided to senior traditional fishermen and allied fish workers who have completed active service and board registration.",
+    "descriptionMl": "നിശ്ചിത കാലയളവ് ക്ഷേമനിധിയിൽ അംഗത്വമുള്ള മുതിർന്ന മത്സ്യത്തൊഴിലാളികൾക്കും അനുബന്ധ തൊഴിലാളികൾക്കും പ്രതിമാസം ₹1,600 പെൻഷൻ നൽകുന്ന പദ്ധതി.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Primary occupation must be Fishing or Allied fish work",
+        "labelMl": "പ്രധാന തൊഴിൽ മത്സ്യബന്ധനം അല്ലെങ്കിൽ അനുബന്ധ തൊഴിൽ ആയിരിക്കണം",
+        "missingPromptEn": "Primary household occupation is needed to verify this scheme.",
+        "missingPromptMl": "ഈ പദ്ധതി പരിശോധിക്കാൻ പ്രധാന തൊഴിൽ ആവശ്യമാണ്."
+      },
+      {
+        "field": "age",
+        "operator": "GREATER_EQUAL",
+        "value": 60,
+        "labelEn": "Applicant age must be 60 years or older",
+        "labelMl": "അപേക്ഷകന്റെ പ്രായം 60 വയസ്സോ അതിൽ കൂടുതലോ ആയിരിക്കണം",
+        "missingPromptEn": "Applicant age is needed to check pension eligibility.",
+        "missingPromptMl": "പെൻഷൻ അർഹത പരിശോധിക്കാൻ അപേക്ഷകന്റെ പ്രായം ആവശ്യമാണ്."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be a registered member of Kerala Fishermen's Welfare Fund Board",
+        "labelMl": "കേരള മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി ബോർഡിൽ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Welfare board registration status is required.",
+        "missingPromptMl": "ക്ഷേമനിധി ബോർഡ് അംഗത്വ വിവരം ആവശ്യമാണ്."
+      },
+      {
+        "field": "yearsOfMembership",
+        "operator": "GREATER_EQUAL",
+        "value": 5,
+        "labelEn": "Must have at least 5 years of active Board membership",
+        "labelMl": "കുറഞ്ഞത് 5 വർഷത്തെ സജീവ ബോർഡ് അംഗത്വം ഉണ്ടായിരിക്കണം",
+        "missingPromptEn": "Years of board membership are required.",
+        "missingPromptMl": "ബോർഡ് അംഗത്വ കാലാവധി എത്ര വർഷമാണെന്ന് വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "monthlyIncome",
+        "operator": "LESS_EQUAL",
+        "value": 8333,
+        "labelEn": "Monthly household income must be ₹8,333 or below (Annual < ₹1,00,000)",
+        "labelMl": "പ്രതിമാസ കുടുംബ വരുമാനം ₹8,333 അല്ലെങ്കിൽ അതിൽ താഴെയായിരിക്കണം (വാർഷിക വരുമാനം ₹1,00,000 ൽ താഴെ)",
+        "missingPromptEn": "Monthly household income is required to check this income ceiling.",
+        "missingPromptMl": "വരുമാന പരിധി പരിശോധിക്കാൻ പ്രതിമാസ കുടുംബ വരുമാനം ആവശ്യമാണ്."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Fishermen Welfare Fund Board Passbook & Membership Card",
+      "Age Proof (Aadhaar / Voter ID / SSLC Certificate)",
+      "Annual Income Certificate issued by Village Officer",
+      "Bank Passbook copy (linked with Aadhaar)",
+      "Passport size photographs (2 copies)"
+    ],
+    "requiredDocumentsMl": [
+      "മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി ബോർഡ് പാസ്സ്ബുക്കും അംഗത്വ കാർഡും",
+      "വയസ്സ് തെളിയിക്കുന്ന രേഖ (ആധാർ / വോട്ടർ ഐഡി / സ്കൂൾ സർട്ടിഫിക്കറ്റ്)",
+      "വില്ലേജ് ഓഫീസർ നൽകിയ വരുമാന സർട്ടിഫിക്കറ്റ്",
+      "ആധാർ ലിങ്ക് ചെയ്ത ബാങ്ക് പാസ്സ്ബുക്ക് പകർപ്പ്",
+      "പാസ്പോർട്ട് സൈസ് ഫോട്ടോകൾ (2 എണ്ണം)"
+    ],
+    "applicationChannelsEn": [
+      "Nearest Akshaya E-Centre",
+      "Regional Fisheries / Matsyaboard Office",
+      "Kerala e-Services Portal (sevana.gov.in)"
+    ],
+    "applicationChannelsMl": [
+      "സമീപത്തുള്ള അക്ഷയ ഇ-കേന്ദ്രം",
+      "മേഖലാ ഫിഷറീസ് / മത്സ്യബോർഡ് ഓഫീസ്",
+      "കേരള ഇ-സർവീസസ് പോർട്ടൽ (sevana.gov.in)"
+    ],
+    "nextStepsEn": [
+      "Step 1: Collect your Welfare Fund Passbook and ensure all subscription arrears are cleared.",
+      "Step 2: Obtain an Income Certificate from your local Village Office (online via Akshaya).",
+      "Step 3: Submit application at your Regional Matsyaboard Office or through Akshaya.",
+      "Step 4: Keep the acknowledgement slip for verification and field officer inspection."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: ക്ഷേമനിധി പാസ്സ്ബുക്ക് എടുത്ത് വരിസംഖ്യ കുടിശ്ശിക തീർത്തിട്ടുണ്ടെന്ന് ഉറപ്പാക്കുക.",
+      "ഘട്ടം 2: അക്ഷയ വഴി വില്ലേജ് ഓഫീസിൽ നിന്ന് വരുമാന സർട്ടിഫിക്കറ്റ് നേടുക.",
+      "ഘട്ടം 3: പ്രാദേശിക മത്സ്യബോർഡ് ഓഫീസിലോ അക്ഷയ വഴിയോ അപേക്ഷ സമർപ്പിക്കുക.",
+      "ഘട്ടം 4: തുടർപരിശോധനകൾക്കായി അക്നോളജ്മെന്റ് രസീത് സൂക്ഷിക്കുക."
+    ],
+    "sourceOfficial": "https://fisheries.kerala.gov.in / GO (P) No. 42/2021/F&PD",
+    "disclaimer": "Potential eligibility indication based on official Kerala Fishermen Welfare rules. Final approval subject to verification by Matsyaboard Fisheries Officer."
+  },
+  {
+    "id": "SCHEME-02",
+    "nameEn": "Fishermen Lean Period & Trawling Ban Relief Scheme",
+    "nameMl": "ട്രോളിംഗ് നിരോധന/മൺസൂൺ കാല ആശ്വാസ ധനസഹായം",
+    "departmentEn": "Department of Fisheries, Government of Kerala",
+    "departmentMl": "ഫിഷറീസ് വകുപ്പ്, കേരള സർക്കാർ",
+    "category": "fishing",
+    "descriptionEn": "Financial assistance and subsidized food grains during the annual monsoon trawling ban and adverse weather lean periods for traditional fishing families.",
+    "descriptionMl": "മൺസൂൺ ട്രോളിംഗ് നിരോധന കാലത്തും കടൽക്ഷോഭ സമയത്തും പരമ്പരാഗത മത്സ്യത്തൊഴിലാളി കുടുംബങ്ങൾക്ക് നൽകുന്ന സാമ്പത്തിക ആശ്വാസവും റേഷൻ സഹായവും.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Primary occupation must be Fishing",
+        "labelMl": "പ്രധാന തൊഴിൽ മത്സ്യബന്ധനം ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to verify lean period relief.",
+        "missingPromptMl": "ആശ്വാസ ധനസഹായം പരിശോധിക്കാൻ തൊഴിൽ ആവശ്യമാണ്."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be an active registered member of the Fishermen Board",
+        "labelMl": "മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധിയിൽ അംഗത്വമുണ്ടായിരിക്കണം",
+        "missingPromptEn": "Board registration is required for relief dole.",
+        "missingPromptMl": "ധനസഹായത്തിന് ക്ഷേമനിധി അംഗത്വം ആവശ്യമാണ്."
+      },
+      {
+        "field": "rationCardCategory",
+        "operator": "IN_LIST",
+        "value": ["AAY", "PHH", "NPHH"],
+        "labelEn": "Must hold an eligible Ration Card (Yellow / Pink / Blue)",
+        "labelMl": "അർഹതയുള്ള റേഷൻ കാർഡ് (മഞ്ഞ / പിങ്ക് / നീല) ഉണ്ടായിരിക്കണം",
+        "missingPromptEn": "Ration card category is needed to verify lean relief.",
+        "missingPromptMl": "ആശ്വാസ സഹായം പരിശോധിക്കാൻ റേഷൻ കാർഡ് വിഭാഗം ആവശ്യമാണ്."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Valid Ration Card (Yellow AAY / Pink PHH / Blue NPHH)",
+      "Fishermen Welfare Board Identity Card",
+      "Active Bank Account Passbook copy (IFSC & Account number)",
+      "Biometric Fisheries Biometric ID card (if issued)"
+    ],
+    "requiredDocumentsMl": [
+      "സാധുവായ റേഷൻ കാർഡ് (മഞ്ഞ / പിങ്ക് / നീല)",
+      "മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി തിരിച്ചറിയൽ കാർഡ്",
+      "ബാങ്ക് പാസ്സ്ബുക്ക് പകർപ്പ് (IFSC നമ്പറോടു കൂടി)",
+      "ഫിഷറീസ് ബയോമെട്രിക് കാർഡ് (ലഭിച്ചിട്ടുണ്ടെങ്കിൽ)"
+    ],
+    "applicationChannelsEn": [
+      "Matsyabhavan (Village Fisheries Extension Office)",
+      "Nearest Akshaya E-Centre",
+      "Fisheries Department Portal (fisheries.kerala.gov.in)"
+    ],
+    "applicationChannelsMl": [
+      "മത്സ്യഭവൻ (വില്ലേജ് ഫിഷറീസ് ഓഫീസ്)",
+      "സമീപത്തുള്ള അക്ഷയ കേന്ദ്രം",
+      "ഫിഷറീസ് വകുപ്പ് പോർട്ടൽ"
+    ],
+    "nextStepsEn": [
+      "Step 1: Check your name in the draft relief beneficiary list published at the local Matsyabhavan before May 15.",
+      "Step 2: Submit any missing bank account or ration card details at Akshaya or Matsyabhavan.",
+      "Step 3: Financial assistance will be directly credited (DBT) to the linked bank account."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: മെയ് 15-ന് മുൻപ് മത്സ്യഭവനിൽ പ്രസിദ്ധീകരിക്കുന്ന കരട് ഗുണഭോക്തൃ പട്ടിക പരിശോധിക്കുക.",
+      "ഘട്ടം 2: റേഷൻ കാർഡ് അല്ലെങ്കിൽ ബാങ്ക് വിവരങ്ങൾ അക്ഷയ വഴിയോ മത്സ്യഭവനിലോ നൽകുക.",
+      "ഘട്ടം 3: അനുവദിക്കപ്പെടുന്ന തുക ബാങ്ക് അക്കൗണ്ടിലേക്ക് നേരിട്ട് (DBT) എത്തും."
+    ],
+    "sourceOfficial": "Fisheries Directorate Notification No. DFPR/2023/RELIEF",
+    "disclaimer": "Potential eligibility indication based on Kerala Fisheries guidelines. Final disbursement depends on annual state treasury allocation."
+  },
+  {
+    "id": "SCHEME-03",
+    "nameEn": "Matsya Theeram Coastal Housing Scheme",
+    "nameMl": "മത്സ്യത്തീരം സുരക്ഷിത തീരദേശ ഭവന പദ്ധതി",
+    "departmentEn": "Department of Fisheries & LIFE Mission Kerala",
+    "departmentMl": "ഫിഷറീസ് വകുപ്പും ലൈഫ് മിഷനും, കേരള സർക്കാർ",
+    "category": "fishing",
+    "descriptionEn": "Financial grant of up to ₹4,00,000 for constructing disaster-resilient permanent housing for land-owning homeless fishermen within coastal panchayats.",
+    "descriptionMl": "തീരദേശ പഞ്ചായത്തുകളിൽ ഭൂമിയുള്ള ഭവനരഹിതരായ മത്സ്യത്തൊഴിലാളികൾക്ക് സുരക്ഷിത ഭവനം നിർമ്മിക്കാൻ ₹4,00,000 വരെ ധനസഹായം.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Primary occupation must be Fishing",
+        "labelMl": "പ്രധാന തൊഴിൽ മത്സ്യബന്ധനം ആയിരിക്കണം",
+        "missingPromptEn": "Household occupation must be specified.",
+        "missingPromptMl": "കുടുംബത്തിന്റെ പ്രധാന തൊഴിൽ രേഖപ്പെടുത്തണം."
+      },
+      {
+        "field": "housingCondition",
+        "operator": "IN_LIST",
+        "value": ["homeless", "dilapidated", "kutcha"],
+        "labelEn": "Household must be homeless or residing in dilapidated/kutcha shelter",
+        "labelMl": "ഭവനരഹിതരോ അല്ലെങ്കിൽ ജീർണ്ണിച്ച/താൽക്കാലിക കൂരകളിൽ താമസിക്കുന്നവരോ ആയിരിക്കണം",
+        "missingPromptEn": "Current housing condition is required.",
+        "missingPromptMl": "നിലവിലെ ഭവന സ്ഥിതി വ്യക്തമാക്കേണ്ടതുണ്ട്."
+      },
+      {
+        "field": "monthlyIncome",
+        "operator": "LESS_EQUAL",
+        "value": 12500,
+        "labelEn": "Monthly income must not exceed ₹12,500 (Annual < ₹1,50,000)",
+        "labelMl": "പ്രതിമാസ വരുമാനം ₹12,500 കവിയരുത് (വാർഷിക വരുമാനം ₹1.5 ലക്ഷത്തിൽ താഴെ)",
+        "missingPromptEn": "Monthly household income is required.",
+        "missingPromptMl": "കുടുംബ വരുമാനം രേഖപ്പെടുത്തണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be registered with the Fishermen Welfare Fund Board",
+        "labelMl": "മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി ബോർഡിൽ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Board membership confirmation is required.",
+        "missingPromptMl": "ക്ഷേമനിധി ബോർഡ് അംഗത്വ വിവരം ആവശ്യമാണ്."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Land Ownership Deed (Patta/Thandapper) or Certificate of Possession",
+      "Non-ownership of Pucca House certificate from Grama Panchayat Secretary",
+      "Income Certificate from Village Officer",
+      "Fishermen Welfare Fund Passbook",
+      "Ration Card copy",
+      "Approved building plan estimate (obtained after initial sanction)"
+    ],
+    "requiredDocumentsMl": [
+      "ഭൂമിയുടെ ഉടമസ്ഥാവകാശ രേഖ (പട്ടയം/തണ്ടപ്പേര്) അല്ലെങ്കിൽ കൈവശാവകാശ സർട്ടിഫിക്കറ്റ്",
+      "പഞ്ചായത്ത് സെക്രട്ടറി നൽകുന്ന സ്വന്തമായി വാസയോഗ്യമായ വീടില്ലെന്ന സാക്ഷ്യപത്രം",
+      "വില്ലേജ് ഓഫീസറുടെ വരുമാന സർട്ടിഫിക്കറ്റ്",
+      "മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി പാസ്സ്ബുക്ക്",
+      "റേഷൻ കാർഡ് പകർപ്പ്",
+      "അംഗീകൃത ഭവന പ്ലാൻ"
+    ],
+    "applicationChannelsEn": [
+      "Local Grama Panchayat / Municipality Office",
+      "LIFE Mission District Coordinator Office",
+      "Akshaya E-Centre"
+    ],
+    "applicationChannelsMl": [
+      "ഗ്രാമപഞ്ചായത്ത് / മുനിസിപ്പാലിറ്റി ഓഫീസ്",
+      "ലൈഫ് മിഷൻ ജില്ലാ കോർഡിനേറ്റർ ഓഫീസ്",
+      "അക്ഷയ ഇ-കേന്ദ്രം"
+    ],
+    "nextStepsEn": [
+      "Step 1: Check your priority ranking in the LIFE Mission Coastal Beneficiary list at your Panchayat.",
+      "Step 2: Submit land documents and non-encumbrance certificate.",
+      "Step 3: Sign the 4-stage construction agreement with Grama Panchayat once approved."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: പഞ്ചായത്തിലെ ലൈഫ് മിഷൻ തീരദേശ മുൻഗണനാ പട്ടിക പരിശോധിക്കുക.",
+      "ഘട്ടം 2: ഭൂമിയുടെ ആധാരവും ബാധ്യതാ രഹിത സർട്ടിഫിക്കറ്റും ഹാജരാക്കുക.",
+      "ഘട്ടം 3: അനുമതി ലഭിച്ചാൽ പഞ്ചായത്തുമായി 4 ഘട്ടങ്ങളായുള്ള നിർമ്മാണ കരാർ ഒപ്പുവെയ്ക്കുക."
+    ],
+    "sourceOfficial": "LIFE Mission Kerala Guidelines & Fisheries Coastal Scheme",
+    "disclaimer": "Potential eligibility indication based on state housing norms. Final sanction depends on Grama Sabha selection and site inspection."
+  },
+  {
+    "id": "SCHEME-04",
+    "nameEn": "Matsyakanya & Fishermen Children Higher Education Scholarship",
+    "nameMl": "മത്സ്യത്തൊഴിലാളി മക്കൾക്കുള്ള ഉന്നതവിദ്യാഭ്യാസ സ്കോളർഷിപ്പ്",
+    "departmentEn": "Kerala Fishermen's Welfare Fund Board",
+    "departmentMl": "കേരള മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി ബോർഡ്",
+    "category": "fishing",
+    "descriptionEn": "Annual scholarship and hostel fees reimbursement for children of registered fishermen pursuing professional degrees (MBBS, BDS, B.Tech, Nursing) and General Graduation.",
+    "descriptionMl": "രജിസ്റ്റർ ചെയ്ത മത്സ്യത്തൊഴിലാളികളുടെ പ്രൊഫഷണൽ, ഡിഗ്രി കോഴ്സുകൾ പഠിക്കുന്ന മക്കൾക്കുള്ള വാർഷിക ഫീസ് സഹായവും ഹോസ്റ്റൽ അലവൻസും.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Parent must be a traditional fisherman or allied fish worker",
+        "labelMl": "മാതാപിതാക്കളിൽ ഒരാൾ മത്സ്യത്തൊഴിലാളി ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to check education aid.",
+        "missingPromptMl": "വിദ്യാഭ്യാസ സഹായത്തിന് രക്ഷിതാവിന്റെ തൊഴിൽ രേഖപ്പെടുത്തണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Parent must be an active member of Matsyaboard",
+        "labelMl": "രക്ഷിതാവ് മത്സ്യബോർഡിൽ സജീവ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Welfare board membership details needed.",
+        "missingPromptMl": "ക്ഷേമനിധി അംഗത്വ വിവരങ്ങൾ ആവശ്യമാണ്."
+      },
+      {
+        "field": "hasStudentChild",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Household must have a student dependent enrolled in Higher Secondary or College",
+        "labelMl": "കുടുംബത്തിൽ ഹയർ സെക്കൻഡറിയിലോ കോളേജിലോ പഠിക്കുന്ന വിദ്യാർത്ഥി ഉണ്ടായിരിക്കണം",
+        "missingPromptEn": "Information on student dependent is required.",
+        "missingPromptMl": "പഠിക്കുന്ന കുട്ടികളുടെ വിവരങ്ങൾ വ്യക്തമാക്കേണ്ടതുണ്ട്."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Parent's Fishermen Welfare Fund Membership Passbook",
+      "Student's College / Institute Bona Fide Certificate with Course Details",
+      "Allotment Memo (KEAM / Centralized Allotment) for Merit Seats",
+      "Fee Receipt issued by the College",
+      "Student's Bank Account details (Aadhaar linked)"
+    ],
+    "requiredDocumentsMl": [
+      "രക്ഷിതാവിന്റെ മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി പാസ്സ്ബുക്ക്",
+      "വിദ്യാർത്ഥി പഠിക്കുന്ന കോളേജിൽ നിന്നുള്ള ബോണഫൈഡ് സർട്ടിഫിക്കറ്റ്",
+      "അലോട്ട്മെന്റ് മെമ്മോ (മെറിറ്റ് സീറ്റുകൾക്ക്)",
+      "കോളേജിൽ ഫീസ് അടച്ച രസീത്",
+      "വിദ്യാർത്ഥിയുടെ ആധാർ ലിങ്ക് ചെയ്ത ബാങ്ക് പാസ്സ്ബുക്ക്"
+    ],
+    "applicationChannelsEn": [
+      "Regional Fisheries Executive Officer Office",
+      "Kerala Matsyaboard Online Portal (matsyaboard.bihar.gov.in / egreams)",
+      "Akshaya E-Centres"
+    ],
+    "applicationChannelsMl": [
+      "മേഖലാ ഫിഷറീസ് എക്സിക്യൂട്ടീവ് ഓഫീസർ കാര്യാലയം",
+      "മത്സ്യബോർഡ് ഓൺലൈൻ പോർട്ടൽ",
+      "അക്ഷയ കേന്ദ്രങ്ങൾ"
+    ],
+    "nextStepsEn": [
+      "Step 1: Obtain the Bona Fide Study Certificate countersigned by your College Principal.",
+      "Step 2: Submit the application within 45 days of college admission reopening.",
+      "Step 3: Verification is done by the Fisheries Extension Officer."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: പ്രിൻസിപ്പൽ ഒപ്പിട്ട ബോണഫൈഡ് സ്റ്റഡി സർട്ടിഫിക്കറ്റ് വാങ്ങുക.",
+      "ഘട്ടം 2: കോളേജ് പ്രവേശനം തുടങ്ങി 45 ദിവസത്തിനകം അപേക്ഷ സമർപ്പിക്കുക.",
+      "ഘട്ടം 3: ഫിഷറീസ് എക്സ്റ്റൻഷൻ ഓഫീസർ പരിശോധിച്ച് തുക അനുവദിക്കും."
+    ],
+    "sourceOfficial": "Matsyaboard Education Scheme Rules Clause 18",
+    "disclaimer": "Potential eligibility indication based on Matsyaboard norms. Final scholarship depends on admission category and course verification."
+  },
+  {
+    "id": "SCHEME-05",
+    "nameEn": "Fishermen Group Accident Insurance Scheme",
+    "nameMl": "മത്സ്യത്തൊഴിലാളി ഗ്രൂപ്പ് അപകട ഇൻഷുറൻസ് പദ്ധതി",
+    "departmentEn": "Department of Fisheries / National Fisheries Development Board (NFDB)",
+    "departmentMl": "ഫിഷറീസ് വകുപ്പ് / കേന്ദ്ര-സംസ്ഥാന സംയുക്ത പദ്ധതി",
+    "category": "fishing",
+    "descriptionEn": "Free accident insurance coverage of up to ₹5,00,000 for accidental death or permanent total disability, and ₹2,50,000 for partial disability during fishing operations.",
+    "descriptionMl": "കടലിലോ ഉൾനാടൻ ജലാശയങ്ങളിലോ ഉണ്ടാകുന്ന അപകട മരണത്തിന് ₹5 ലക്ഷവും സ്ഥിര അംഗവൈകല്യത്തിന് ₹2.5 ലക്ഷവും നൽകുന്ന ഇൻഷുറൻസ്.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Primary occupation must be Fishing / Allied aquatic worker",
+        "labelMl": "പ്രധാന തൊഴിൽ മത്സ്യബന്ധനം അല്ലെങ്കിൽ അനുബന്ധ തൊഴിൽ ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to check insurance coverage.",
+        "missingPromptMl": "ഇൻഷുറൻസ് പരിരക്ഷയ്ക്ക് തൊഴിൽ ആവശ്യമാണ്."
+      },
+      {
+        "field": "age",
+        "operator": "GREATER_EQUAL",
+        "value": 18,
+        "labelEn": "Applicant age must be at least 18 years",
+        "labelMl": "അപേക്ഷകന്റെ പ്രായം കുറഞ്ഞത് 18 വയസ്സായിരിക്കണം",
+        "missingPromptEn": "Age is required for insurance age brackets.",
+        "missingPromptMl": "ഇൻഷുറൻസ് നിബന്ധനകൾക്ക് പ്രായം ആവശ്യമാണ്."
+      },
+      {
+        "field": "age",
+        "operator": "LESS_EQUAL",
+        "value": 70,
+        "labelEn": "Applicant age must be 70 years or below",
+        "labelMl": "അപേക്ഷകന്റെ പ്രായം 70 വയസ്സിൽ കവിയരുത്",
+        "missingPromptEn": "Age is required to check insurance ceiling.",
+        "missingPromptMl": "പരമാവധി പ്രായപരിധി പരിശോധിക്കാൻ പ്രായം ആവശ്യമാണ്."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be an active member of the Fishermen Welfare Fund Board",
+        "labelMl": "മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി ബോർഡിൽ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Board membership confirmation is required.",
+        "missingPromptMl": "ക്ഷേമനിധി ബോർഡ് അംഗത്വ വിവരം ആവശ്യമാണ്."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Welfare Board Registration Card with up-to-date stamp",
+      "Fisheries Identity Card / Coastal Biometric Card",
+      "Nominee Details (Aadhaar & Bank Account of spouse/dependents)",
+      "First Information Report (FIR) and Medical Disability Certificate (in case of claim)"
+    ],
+    "requiredDocumentsMl": [
+      "കുടിശ്ശികയില്ലാത്ത ക്ഷേമനിധി അംഗത്വ കാർഡ്",
+      "തീരദേശ ബയോമെട്രിക് കാർഡ്",
+      "നോമിനിയുടെ ആധാർ കാർഡും ബാങ്ക് പാസ്സ്ബുക്കും",
+      "അപകടമുണ്ടായാൽ എഫ്.ഐ.ആറും മെഡിക്കൽ സർട്ടിഫിക്കറ്റും"
+    ],
+    "applicationChannelsEn": [
+      "Automatic enrollment upon paying annual Matsyaboard subscription",
+      "Matsyabhavan Office",
+      "Fisheries Deputy Director Office"
+    ],
+    "applicationChannelsMl": [
+      "ക്ഷേമനിധി വാർഷിക വരിസംഖ്യ അടയ്ക്കുന്നതിലൂടെ യാന്ത്രികമായി എൻറോൾ ചെയ്യപ്പെടുന്നു",
+      "മത്സ്യഭവൻ ഓഫീസ്",
+      "ഫിഷറീസ് ഡെപ്യൂട്ടി ഡയറക്ടർ ഓഫീസ്"
+    ],
+    "nextStepsEn": [
+      "Step 1: Ensure your annual board subscription fee is paid before March 31.",
+      "Step 2: Register your verified nominee name in the Matsyaboard records.",
+      "Step 3: In unfortunate events, inform the local Matsyabhavan within 30 days."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: മാർച്ച് 31-ന് മുൻപ് വാർഷിക വരിസംഖ്യ അടച്ചെന്ന് ഉറപ്പാക്കുക.",
+      "ഘട്ടം 2: നോമിനിയുടെ പേര് മത്സ്യബോർഡ് രേഖകളിൽ ചേർക്കുക.",
+      "ഘട്ടം 3: അപകടമുണ്ടായാൽ 30 ദിവസത്തിനകം മത്സ്യഭവനിൽ വിവരമറിയിക്കുക."
+    ],
+    "sourceOfficial": "PMMSY & Matsyaboard Joint Insurance Guidelines",
+    "disclaimer": "Potential eligibility indication based on state welfare board enrollment rules. Claim settlement subject to insurance underwriter verification."
+  },
+  {
+    "id": "SCHEME-06",
+    "nameEn": "Plantation Workers Housing Renovation Subsidy",
+    "nameMl": "തോട്ടം തൊഴിലാളി ഭവന പുനരുദ്ധാരണ ധനസഹായം",
+    "departmentEn": "Plantation Workers Welfare Fund Board, Kerala",
+    "departmentMl": "തോട്ടം തൊഴിലാളി ക്ഷേമനിധി ബോർഡ്, തൊഴിൽ വകുപ്പ്",
+    "category": "plantation",
+    "descriptionEn": "Financial assistance of ₹1,00,000 for repair, roof replacement, and renovation of worker quarters (layams) and own houses for registered plantation laborers.",
+    "descriptionMl": "രജിസ്റ്റർ ചെയ്ത തോട്ടം തൊഴിലാളികളുടെ ലയങ്ങൾ നവീകരിക്കാനും വീടുകളുടെ മേൽക്കൂര മാറ്റാനും അറ്റകുറ്റപ്പണികൾക്കുമുള്ള ₹1,00,000 ധനസഹായം.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "plantation",
+        "labelEn": "Primary occupation must be Plantation Labor (Tea, Coffee, Rubber, Cardamom)",
+        "labelMl": "പ്രധാന തൊഴിൽ തോട്ടം തൊഴിലാളി (തേയില, കാപ്പി, റബ്ബർ, ഏലം) ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to verify plantation schemes.",
+        "missingPromptMl": "തോട്ടം തൊഴിലാളി പദ്ധതികൾ പരിശോധിക്കാൻ തൊഴിൽ രേഖപ്പെടുത്തണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be registered with Plantation Workers Welfare Fund Board",
+        "labelMl": "തോട്ടം തൊഴിലാളി ക്ഷേമനിധി ബോർഡിൽ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Plantation board membership status is needed.",
+        "missingPromptMl": "തോട്ടം ക്ഷേമനിധി അംഗത്വം വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "yearsOfMembership",
+        "operator": "GREATER_EQUAL",
+        "value": 2,
+        "labelEn": "Must have completed at least 2 years of registered service",
+        "labelMl": "കുറഞ്ഞത് 2 വർഷത്തെ രജിസ്റ്റർ ചെയ്ത സർവീസ് പൂർത്തിയായിരിക്കണം",
+        "missingPromptEn": "Years of plantation service are required.",
+        "missingPromptMl": "എത്ര വർഷമായി തോട്ടത്തിൽ ജോലി ചെയ്യുന്നു എന്ന് വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "housingCondition",
+        "operator": "IN_LIST",
+        "value": ["dilapidated", "kutcha", "homeless"],
+        "labelEn": "Current accommodation must be in need of urgent repair or dilapidated layam",
+        "labelMl": "താമസസ്ഥലം അടിയന്തര അറ്റകുറ്റപ്പണി ആവശ്യമുള്ളതോ ജീർണ്ണിച്ച ലയമോ ആയിരിക്കണം",
+        "missingPromptEn": "Housing condition needs to be specified.",
+        "missingPromptMl": "താമസിക്കുന്ന ലയത്തിന്റെ അവസ്ഥ വ്യക്തമാക്കണം."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Plantation Board Passbook with continuous subscription proof",
+      "Certificate of Employment issued by Estate Manager / Planter",
+      "Panchayat / Estate inspection report on housing condition",
+      "Bank Account details with IFSC",
+      "Estimate of renovation prepared by certified overseer"
+    ],
+    "requiredDocumentsMl": [
+      "തോട്ടം തൊഴിലാളി ക്ഷേമനിധി പാസ്സ്ബുക്ക്",
+      "എസ്റ്റേറ്റ് മാനേജർ നൽകുന്ന തൊഴിൽ സർട്ടിഫിക്കറ്റ്",
+      "ലയത്തിന്റെ അവസ്ഥ സംബന്ധിച്ച പഞ്ചായത്ത്/എസ്റ്റേറ്റ് റിപ്പോർട്ട്",
+      "ബാങ്ക് പാസ്സ്ബുക്ക് പകർപ്പ്",
+      "അറ്റകുറ്റപ്പണിയുടെ എസ്റ്റിമേറ്റ്"
+    ],
+    "applicationChannelsEn": [
+      "District Plantation Inspector Office (Munnar, Wayanad, Peermade, etc.)",
+      "Nearest Akshaya E-Centre",
+      "Labour Commissionerate Online Portal (lc.kerala.gov.in)"
+    ],
+    "applicationChannelsMl": [
+      "പ്ലാന്റേഷൻ ഇൻസ്പെക്ടർ കാര്യാലയം (മൂന്നാർ, പീരുമേട്, വയനാട് തുടങ്ങിയവ)",
+      "സമീപത്തുള്ള അക്ഷയ കേന്ദ്രം",
+      "ലേബർ കമ്മീഷണറേറ്റ് പോർട്ടൽ (lc.kerala.gov.in)"
+    ],
+    "nextStepsEn": [
+      "Step 1: Obtain the service verification from your Estate Management.",
+      "Step 2: Submit application to the local Plantation Inspector with renovation photos.",
+      "Step 3: Funds will be released in two installments upon field verification."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: എസ്റ്റേറ്റ് മാനേജ്‌മെന്റിൽ നിന്ന് തൊഴിൽ സ്ഥിരീകരണ സാക്ഷ്യപത്രം നേടുക.",
+      "ഘട്ടം 2: ലയത്തിന്റെ ഫോട്ടോ സഹിതം പ്ലാന്റേഷൻ ഇൻസ്പെക്ടർക്ക് അപേക്ഷ നൽകുക.",
+      "ഘട്ടം 3: നേരിട്ടുള്ള പരിശോധനയ്ക്ക് ശേഷം രണ്ട് ഗഡുക്കളായി തുക അനുവദിക്കും."
+    ],
+    "sourceOfficial": "Kerala Plantation Labour Act Rules & Board Scheme 2020",
+    "disclaimer": "Potential eligibility indication based on Plantation Board norms. Final grant depends on budget sanction and site verification."
+  },
+  {
+    "id": "SCHEME-07",
+    "nameEn": "Plantation Workers Children Merit Scholarship",
+    "nameMl": "തോട്ടം തൊഴിലാളി കുട്ടികൾക്കുള്ള മെറിറ്റ് സ്കോളർഷിപ്പ്",
+    "departmentEn": "Plantation Workers Welfare Fund Board, Kerala",
+    "departmentMl": "തോട്ടം തൊഴിലാളി ക്ഷേമനിധി ബോർഡ്, തൊഴിൽ വകുപ്പ്",
+    "category": "plantation",
+    "descriptionEn": "Cash award and continuous scholarship from ₹5,000 to ₹25,000 for children of plantation workers securing high marks in SSLC, Plus-Two, or continuing higher education.",
+    "descriptionMl": "എസ്.എസ്.എൽ.സി, പ്ലസ് ടു പരീക്ഷകളിൽ മികച്ച വിജയം നേടുന്ന തോട്ടം തൊഴിലാളികളുടെ മക്കൾക്ക് നൽകുന്ന ₹5,000 മുതൽ ₹25,000 വരെയുള്ള സ്കോളർഷിപ്പ്.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "plantation",
+        "labelEn": "Parent must be a registered Plantation Worker",
+        "labelMl": "മാതാപിതാക്കളിലൊരാൾ തോട്ടം തൊഴിലാളി ആയിരിക്കണം",
+        "missingPromptEn": "Parent occupation is required.",
+        "missingPromptMl": "രക്ഷിതാവിന്റെ തൊഴിൽ രേഖപ്പെടുത്തണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Parent must be an active member of Plantation Board",
+        "labelMl": "രക്ഷിതാവ് തോട്ടം ക്ഷേമനിധി ബോർഡിൽ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Board membership confirmation is required.",
+        "missingPromptMl": "തോട്ടം ക്ഷേമനിധി അംഗത്വം വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "hasStudentChild",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Household must have a child enrolled in High School, Plus-Two, or Degree",
+        "labelMl": "കുടുംബത്തിൽ സ്കൂൾ/കോളേജ് തലത്തിൽ പഠിക്കുന്ന കുട്ടിയുണ്ടായിരിക്കണം",
+        "missingPromptEn": "Student dependent information is required.",
+        "missingPromptMl": "വിദ്യാർത്ഥിയായ കുട്ടിയുടെ വിവരം ആവശ്യമാണ്."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Parent's Plantation Welfare Board Passbook",
+      "Mark list of SSLC / Higher Secondary (Passed with minimum 60% / B+ grade)",
+      "Certificate of current course enrollment from School / College",
+      "Estate Manager's working certificate of parent",
+      "Student's Bank Account Passbook"
+    ],
+    "requiredDocumentsMl": [
+      "രക്ഷിതാവിന്റെ തോട്ടം ക്ഷേമനിധി പാസ്സ്ബുക്ക്",
+      "എസ്.എസ്.എൽ.സി / പ്ലസ് ടു മാർക്ക് ലിസ്റ്റ് (കുറഞ്ഞത് 60% മാർക്ക്)",
+      "നിലവിൽ പഠിക്കുന്ന സ്ഥാപനത്തിൽ നിന്നുള്ള സാക്ഷ്യപത്രം",
+      "എസ്റ്റേറ്റ് മാനേജറുടെ സർവീസ് സർട്ടിഫിക്കറ്റ്",
+      "വിദ്യാർത്ഥിയുടെ ബാങ്ക് പാസ്സ്ബുക്ക് പകർപ്പ്"
+    ],
+    "applicationChannelsEn": [
+      "Office of the Chief Inspector of Plantations",
+      "Nearest Akshaya E-Centre",
+      "Kerala Labour Department Website"
+    ],
+    "applicationChannelsMl": [
+      "ചീഫ് ഇൻസ്പെക്ടർ ഓഫ് പ്ലാന്റേഷൻസ് കാര്യാലയം",
+      "സമീപത്തുള്ള അക്ഷയ കേന്ദ്രം",
+      "തൊഴിൽ വകുപ്പ് വെബ്സൈറ്റ്"
+    ],
+    "nextStepsEn": [
+      "Step 1: Get the application form signed by the Head of the School/College.",
+      "Step 2: Attach attested copies of marks cards and welfare passbook.",
+      "Step 3: Submit application to the Plantation Inspector before the annual deadline (typically August 31)."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: വിദ്യാലയ മേധാവിയെക്കൊണ്ട് അപേക്ഷാ ഫോം സാക്ഷ്യപ്പെടുത്തുക.",
+      "ഘട്ടം 2: മാർക്ക് ലിസ്റ്റിന്റെയും ക്ഷേമനിധി പാസ്സ്ബുക്കിന്റെയും സാക്ഷ്യപ്പെടുത്തിയ പകർപ്പുകൾ ചേർക്കുക.",
+      "ഘട്ടം 3: വാർഷിക തീയതിക്ക് മുൻപ് പ്ലാന്റേഷൻ ഇൻസ്പെക്ടർക്ക് സമർപ്പിക്കുക."
+    ],
+    "sourceOfficial": "Plantation Workers Welfare Fund Scheme Section 12",
+    "disclaimer": "Potential eligibility indication based on merit cutoffs. Final sanction based on annual merit rank list published by the Board."
+  },
+  {
+    "id": "SCHEME-08",
+    "nameEn": "Plantation Workers Relief & Medical Assistance Scheme",
+    "nameMl": "തോട്ടം തൊഴിലാളി ചികിത്സാ ധനസഹായ പദ്ധതി",
+    "departmentEn": "Plantation Workers Welfare Fund Board, Kerala",
+    "departmentMl": "തോട്ടം തൊഴിലാളി ക്ഷേമനിധി ബോർഡ്, തൊഴിൽ വകുപ്പ്",
+    "category": "plantation",
+    "descriptionEn": "Direct medical relief grant of up to ₹50,000 for plantation laborers and dependents suffering from major illnesses, work injuries, or chronic occupational hazards.",
+    "descriptionMl": "ഗുരുതര രോഗങ്ങൾ ബാധിച്ചവർക്കും ജോലിസ്ഥലത്തെ അപകടങ്ങൾ സംഭവിച്ചവർക്കും ₹50,000 വരെ അടിയന്തര ചികിത്സാ സഹായം നൽകുന്ന പദ്ധതി.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "plantation",
+        "labelEn": "Primary occupation must be Plantation Labor",
+        "labelMl": "പ്രധാന തൊഴിൽ തോട്ടം തൊഴിലാളി ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to evaluate medical relief.",
+        "missingPromptMl": "ചികിത്സാ സഹായത്തിന് തൊഴിൽ വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be an enrolled member of Plantation Welfare Board",
+        "labelMl": "തോട്ടം ക്ഷേമനിധി ബോർഡിൽ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Plantation board membership status is needed.",
+        "missingPromptMl": "തോട്ടം ക്ഷേമനിധി അംഗത്വം വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "monthlyIncome",
+        "operator": "LESS_EQUAL",
+        "value": 10000,
+        "labelEn": "Monthly household income must be ₹10,000 or below (Annual < ₹1,20,000)",
+        "labelMl": "പ്രതിമാസ വരുമാനം ₹10,000 അല്ലെങ്കിൽ അതിൽ താഴെയായിരിക്കണം (വാർഷിക വരുമാനം ₹1.2 ലക്ഷത്തിൽ താഴെ)",
+        "missingPromptEn": "Monthly income is needed to verify income criteria.",
+        "missingPromptMl": "വരുമാന പരിധി പരിശോധിക്കാൻ കുടുംബ വരുമാനം ആവശ്യമാണ്."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Medical Certificate and treatment discharge summary from Government Hospital / Medical College",
+      "Original medical bills and pharmacy vouchers",
+      "Plantation Board Passbook copy",
+      "Income certificate from Village Officer",
+      "Bank Account details"
+    ],
+    "requiredDocumentsMl": [
+      "സർക്കാർ ആശുപത്രിയിൽ നിന്നോ മെഡിക്കൽ കോളേജിൽ നിന്നോ ഉള്ള മെഡിക്കൽ സർട്ടിഫിക്കറ്റ്",
+      "ചികിത്സാ ബില്ലുകളുടെയും മരുന്ന് രസീതുകളുടെയും ഒറിജിനൽ",
+      "തോട്ടം ക്ഷേമനിധി പാസ്സ്ബുക്ക് പകർപ്പ്",
+      "വില്ലേജ് ഓഫീസറുടെ വരുമാന സർട്ടിഫിക്കറ്റ്",
+      "ബാങ്ക് പാസ്സ്ബുക്ക് പകർപ്പ്"
+    ],
+    "applicationChannelsEn": [
+      "Plantation Inspectorate Office",
+      "Chief Inspector of Plantations, Kottayam",
+      "Akshaya E-Centres"
+    ],
+    "applicationChannelsMl": [
+      "പ്ലാന്റേഷൻ ഇൻസ്പെക്ടറേറ്റ് ഓഫീസ്",
+      "ചീഫ് ഇൻസ്പെക്ടർ ഓഫ് പ്ലാന്റേഷൻസ്, കോട്ടയം",
+      "അക്ഷയ കേന്ദ്രങ്ങൾ"
+    ],
+    "nextStepsEn": [
+      "Step 1: Have your treating doctor complete the Medical Board format.",
+      "Step 2: Submit all original treatment bills countersigned by the Hospital Superintendent.",
+      "Step 3: Verification will be scheduled by the Plantation Welfare Officer."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: ചികിത്സിച്ച ഡോക്ടറെക്കൊണ്ട് മെഡിക്കൽ ഫോർമാറ്റ് പൂരിപ്പിക്കുക.",
+      "ഘട്ടം 2: ആശുപത്രി സൂപ്രണ്ട് സാക്ഷ്യപ്പെടുത്തിയ ഒറിജിനൽ ബില്ലുകൾ സഹിതം അപേക്ഷിക്കുക.",
+      "ഘട്ടം 3: ഉദ്യോഗസ്ഥർ പരിശോധിച്ച് അക്കൗണ്ടിലേക്ക് തുക അനുവദിക്കും."
+    ],
+    "sourceOfficial": "Kerala Plantation Labour Medical Aid Norms",
+    "disclaimer": "Potential eligibility indication based on medical aid rules. Final payout determined by board medical scrutinizing officer."
+  },
+  {
+    "id": "SCHEME-09",
+    "nameEn": "Matsyafed Micro-Finance & Livelihood Scheme for Fisherwomen",
+    "nameMl": "മത്സ്യഫെഡ് വനിതാ സ്വയംസഹായ സംഘ വായ്പാ പദ്ധതി",
+    "departmentEn": "Matsyafed (Kerala State Co-operative Federation for Fisheries Development)",
+    "departmentMl": "മത്സ്യഫെഡ് (കേരള സംസ്ഥാന സഹകരണ മത്സ്യവികസന ഫെഡറേഷൻ)",
+    "category": "fishing",
+    "descriptionEn": "Collateral-free low-interest micro-finance loans up to ₹50,000 for fisherwomen and Self-Help Group (SHG) members engaged in fish vending, drying, and value-added trade.",
+    "descriptionMl": "മത്സ്യക്കച്ചവടം, ഉണക്കൽ, മൂല്യവർദ്ധിത ഉൽപ്പന്നങ്ങൾ എന്നിവയിൽ ഏർപ്പെട്ടിരിക്കുന്ന മത്സ്യത്തൊഴിലാളി വനിതകൾക്ക് ₹50,000 വരെ കുറഞ്ഞ പലിശ നിരക്കിലുള്ള വായ്പ.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Must belong to a Fishing household or allied fish marketing activity",
+        "labelMl": "മത്സ്യത്തൊഴിലാളി കുടുംബത്തിലെ അംഗമോ മത്സ്യവിപണനത്തിൽ ഏർപ്പെടുന്നവരോ ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to verify fisheries micro-finance.",
+        "missingPromptMl": "മത്സ്യഫെഡ് വായ്പയ്ക്ക് തൊഴിൽ ആവശ്യമാണ്."
+      },
+      {
+        "field": "age",
+        "operator": "GREATER_EQUAL",
+        "value": 18,
+        "labelEn": "Applicant age must be at least 18 years",
+        "labelMl": "അപേക്ഷകയ്ക്ക് കുറഞ്ഞത് 18 വയസ്സ് പ്രായമുണ്ടായിരിക്കണം",
+        "missingPromptEn": "Age is required.",
+        "missingPromptMl": "പ്രായം രേഖപ്പെടുത്തണം."
+      },
+      {
+        "field": "age",
+        "operator": "LESS_EQUAL",
+        "value": 65,
+        "labelEn": "Applicant age must be 65 years or below",
+        "labelMl": "പ്രായം 65 വയസ്സിൽ കൂടരുത്",
+        "missingPromptEn": "Age is required.",
+        "missingPromptMl": "പ്രായം രേഖപ്പെടുത്തണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must have membership in Matsyaboard or Matsyafed Primary Co-operative Society",
+        "labelMl": "മത്സ്യബോർഡിലോ മത്സ്യഫെഡ് പ്രാഥമിക സഹകരണ സംഘത്തിലോ അംഗത്വമുണ്ടായിരിക്കണം",
+        "missingPromptEn": "Co-operative / Board membership is required.",
+        "missingPromptMl": "സഹകരണ സംഘം / ബോർഡ് അംഗത്വ വിവരം ആവശ്യമാണ്."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Matsyafed Primary Co-operative Society Membership Passbook",
+      "Fisherwomen Fish Vending Identity Card / Board Card",
+      "Self-Help Group (SHG) resolution copy",
+      "Aadhaar Card and Ration Card",
+      "Bank Account details"
+    ],
+    "requiredDocumentsMl": [
+      "മത്സ്യഫെഡ് പ്രാഥമിക സഹകരണ സംഘം അംഗത്വ പാസ്സ്ബുക്ക്",
+      "മത്സ്യവിൽപ്പന തിരിച്ചറിയൽ കാർഡ്",
+      "സ്വയംസഹായ സംഘത്തിന്റെ (SHG) പ്രമേയ പകർപ്പ്",
+      "ആധാർ കാർഡും റേഷൻ കാർഡും",
+      "ബാങ്ക് പാസ്സ്ബുക്ക്"
+    ],
+    "applicationChannelsEn": [
+      "Local Matsyafed Primary Fisheries Co-operative Society",
+      "Matsyafed District Office",
+      "Akshaya E-Centres"
+    ],
+    "applicationChannelsMl": [
+      "പ്രാദേശിക മത്സ്യഫെഡ് സഹകരണ സംഘം",
+      "മത്സ്യഫെഡ് ജില്ലാ ഓഫീസ്",
+      "അക്ഷയ കേന്ദ്രങ്ങൾ"
+    ],
+    "nextStepsEn": [
+      "Step 1: Approach your local Matsyafed Sahakarana Sangham.",
+      "Step 2: Submit the SHG loan application with co-members' consent.",
+      "Step 3: Loan is sanctioned directly with interest subvention under micro-finance."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: പ്രാദേശിക മത്സ്യഫെഡ് സഹകരണ സംഘത്തെ സമീപിക്കുക.",
+      "ഘട്ടം 2: സംഘാംഗങ്ങളുടെ സമ്മതപത്രം സഹിതം വായ്പാ അപേക്ഷ നൽകുക.",
+      "ഘട്ടം 3: പലിശയിളവോടെ നേരിട്ട് വായ്പ ലഭ്യമാകും."
+    ],
+    "sourceOfficial": "Matsyafed Microfinance Guidelines",
+    "disclaimer": "Potential eligibility indication based on cooperative norms. Final loan sanction subject to primary society credit assessment."
+  },
+  {
+    "id": "SCHEME-10",
+    "nameEn": "Widowed & Destitute Plantation Worker Pension",
+    "nameMl": "തോട്ടം തൊഴിലാളി വിധവാ/നിരാലംബ പെൻഷൻ പദ്ധതി",
+    "departmentEn": "Plantation Workers Welfare Fund Board, Kerala",
+    "departmentMl": "തോട്ടം തൊഴിലാളി ക്ഷേമനിധി ബോർഡ്, തൊഴിൽ വകുപ്പ്",
+    "category": "plantation",
+    "descriptionEn": "Monthly pension of ₹1,600 for widowed, deserted, or destitute former plantation workers aged 50 and above who do not receive any other statutory pension.",
+    "descriptionMl": "മറ്റ് പെൻഷനുകൾ ലഭിക്കാത്ത, 50 വയസ്സ് തികഞ്ഞ വിധവകളോ നിരാലംബരോ ആയ മുൻ തോട്ടം തൊഴിലാളികൾക്ക് പ്രതിമാസം ₹1,600 പെൻഷൻ നൽകുന്ന പദ്ധതി.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "plantation",
+        "labelEn": "Applicant or deceased spouse must be a former plantation laborer",
+        "labelMl": "അപേക്ഷകയോ മരണപ്പെട്ട പങ്കാളിയോ തോട്ടം തൊഴിലാളിയായിരുന്നിരിക്കണം",
+        "missingPromptEn": "Occupation background is required.",
+        "missingPromptMl": "തൊഴിൽ പശ്ചാത്തലം രേഖപ്പെടുത്തണം."
+      },
+      {
+        "field": "age",
+        "operator": "GREATER_EQUAL",
+        "value": 50,
+        "labelEn": "Applicant age must be 50 years or older",
+        "labelMl": "അപേക്ഷകയ്ക്ക് 50 വയസ്സോ അതിൽ കൂടുതലോ പ്രായമുണ്ടായിരിക്കണം",
+        "missingPromptEn": "Age is required to check pension entitlement.",
+        "missingPromptMl": "പെൻഷന് പ്രായം ആവശ്യമാണ്."
+      },
+      {
+        "field": "specialStatus",
+        "operator": "IN_LIST",
+        "value": ["widowed", "destitute"],
+        "labelEn": "Must be widowed or destitute without adequate family support",
+        "labelMl": "വിധവയോ അല്ലെങ്കിൽ കുടുംബ സഹായമില്ലാത്ത നിരാലംബരോ ആയിരിക്കണം",
+        "missingPromptEn": "Marital/Destitute status needs to be declared.",
+        "missingPromptMl": "വിധവാ / നിരാലംബ അവസ്ഥ വ്യക്തമാക്കേണ്ടതുണ്ട്."
+      },
+      {
+        "field": "monthlyIncome",
+        "operator": "LESS_EQUAL",
+        "value": 8333,
+        "labelEn": "Monthly household income must not exceed ₹8,333 (Annual < ₹1,00,000)",
+        "labelMl": "പ്രതിമാസ വരുമാനം ₹8,333 ൽ കൂടരുത് (വാർഷിക വരുമാനം ₹1,00,000 ൽ താഴെ)",
+        "missingPromptEn": "Monthly income is required.",
+        "missingPromptMl": "വരുമാനം രേഖപ്പെടുത്തണം."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Death Certificate of Spouse (for widow pension)",
+      "Destitute Certificate from Village Officer / Tahsildar",
+      "Deceased spouse's or applicant's Plantation Board Passbook",
+      "Age proof document (Aadhaar / Voter ID)",
+      "Non-remarriage and Non-receipt of other pension certificate",
+      "Bank Account Passbook"
+    ],
+    "requiredDocumentsMl": [
+      "പങ്കാളിയുടെ മരണ സർട്ടിഫിക്കറ്റ് (വിധവാ പെൻഷന്)",
+      "വില്ലേജ് ഓഫീസറുടെ നിരാലംബ സാക്ഷ്യപത്രം",
+      "തോട്ടം ക്ഷേമനിധി പാസ്സ്ബുക്ക് രേഖ",
+      "വയസ്സ് തെളിയിക്കുന്ന രേഖ (ആധാർ/വോട്ടർ കാർഡ്)",
+      "പുനർവിവാഹം ചെയ്തിട്ടില്ലെന്നും മറ്റ് പെൻഷനുകൾ വാങ്ങുന്നില്ലെന്നുമുള്ള സർട്ടിഫിക്കറ്റ്",
+      "ബാങ്ക് പാസ്സ്ബുക്ക്"
+    ],
+    "applicationChannelsEn": [
+      "Grama Panchayat / Municipality Office",
+      "Local Akshaya E-Centre",
+      "Plantation Inspectorate Office"
+    ],
+    "applicationChannelsMl": [
+      "ഗ്രാമപഞ്ചായത്ത് / മുനിസിപ്പാലിറ്റി കാര്യാലയം",
+      "സമീപത്തുള്ള അക്ഷയ കേന്ദ്രം",
+      "പ്ലാന്റേഷൻ ഇൻസ്പെക്ടറേറ്റ് ഓഫീസ്"
+    ],
+    "nextStepsEn": [
+      "Step 1: Obtain death and non-remarriage certificates from the Village Office.",
+      "Step 2: Submit the pension application form through Akshaya or Panchayat.",
+      "Step 3: Following Grama Sabha vetting, direct monthly credit will start."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: വില്ലേജ് ഓഫീസിൽ നിന്ന് മരണ സർട്ടിഫിക്കറ്റും പുനർവിവാഹം ചെയ്തിട്ടില്ലെന്ന സർട്ടിഫിക്കറ്റും നേടുക.",
+      "ഘട്ടം 2: പഞ്ചായത്ത് അല്ലെങ്കിൽ അക്ഷയ വഴി അപേക്ഷിക്കുക.",
+      "ഘട്ടം 3: ഗ്രാമസഭ അംഗീകാരത്തിന് ശേഷം പെൻഷൻ അക്കൗണ്ടിലെത്തും."
+    ],
+    "sourceOfficial": "Kerala Social Security Pension Scheme & Plantation Rules",
+    "disclaimer": "Potential eligibility indication based on social security norms. Final sanction by Grama Panchayat committee."
+  },
+  {
+    "id": "SCHEME-11",
+    "nameEn": "Fishermen Sea Safety Equipment Subsidy Scheme",
+    "nameMl": "മത്സ്യബന്ധന കടൽ സുരക്ഷാ ഉപകരണ സബ്സിഡി",
+    "departmentEn": "Department of Fisheries, Government of Kerala",
+    "departmentMl": "ഫിഷറീസ് വകുപ്പ്, കേരള സർക്കാർ",
+    "category": "fishing",
+    "descriptionEn": "Up to 75% subsidy for purchasing marine safety gear including NavIC/GPS units, satellite communication devices, life jackets, and distress alert transmitters (DAT).",
+    "descriptionMl": "പരമ്പരാഗത വള്ളങ്ങൾക്കും യാനങ്ങൾക്കും നാവിക് (NavIC), ലൈഫ് ജാക്കറ്റ്, ഡിസ്ട്രസ്സ് അലർട്ട് ട്രാൻസ്മിറ്റർ തുടങ്ങിയ സുരക്ഷാ ഉപകരണങ്ങൾക്ക് 75% വരെ സബ്സിഡി.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Primary occupation must be Fishing",
+        "labelMl": "പ്രധാന തൊഴിൽ മത്സ്യബന്ധനം ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to verify boat safety subsidy.",
+        "missingPromptMl": "സുരക്ഷാ സബ്സിഡിക്ക് തൊഴിൽ രേഖപ്പെടുത്തണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be a registered member of Fishermen Welfare Fund Board",
+        "labelMl": "മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി ബോർഡിൽ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Welfare board membership is required.",
+        "missingPromptMl": "ക്ഷേമനിധി അംഗത്വം വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "district",
+        "operator": "IN_LIST",
+        "value": ["Alappuzha", "Ernakulam", "Kollam", "Thiruvananthapuram", "Kozhikode", "Malappuram", "Kannur", "Kasaragod", "Thrissur"],
+        "labelEn": "Must belong to a coastal marine district of Kerala",
+        "labelMl": "കേരളത്തിലെ തീരദേശ ജില്ലയിലെ താമസക്കാരനായിരിക്കണം",
+        "missingPromptEn": "District is required to check coastal safety entitlement.",
+        "missingPromptMl": "തീരദേശ ജില്ല ഏതെന്ന വിവരം ആവശ്യമാണ്."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Fishing Vessel Registration Certificate (RealCraft)",
+      "Fishing License issued by Kerala Fisheries Department",
+      "Fishermen Welfare Fund Passbook",
+      "Applicant Aadhaar Card and Bank Account",
+      "Quotation / Invoice from authorized safety equipment vendor"
+    ],
+    "requiredDocumentsMl": [
+      "ബോട്ട്/വള്ളം രജിസ്ട്രേഷൻ സർട്ടിഫിക്കറ്റ് (RealCraft)",
+      "ഫിഷറീസ് വകുപ്പ് നൽകിയ മത്സ്യബന്ധന ലൈസൻസ്",
+      "മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി പാസ്സ്ബുക്ക്",
+      "ആധാർ കാർഡും ബാങ്ക് പാസ്സ്ബുക്കും",
+      "അംഗീകൃത ഡീലറിൽ നിന്നുള്ള ക്വോട്ടേഷൻ"
+    ],
+    "applicationChannelsEn": [
+      "Matsyabhavan / Village Fisheries Extension Office",
+      "Kerala Fisheries RealCraft Online Portal",
+      "Akshaya E-Centres"
+    ],
+    "applicationChannelsMl": [
+      "മത്സ്യഭവൻ / വില്ലേജ് ഫിഷറീസ് ഓഫീസ്",
+      "റിയൽക്രാഫ്റ്റ് പോർട്ടൽ",
+      "അക്ഷയ കേന്ദ്രങ്ങൾ"
+    ],
+    "nextStepsEn": [
+      "Step 1: Ensure boat registration and fishing license are renewed for the current year.",
+      "Step 2: Collect quote for NavIC / Life Jackets from an empanelled supplier.",
+      "Step 3: Submit application to Matsyabhavan; subsidy will be adjusted directly or credited upon installation inspection."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: വള്ളത്തിന്റെ ലൈസൻസും രജിസ്ട്രേഷനും ഈ വർഷം പുതുക്കിയിട്ടുണ്ടെന്ന് ഉറപ്പാക്കുക.",
+      "ഘട്ടം 2: അംഗീകൃത വിതരണക്കാരിൽ നിന്ന് കൊട്ടേഷൻ വാങ്ങുക.",
+      "ഘട്ടം 3: മത്സ്യഭവനിൽ സമർപ്പിക്കുക; ഉദ്യോഗസ്ഥ പരിശോധനയ്ക്ക് ശേഷം സബ്സിഡി അനുവദിക്കും."
+    ],
+    "sourceOfficial": "Fisheries Marine Safety Scheme Order 2022",
+    "disclaimer": "Potential eligibility indication based on state fisheries norms. Final release subject to vessel biometric inspection."
+  },
+  {
+    "id": "SCHEME-12",
+    "nameEn": "Punargeham Coastal Relocation & Housing Scheme",
+    "nameMl": "പുനർഗേഹം തീരദേശ പുനരധിവാസ ഭവന പദ്ധതി",
+    "departmentEn": "Department of Fisheries, Government of Kerala",
+    "departmentMl": "ഫിഷറീസ് വകുപ്പ്, കേരള സർക്കാർ",
+    "category": "fishing",
+    "descriptionEn": "Financial assistance grant of up to ₹10,00,000 to relocate and build safe houses or purchase flats for traditional fishing families residing within 50 meters of the coastal high-tide line.",
+    "descriptionMl": "തീരദേശത്തെ വേലിയേറ്റ രേഖയിൽ നിന്ന് 50 മീറ്ററിനുള്ളിൽ അതീവ അപകടസാധ്യതയുള്ള മേഖലയിൽ താമസിക്കുന്ന പരമ്പരാഗത മത്സ്യത്തൊഴിലാളി കുടുംബങ്ങളെ മാറ്റിപ്പാർപ്പിക്കാൻ ₹10 ലക്ഷം ധനസഹായം.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Primary occupation must be Fishing",
+        "labelMl": "പ്രധാന തൊഴിൽ മത്സ്യബന്ധനം ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to verify coastal relocation.",
+        "missingPromptMl": "പുനരധിവാസ പദ്ധതിക്ക് തൊഴിൽ വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "housingCondition",
+        "operator": "IN_LIST",
+        "value": ["homeless", "dilapidated", "kutcha"],
+        "labelEn": "Must reside in vulnerable coastal shelter within 50m of tidal line",
+        "labelMl": "വേലിയേറ്റ രേഖയിൽ നിന്ന് 50 മീറ്ററിനുള്ളിലെ താൽക്കാലിക/ജീർണ്ണിച്ച വീടുകളിൽ താമസിക്കുന്നവരായിരിക്കണം",
+        "missingPromptEn": "Housing vulnerability status is needed.",
+        "missingPromptMl": "ഭവന സ്ഥിതി വ്യക്തമാക്കേണ്ടതുണ്ട്."
+      },
+      {
+        "field": "district",
+        "operator": "IN_LIST",
+        "value": ["Alappuzha", "Ernakulam", "Kollam", "Thiruvananthapuram", "Kozhikode", "Malappuram", "Kannur", "Kasaragod", "Thrissur"],
+        "labelEn": "Must be residing in a coastal marine district of Kerala",
+        "labelMl": "കേരളത്തിലെ തീരദേശ ജില്ലയിലെ താമസക്കാരനായിരിക്കണം",
+        "missingPromptEn": "District is required to check coastal relocation entitlement.",
+        "missingPromptMl": "തീരദേശ ജില്ല വ്യക്തമാക്കണം."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Fishermen Family Register (FFR) document / Matsyaboard Card",
+      "Revenue Certificate proving residence within 50m high-tide buffer zone",
+      "Consent Letter agreeing to relocate to a safe zone",
+      "Ration Card & Aadhaar Card",
+      "Bank Account details (DBT linked)"
+    ],
+    "requiredDocumentsMl": [
+      "ഫിഷറീസ് ഫാമിലി രജിസ്റ്റർ (FFR) രേഖ / മത്സ്യബോർഡ് കാർഡ്",
+      "50 മീറ്റർ വേലിയേറ്റ പരിധിയിലാണ് താമസമെന്ന് തെളിയിക്കുന്ന വില്ലേജ് രേഖ",
+      "സുരക്ഷിത മേഖലയിലേക്ക് മാറാൻ തയ്യാറാണെന്ന സമ്മതപത്രം",
+      "റേഷൻ കാർഡും ആധാർ കാർഡും",
+      "ബാങ്ക് പാസ്സ്ബുക്ക് പകർപ്പ്"
+    ],
+    "applicationChannelsEn": [
+      "District Fisheries Office / Matsyabhavan",
+      "Local Grama Panchayat / Municipality Office",
+      "Nearest Akshaya E-Centre"
+    ],
+    "applicationChannelsMl": [
+      "ജില്ലാ ഫിഷറീസ് ഓഫീസ് / മത്സ്യഭവൻ",
+      "തദ്ദേശ സ്വയംഭരണ സ്ഥാപനം (പഞ്ചായത്ത്/മുനിസിപ്പാലിറ്റി)",
+      "സമീപത്തെ അക്ഷയ കേന്ദ്രങ്ങൾ"
+    ],
+    "nextStepsEn": [
+      "Step 1: Check coastal survey beneficiary list at your local Matsyabhavan.",
+      "Step 2: Submit willingness letter and land identification documents (2-3 cents in safe zone).",
+      "Step 3: Funds will be released in stages for land purchase (₹6L) and construction (₹4L)."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: മത്സ്യഭവനിലെ തീരദേശ സർവേ ഗുണഭോക്തൃ പട്ടിക പരിശോധിക്കുക.",
+      "ഘട്ടം 2: സമ്മതപത്രവും കണ്ടെത്തിയ ഭൂമിയുടെ വിവരങ്ങളും സമർപ്പിക്കുക.",
+      "ഘട്ടം 3: ഭൂമി വാങ്ങാൻ ₹6 ലക്ഷവും വീട് നിർമ്മാണത്തിന് ₹4 ലക്ഷവും ഘട്ടങ്ങളായി ലഭിക്കും."
+    ],
+    "sourceOfficial": "Punargeham Guidelines - G.O.(Ms) No. 34/2019/F&PD",
+    "disclaimer": "Potential eligibility indication based on coastal zone mapping. Final allotment subject to fisheries field survey."
+  },
+  {
+    "id": "SCHEME-13",
+    "nameEn": "Fishermen Daughter Marriage Financial Assistance",
+    "nameMl": "മത്സ്യത്തൊഴിലാളി പെൺമക്കളുടെ വിവാഹ ധനസഹായം",
+    "departmentEn": "Kerala Fishermen's Welfare Fund Board (Matsyaboard)",
+    "departmentMl": "കേരള മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി ബോർഡ് (മത്സ്യബോർഡ്)",
+    "category": "fishing",
+    "descriptionEn": "One-time financial grant of ₹10,000 for the marriage of daughters of registered traditional fishermen and allied fish workers (applicable for up to two daughters).",
+    "descriptionMl": "രജിസ്റ്റർ ചെയ്ത മത്സ്യത്തൊഴിലാളികളുടെ പെൺമക്കളുടെ വിവാഹത്തിന് ₹10,000 ഒറ്റത്തവണ ധനസഹായം (പരമാവധി രണ്ട് പെൺമക്കൾക്ക്).",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Parent must be a registered traditional Fisherman / Allied Worker",
+        "labelMl": "മാതാപിതാക്കളിലൊരാൾ രജിസ്റ്റർ ചെയ്ത മത്സ്യത്തൊഴിലാളി ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to check marriage aid.",
+        "missingPromptMl": "വിവാഹ ധനസഹായത്തിന് തൊഴിൽ വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be an active member of Matsyaboard with no subscription arrears",
+        "labelMl": "മത്സ്യബോർഡിൽ കുടിശ്ശികയില്ലാതെ അംഗത്വമുണ്ടായിരിക്കണം",
+        "missingPromptEn": "Welfare board membership details needed.",
+        "missingPromptMl": "ക്ഷേമനിധി അംഗത്വം വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "monthlyIncome",
+        "operator": "LESS_EQUAL",
+        "value": 15000,
+        "labelEn": "Monthly household income must not exceed ₹15,000",
+        "labelMl": "പ്രതിമാസ കുടുംബ വരുമാനം ₹15,000 ൽ കൂടരുത്",
+        "missingPromptEn": "Monthly income is needed.",
+        "missingPromptMl": "കുടുംബ വരുമാനം വ്യക്തമാക്കണം."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Parent's Fishermen Welfare Fund Board Passbook",
+      "Marriage Certificate issued by Local Self Government Institution / Marriage Invitation & Religious Authority Certificate",
+      "Bride's Age Proof proving minimum age 18 years",
+      "Income Certificate from Village Officer",
+      "Bank Account details of beneficiary"
+    ],
+    "requiredDocumentsMl": [
+      "രക്ഷിതാവിന്റെ മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി പാസ്സ്ബുക്ക്",
+      "പഞ്ചായത്ത്/മുനിസിപ്പാലിറ്റി നൽകിയ വിവാഹ സർട്ടിഫിക്കറ്റ് അല്ലെങ്കിൽ സാക്ഷ്യപത്രം",
+      "വധുവിന് 18 വയസ്സ് തികഞ്ഞെന്ന് തെളിയിക്കുന്ന രേഖ",
+      "വില്ലേജ് ഓഫീസറുടെ വരുമാന സർട്ടിഫിക്കറ്റ്",
+      "ബാങ്ക് പാസ്സ്ബുക്ക് പകർപ്പ്"
+    ],
+    "applicationChannelsEn": [
+      "Regional Fisheries Executive Officer Office",
+      "Nearest Akshaya E-Centre",
+      "Matsyaboard Online Portal"
+    ],
+    "applicationChannelsMl": [
+      "മേഖലാ ഫിഷറീസ് എക്സിക്യൂട്ടീവ് ഓഫീസ്",
+      "സമീപത്തുള്ള അക്ഷയ കേന്ദ്രം",
+      "മത്സ്യബോർഡ് പോർട്ടൽ"
+    ],
+    "nextStepsEn": [
+      "Step 1: Obtain the official marriage certificate within 6 months of solemnization.",
+      "Step 2: Submit application through Akshaya or direct to the Fisheries Office.",
+      "Step 3: Verification is conducted by the Fisheries Inspector."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: വിവാഹം കഴിഞ്ഞ് 6 മാസത്തിനകം വിവാഹ സർട്ടിഫിക്കറ്റ് സഹിതം അപേക്ഷിക്കുക.",
+      "ഘട്ടം 2: അക്ഷയ വഴിയോ നേരിട്ടോ ഫിഷറീസ് ഓഫീസിൽ നൽകുക.",
+      "ഘട്ടം 3: ഫിഷറീസ് ഇൻസ്പെക്ടർ പരിശോധിച്ച് അക്കൗണ്ടിലേക്ക് തുക അനുവദിക്കും."
+    ],
+    "sourceOfficial": "Matsyaboard Marriage Assistance Rules Clause 22",
+    "disclaimer": "Potential eligibility indication based on welfare fund rules. Claim must be filed within statutory deadline from marriage date."
+  },
+  {
+    "id": "SCHEME-14",
+    "nameEn": "Fisherwomen Maternity Financial Assistance Scheme",
+    "nameMl": "മത്സ്യത്തൊഴിലാളി വനിതാ പ്രസവാനുകൂല്യ പദ്ധതി",
+    "departmentEn": "Kerala Fishermen's Welfare Fund Board (Matsyaboard)",
+    "departmentMl": "കേരള മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധി ബോർഡ് (മത്സ്യബോർഡ്)",
+    "category": "fishing",
+    "descriptionEn": "Maternity financial assistance of ₹15,000 for registered female fish workers and wives of traditional fishermen during confinement (up to two deliveries).",
+    "descriptionMl": "രജിസ്റ്റർ ചെയ്ത വനിതാ മത്സ്യത്തൊഴിലാളികൾക്കും മത്സ്യത്തൊഴിലാളികളുടെ ഭാര്യമാർക്കും പ്രസവ സമയത്ത് നൽകുന്ന ₹15,000 ധനസഹായം.",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "fishing",
+        "labelEn": "Applicant or spouse must be a registered Fisherman / Fish Worker",
+        "labelMl": "അപേക്ഷകയോ പങ്കാളിയോ രജിസ്റ്റർ ചെയ്ത മത്സ്യത്തൊഴിലാളി ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to verify maternity grant.",
+        "missingPromptMl": "പ്രസവാനുകൂല്യത്തിന് തൊഴിൽ വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be an active registered member of Matsyaboard",
+        "labelMl": "മത്സ്യത്തൊഴിലാളി ക്ഷേമനിധിയിൽ സജീവ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Board membership confirmation is required.",
+        "missingPromptMl": "ക്ഷേമനിധി അംഗത്വം വ്യക്തമാക്കണം."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Birth Certificate of child issued by Registrar of Births & Deaths",
+      "Discharge Summary from Government Hospital or recognized private clinic",
+      "Matsyaboard Membership Card / Passbook",
+      "Mother's Bank Account details (Aadhaar linked)",
+      "Non-receipt certificate of ESI maternity benefits"
+    ],
+    "requiredDocumentsMl": [
+      "കുട്ടിയുടെ ജനന സർട്ടിഫിക്കറ്റ്",
+      "ആശുപത്രിയിൽ നിന്നുള്ള ഡിസ്ചാർജ് സർട്ടിഫിക്കറ്റ്",
+      "മത്സ്യബോർഡ് പാസ്സ്ബുക്ക് പകർപ്പ്",
+      "അമ്മയുടെ ആധാർ ലിങ്ക് ചെയ്ത ബാങ്ക് പാസ്സ്ബുക്ക്",
+      "ESI പ്രസവാനുകൂല്യം ലഭിക്കുന്നില്ലെന്ന സാക്ഷ്യപത്രം"
+    ],
+    "applicationChannelsEn": [
+      "Local Matsyabhavan",
+      "Nearest Akshaya E-Centre",
+      "Regional Fisheries Executive Office"
+    ],
+    "applicationChannelsMl": [
+      "പ്രാദേശിക മത്സ്യഭവൻ",
+      "സമീപത്തുള്ള അക്ഷയ കേന്ദ്രം",
+      "ഫിഷറീസ് എക്സിക്യൂട്ടീവ് ഓഫീസ്"
+    ],
+    "nextStepsEn": [
+      "Step 1: Obtain the official birth certificate and medical discharge slip.",
+      "Step 2: Submit application within 90 days of childbirth at Matsyabhavan or Akshaya.",
+      "Step 3: Direct bank transfer is made after verification."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: കുട്ടിയുടെ ജനന സർട്ടിഫിക്കറ്റും ഡിസ്ചാർജ് രേഖകളും ശേഖരിക്കുക.",
+      "ഘട്ടം 2: പ്രസവം കഴിഞ്ഞ് 90 ദിവസത്തിനകം അപേക്ഷ സമർപ്പിക്കുക.",
+      "ഘട്ടം 3: പരിശോധനയ്ക്ക് ശേഷം തുക അക്കൗണ്ടിലേക്ക് ലഭിക്കും."
+    ],
+    "sourceOfficial": "Matsyaboard Maternity Scheme Rules",
+    "disclaimer": "Potential eligibility indication based on board norms. Must not be availing duplicate benefits under ESI."
+  },
+  {
+    "id": "SCHEME-15",
+    "nameEn": "Plantation Workers Daughter Marriage Assistance Scheme",
+    "nameMl": "തോട്ടം തൊഴിലാളി പെൺമക്കളുടെ വിവാഹ ധനസഹായ പദ്ധതി",
+    "departmentEn": "Plantation Workers Welfare Fund Board, Kerala",
+    "departmentMl": "തോട്ടം തൊഴിലാളി ക്ഷേമനിധി ബോർഡ്, തൊഴിൽ വകുപ്പ്",
+    "category": "plantation",
+    "descriptionEn": "Marriage grant of ₹10,000 per daughter (up to two daughters) for registered plantation workers with monthly household income up to ₹20,000.",
+    "descriptionMl": "പ്രതിമാസ വരുമാനം ₹20,000 ൽ കവിയാത്ത തോട്ടം തൊഴിലാളികളുടെ പെൺമക്കളുടെ വിവാഹത്തിന് നൽകുന്ന ₹10,000 ധനസഹായം (പരമാവധി രണ്ട് പെൺമക്കൾക്ക്).",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "plantation",
+        "labelEn": "Primary occupation must be Plantation Labor",
+        "labelMl": "പ്രധാന തൊഴിൽ തോട്ടം തൊഴിലാളി ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to check plantation marriage grant.",
+        "missingPromptMl": "തോട്ടം വിവാഹ ധനസഹായത്തിന് തൊഴിൽ വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be an enrolled member of Plantation Welfare Board",
+        "labelMl": "തോട്ടം ക്ഷേമനിധി ബോർഡിൽ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Plantation board membership status needed.",
+        "missingPromptMl": "തോട്ടം ക്ഷേമനിധി അംഗത്വം വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "monthlyIncome",
+        "operator": "LESS_EQUAL",
+        "value": 20000,
+        "labelEn": "Monthly household income must not exceed ₹20,000",
+        "labelMl": "പ്രതിമാസ കുടുംബ വരുമാനം ₹20,000 കവിയരുത്",
+        "missingPromptEn": "Monthly income is needed to verify eligibility.",
+        "missingPromptMl": "കുടുംബ വരുമാനം വ്യക്തമാക്കണം."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Plantation Board Passbook with continuous subscription proof",
+      "Marriage Certificate issued by Local Self Government Institution",
+      "Employer Service Certificate from Estate Manager",
+      "Income Certificate from Village Officer",
+      "Bank Account details"
+    ],
+    "requiredDocumentsMl": [
+      "തോട്ടം ക്ഷേമനിധി പാസ്സ്ബുക്ക് പകർപ്പ്",
+      "തദ്ദേശ സ്വയംഭരണ സ്ഥാപനം നൽകിയ വിവാഹ സർട്ടിഫിക്കറ്റ്",
+      "എസ്റ്റേറ്റ് മാനേജർ നൽകിയ തൊഴിൽ സാക്ഷ്യപത്രം",
+      "വില്ലേജ് ഓഫീസറുടെ വരുമാന സർട്ടിഫിക്കറ്റ്",
+      "ബാങ്ക് പാസ്സ്ബുക്ക് പകർപ്പ്"
+    ],
+    "applicationChannelsEn": [
+      "Plantation Inspectorate Office (Munnar, Peermade, Wayanad)",
+      "Chief Inspector of Plantations, Kottayam",
+      "Nearest Akshaya E-Centre"
+    ],
+    "applicationChannelsMl": [
+      "പ്ലാന്റേഷൻ ഇൻസ്പെക്ടറേറ്റ് ഓഫീസ്",
+      "ചീഫ് ഇൻസ്പെക്ടർ ഓഫ് പ്ലാന്റേഷൻസ്, കോട്ടയം",
+      "സമീപത്തുള്ള അക്ഷയ കേന്ദ്രം"
+    ],
+    "nextStepsEn": [
+      "Step 1: Obtain the official marriage registration certificate.",
+      "Step 2: Get employer verification signature from the Estate Manager.",
+      "Step 3: Submit application within one year of marriage."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: തദ്ദേശ സ്ഥാപനത്തിൽ നിന്ന് വിവാഹ സർട്ടിഫിക്കറ്റ് നേടുക.",
+      "ഘട്ടം 2: എസ്റ്റേറ്റ് മാനേജരിൽ നിന്ന് സർവീസ് സാക്ഷ്യപത്രം വാങ്ങുക.",
+      "ഘട്ടം 3: വിവാഹം കഴിഞ്ഞ് ഒരു വർഷത്തിനകം അപേക്ഷ സമർപ്പിക്കുക."
+    ],
+    "sourceOfficial": "Plantation Workers Welfare Fund Scheme Clause 14",
+    "disclaimer": "Potential eligibility indication based on labor board norms. Application must be submitted within 1 year of marriage."
+  },
+  {
+    "id": "SCHEME-16",
+    "nameEn": "Plantation Workers Maternity Benefit Scheme",
+    "nameMl": "തോട്ടം തൊഴിലാളി പ്രസവ ധനസഹായ പദ്ധതി",
+    "departmentEn": "Plantation Workers Welfare Fund Board, Kerala",
+    "departmentMl": "തോട്ടം തൊഴിലാളി ക്ഷേമനിധി ബോർഡ്, തൊഴിൽ വകുപ്പ്",
+    "category": "plantation",
+    "descriptionEn": "Maternity financial assistance grant of ₹15,000 for female plantation workers not receiving maternity benefits under ESI or employers (applicable up to two confinements).",
+    "descriptionMl": "ESI അല്ലെങ്കിൽ തോട്ടം ഉടമ വഴി മറ്റ് പ്രസവാനുകൂല്യങ്ങൾ ലഭിക്കാത്ത വനിതാ തോട്ടം തൊഴിലാളികൾക്ക് ₹15,000 ധനസഹായം (പരമാവധി രണ്ട് പ്രസവങ്ങൾക്ക്).",
+    "rules": [
+      {
+        "field": "occupation",
+        "operator": "EQUALS",
+        "value": "plantation",
+        "labelEn": "Primary occupation must be Plantation Labor",
+        "labelMl": "പ്രധാന തൊഴിൽ തോട്ടം തൊഴിലാളി ആയിരിക്കണം",
+        "missingPromptEn": "Occupation is required to verify plantation maternity aid.",
+        "missingPromptMl": "തോട്ടം പ്രസവാനുകൂല്യത്തിന് തൊഴിൽ വ്യക്തമാക്കണം."
+      },
+      {
+        "field": "isBoardMember",
+        "operator": "BOOLEAN",
+        "value": true,
+        "labelEn": "Must be an enrolled member of Plantation Welfare Board",
+        "labelMl": "തോട്ടം ക്ഷേമനിധി ബോർഡിൽ അംഗമായിരിക്കണം",
+        "missingPromptEn": "Plantation board membership status needed.",
+        "missingPromptMl": "തോട്ടം ക്ഷേമനിധി അംഗത്വം വ്യക്തമാക്കണം."
+      }
+    ],
+    "requiredDocumentsEn": [
+      "Plantation Board Passbook copy",
+      "Birth Certificate of the newborn child",
+      "Discharge summary / Medical certificate from hospital",
+      "Certificate from Estate Manager confirming non-receipt of employer maternity compensation",
+      "Mother's Bank Account details"
+    ],
+    "requiredDocumentsMl": [
+      "തോട്ടം ക്ഷേമനിധി പാസ്സ്ബുക്ക് പകർപ്പ്",
+      "കുട്ടിയുടെ ജനന സർട്ടിഫിക്കറ്റ്",
+      "ആശുപത്രിയിൽ നിന്നുള്ള മെഡിക്കൽ സർട്ടിഫിക്കറ്റ് / ഡിസ്ചാർജ് രേഖ",
+      "തോട്ടം ഉടമയിൽ നിന്ന് ആനുകൂല്യം വാങ്ങിയിട്ടില്ലെന്ന സാക്ഷ്യപത്രം",
+      "അമ്മയുടെ ബാങ്ക് പാസ്സ്ബുക്ക്"
+    ],
+    "applicationChannelsEn": [
+      "Local Plantation Inspector Office",
+      "Nearest Akshaya E-Centre",
+      "Labour Department Portal (lc.kerala.gov.in)"
+    ],
+    "applicationChannelsMl": [
+      "പ്ലാന്റേഷൻ ഇൻസ്പെക്ടർ ഓഫീസ്",
+      "സമീപത്തുള്ള അക്ഷയ കേന്ദ്രം",
+      "ലേബർ ഡിപ്പാർട്ട്മെന്റ് പോർട്ടൽ"
+    ],
+    "nextStepsEn": [
+      "Step 1: Collect birth certificate from the local Panchayat / Hospital.",
+      "Step 2: Obtain non-benefit confirmation from Estate Management.",
+      "Step 3: Submit application to the Plantation Inspector within 6 months."
+    ],
+    "nextStepsMl": [
+      "ഘട്ടം 1: തദ്ദേശ സ്ഥാപനത്തിൽ നിന്ന് ജനന സർട്ടിഫിക്കറ്റ് വാങ്ങുക.",
+      "ഘട്ടം 2: എസ്റ്റേറ്റ് മാനേജ്‌മെന്റിൽ നിന്ന് സാക്ഷ്യപത്രം നേടുക.",
+      "ഘട്ടം 3: 6 മാസത്തിനകം പ്ലാന്റേഷൻ ഇൻസ്പെക്ടർക്ക് അപേക്ഷ നൽകുക."
+    ],
+    "sourceOfficial": "Kerala Plantations Labour Rules & Board Maternity Scheme",
+    "disclaimer": "Potential eligibility indication based on labor welfare norms. Ineligible if already receiving ESI maternity compensation."
+  }
+]
+

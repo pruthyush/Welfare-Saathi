@@ -1,0 +1,205 @@
+[
+  {
+    "id": "alert_coastal_001",
+    "titleEn": "High Tide & Kallakkadal Swell Surge Warning",
+    "titleMl": "ഉയർന്ന തിരമാല / കള്ളക്കടൽ മുന്നറിയിപ്പ്",
+    "descriptionEn": "High ocean swell waves of 2.2 to 3.1 meters expected along the south-central Kerala coastline due to ocean swell surges. Inundation possible in low-lying coastal areas.",
+    "descriptionMl": "തെക്ക്-മധ്യ കേരള തീരത്ത് 2.2 മുതൽ 3.1 മീറ്റർ വരെ ഉയർന്ന തിരമാലകൾക്കും കള്ളക്കടൽ പ്രതിഭാസത്തിനും സാധ്യതയുണ്ട്. തീരപ്രദേശത്തെ താഴ്ന്ന ഭാഗങ്ങളിൽ വെള്ളം കയറാൻ സാധ്യത.",
+    "category": "coastal",
+    "hazardType": "high_tide",
+    "affectedSector": "fishing",
+    "affectedDistricts": [
+      "Alappuzha",
+      "Kollam",
+      "Thiruvananthapuram",
+      "Ernakulam"
+    ],
+    "severity": "warning",
+    "issuedAt": "2026-09-23 06:00 AM",
+    "validUntil": "2026-09-24 11:30 PM",
+    "source": "INCOIS / IMD (Demo Feed)",
+    "sourceUrl": "https://incois.gov.in",
+    "recommendedActionsEn": [
+      "Avoid beach activities and shore-based fishing during high tide hours",
+      "Safely moor and secure small motorized boats, vallams, and nets in harbors",
+      "Keep away from sea walls and areas prone to coastal erosion",
+      "Follow coastal police and Matsyafed field coordinator guidance"
+    ],
+    "recommendedActionsMl": [
+      "ഉയർന്ന വേലിയേറ്റ സമയങ്ങളിൽ കടൽത്തീര വിനോദങ്ങളും തീരക്കടൽ മത്സ്യബന്ധനവും ഒഴിവാക്കുക",
+      "ചെറിയ വള്ളങ്ങളും തോണികളും വലകളും സുരക്ഷിത സ്ഥാനങ്ങളിലേക്ക് മാറ്റി കെട്ടുക",
+      "കടൽഭിത്തികൾക്ക് സമീപവും കടലാക്രമണ സാധ്യതയുള്ള ഇടങ്ങളിലും നിൽക്കരുത്",
+      "തീരദേശ പോലീസിന്റെയും മത്സ്യഫെഡ് അധികൃതരുടെയും നിർദ്ദേശങ്ങൾ പാലിക്കുക"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "alert_plantation_001",
+    "titleEn": "Wild Elephant Herd Movement in Tea Plantation Corridor",
+    "titleMl": "കാട്ടാന സാന്നിധ്യം — തോട്ടം മേഖല ജാഗ്രതാ നിർദ്ദേശം",
+    "descriptionEn": "Active movement of a wild elephant herd reported across Devikulam, Periakanal, and Munnar tea division tracks. Workers and estate families advised to take high caution.",
+    "descriptionMl": "ദേവികുളം, പെരിയകനാൽ, മൂന്നാർ തേയില ഡിവിഷനുകളിൽ കാട്ടാനക്കൂട്ടത്തിന്റെ സാന്നിധ്യം കണ്ടെത്തിയിട്ടുണ്ട്. തോട്ടം തൊഴിലാളികളും കുടുംബങ്ങളും അതീവ ജാഗ്രത പാലിക്കുക.",
+    "category": "plantation",
+    "hazardType": "wildlife",
+    "affectedSector": "plantation",
+    "affectedDistricts": [
+      "Idukki"
+    ],
+    "severity": "warning",
+    "issuedAt": "2026-09-23 05:30 AM",
+    "validUntil": "2026-09-24 08:00 PM",
+    "source": "Kerala Forest Department / Munnar Wildlife Division (Demo Feed)",
+    "sourceUrl": "https://forest.kerala.gov.in",
+    "recommendedActionsEn": [
+      "Do not walk alone along unlit tea estate paths before 6:30 AM or after 6:00 PM",
+      "Ensure children are accompanied when traveling to estate primary schools",
+      "Never provoke, flash lights, or attempt to photograph wild animals",
+      "Immediately report elephant movement to Forest RRT Toll-Free: 1800-425-4733"
+    ],
+    "recommendedActionsMl": [
+      "പുലർച്ചെ 6:30 ന് മുമ്പോ വൈകുന്നേരം 6:00 ന് ശേഷമോ ഒറ്റയ്ക്ക് തോട്ടം വഴികളിലൂടെ സഞ്ചരിക്കരുത്",
+      "കുട്ടികൾ സ്കൂളിലേക്ക് പോകുമ്പോൾ മുതിർന്നവർ ഒപ്പം പോകുക",
+      "വന്യമൃഗങ്ങളെ പ്രകോപിപ്പിക്കുകയോ ഫ്ലാഷ് ലൈറ്റുകൾ അടിക്കുകയോ ചെയ്യരുത്",
+      "ആനകളെ കണ്ടാൽ ഉടൻ ഫോറസ്റ്റ് ആർ.ആർ.ടി ടോൾഫ്രീ നമ്പറിൽ അറിയിക്കുക: 1800-425-4733"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "alert_plantation_002",
+    "titleEn": "Heavy Rainfall & Soil Piping / Landslide Hazard Advisory",
+    "titleMl": "അതിശക്തമായ മഴ — ഉരുൾപൊട്ടൽ / മണ്ണിടിച്ചിൽ ജാഗ്രതാ നിർദ്ദേശം",
+    "descriptionEn": "Cumulative 24-hr rainfall exceeding 115mm recorded in high-range tea and coffee estates. Soil saturation on steep slopes elevates landslide risk.",
+    "descriptionMl": "ഉയർന്ന മലയോര തോട്ടങ്ങളിൽ കഴിഞ്ഞ 24 മണിക്കൂറിൽ 115 മില്ലിമീറ്ററിലധികം മഴ ലഭിച്ചു. കുത്തനെയുള്ള തേയില ചരിവുകളിൽ മണ്ണിടിച്ചിലിനും മലവെള്ളപ്പാച്ചിലിനും സാധ്യത.",
+    "category": "plantation",
+    "hazardType": "landslide",
+    "affectedSector": "plantation",
+    "affectedDistricts": [
+      "Wayanad",
+      "Idukki"
+    ],
+    "severity": "alert",
+    "issuedAt": "2026-09-23 07:15 AM",
+    "validUntil": "2026-09-24 06:00 PM",
+    "source": "Kerala State Disaster Management Authority - KSDMA (Demo Feed)",
+    "sourceUrl": "https://sdma.kerala.gov.in",
+    "recommendedActionsEn": [
+      "Workers living in layams situated on precarious hill-cuts should relocate to Grama Panchayat relief shelters if water seepage begins",
+      "Avoid traveling along ghat roads between 7:00 PM and 6:00 AM",
+      "Clear blocked natural stream waterways around worker housing clusters",
+      "Emergency helpline: State Emergency Operations Centre (1077)"
+    ],
+    "recommendedActionsMl": [
+      "മൺചരിവുകളിൽ സ്ഥിതിചെയ്യുന്ന ലയങ്ങളിൽ താമസിക്കുന്നവർ ചോർച്ചയോ വിള്ളലോ കണ്ടാൽ പഞ്ചായത്ത് ക്യാമ്പുകളിലേക്ക് മാറുക",
+      "രാത്രി 7:00 മുതൽ രാവിലെ 6:00 വരെയുള്ള മലയോര ചുരം യാത്രകൾ ഒഴിവാക്കുക",
+      "ലയങ്ങൾക്ക് സമീപമുള്ള അഴുക്കുചാലുകളിലെയും തോടുകളിലെയും തടസ്സങ്ങൾ നീക്കുക",
+      "അടിയന്തര സഹായത്തിന് ദുരന്തനിവാരണ കൺട്രോൾ റൂമിൽ വിളിക്കുക (1077)"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "alert_coastal_002",
+    "titleEn": "Squally Wind & Deep Sea Fishermen Warning",
+    "titleMl": "ശക്തമായ കാറ്റ് — ആഴക്കടൽ മത്സ്യബന്ധന വിലക്ക്",
+    "descriptionEn": "Wind speeds reaching 45 to 55 kmph gusting to 65 kmph likely over coastal waters of Kerala. Sea conditions are very rough to rough.",
+    "descriptionMl": "കേരള തീരക്കടലിൽ മണിക്കൂറിൽ 45 മുതൽ 55 കി.മീ വരെയും ചില അവസരങ്ങളിൽ 65 കി.മീ വരെയും വേഗതയിൽ ശക്തമായ കാറ്റിന് സാധ്യത. കടൽ പ്രക്ഷുബ്ധമായിരിക്കും.",
+    "category": "coastal",
+    "hazardType": "rough_sea",
+    "affectedSector": "fishing",
+    "affectedDistricts": [
+      "Kozhikode",
+      "Kannur",
+      "Kasaragod",
+      "Malappuram",
+      "Thrissur"
+    ],
+    "severity": "alert",
+    "issuedAt": "2026-09-23 08:00 AM",
+    "validUntil": "2026-09-25 06:00 AM",
+    "source": "IMD Regional Meteorological Centre (Demo Feed)",
+    "sourceUrl": "https://mausam.imd.gov.in",
+    "recommendedActionsEn": [
+      "Traditional and mechanized fishermen are strictly advised not to venture into the Arabian Sea",
+      "Those who are already in deep waters must return to the nearest harbor immediately",
+      "Verify operational status of distress alert transmitters (DAT) and satellite navigators",
+      "Keep emergency VHF Channel 16 open for marine rescue alerts"
+    ],
+    "recommendedActionsMl": [
+      "പരമ്പരാഗത, യാന്ത്രിക ബോട്ടുകൾ അറബിക്കടലിൽ മത്സ്യബന്ധനത്തിന് പോകരുത്",
+      "നിലവിൽ ആഴക്കടലിലുള്ളവർ എത്രയും വേഗം അടുത്തുള്ള ഹാർബറുകളിലേക്ക് മടങ്ങുക",
+      "ഡിസ്ട്രസ്സ് അലർട്ട് ട്രാൻസ്മിറ്ററുകളും (DAT) നാവിഗേഷൻ ഉപകരണങ്ങളും പ്രവർത്തനക്ഷമമാണെന്ന് ഉറപ്പുവരുത്തുക",
+      "വി.എച്ച്.എഫ് ചാനൽ 16 റെസ്ക്യൂ സന്ദേശങ്ങൾക്കായി സജ്ജമാക്കി വെക്കുക"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "alert_plantation_003",
+    "titleEn": "Tiger Movement Advisory Near Estate Boundaries",
+    "titleMl": "കടുവ സാന്നിധ്യം — എസ്റ്റേറ്റ് അതിർത്തി ജാഗ്രത",
+    "descriptionEn": "Direct sighting and pugmarks of an adult tiger observed near Sultan Bathery cardamom and coffee estate borders.",
+    "descriptionMl": "സുൽത്താൻ ബത്തേരി അതിർത്തിയിലെ ഏലം, കാപ്പി തോട്ടങ്ങൾക്ക് സമീപം കടുവയുടെ കാൽപ്പാടുകളും സാന്നിധ്യവും സ്ഥിരീകരിച്ചിട്ടുണ്ട്.",
+    "category": "plantation",
+    "hazardType": "wildlife",
+    "affectedSector": "plantation",
+    "affectedDistricts": [
+      "Wayanad",
+      "Palakkad"
+    ],
+    "severity": "advisory",
+    "issuedAt": "2026-09-22 04:00 PM",
+    "validUntil": "2026-09-25 06:00 PM",
+    "source": "South Wayanad Forest Division (Demo Feed)",
+    "sourceUrl": "https://forest.kerala.gov.in",
+    "recommendedActionsEn": [
+      "Work in groups of at least 3-4 persons when weeding or harvesting estate rows",
+      "Clear tall bushes and undergrowth surrounding worker residences and water taps",
+      "Carry whistle or bells while moving through plantation blocks",
+      "Keep domestic cattle inside well-fenced shelters after dusk"
+    ],
+    "recommendedActionsMl": [
+      "തോട്ടത്തിൽ പണി ചെയ്യുമ്പോൾ ചുരുങ്ങിയത് 3-4 പേരടങ്ങുന്ന സംഘങ്ങളായി മാത്രം നിൽക്കുക",
+      "ലയങ്ങൾക്കും കുടിവെള്ള പൈപ്പുകൾക്കും ചുറ്റുമുള്ള കാടുകൾ വെട്ടിമാറ്റി വെളിച്ചം ഉറപ്പാക്കുക",
+      "തോട്ടം ബ്ലോക്കുകളിലൂടെ നടക്കുമ്പോൾ ചൂളം വിളിക്കുകയോ ശബ്ദമുണ്ടാക്കുകയോ ചെയ്യുക",
+      "വളർത്തുമൃഗങ്ങളെ സന്ധ്യയ്ക്ക് മുമ്പ് സുരക്ഷിതമായി കൂടുകളിൽ കെട്ടുക"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "alert_coastal_003",
+    "titleEn": "Coastal Low Pressure Alert & Gusty Showers",
+    "titleMl": "തീരദേശ ന്യൂനമർദ്ദ മുന്നറിയിപ്പ് — ശക്തമായ മഴ",
+    "descriptionEn": "A cyclonic circulation lies over Southwest Bay of Bengal bringing widespread thunderstorms and gusty winds across coastal stretches of Kerala.",
+    "descriptionMl": "ബംഗാൾ ഉൾക്കടലിലെ ചക്രവാതച്ചുഴിയുടെ സ്വാധീനത്തിൽ കേരളത്തിലെ തീരദേശ മേഖലകളിൽ ഇടിമിന്നലോടുകൂടിയ ശക്തമായ മഴയ്ക്കും കാറ്റിനും സാധ്യത.",
+    "category": "coastal",
+    "hazardType": "cyclone",
+    "affectedSector": "fishing",
+    "affectedDistricts": [
+      "Thiruvananthapuram",
+      "Kollam",
+      "Alappuzha",
+      "Ernakulam",
+      "Thrissur",
+      "Malappuram",
+      "Kozhikode",
+      "Kannur",
+      "Kasaragod"
+    ],
+    "severity": "advisory",
+    "issuedAt": "2026-09-23 09:30 AM",
+    "validUntil": "2026-09-24 11:59 PM",
+    "source": "KSDMA & IMD Kerala (Demo Feed)",
+    "sourceUrl": "https://sdma.kerala.gov.in",
+    "recommendedActionsEn": [
+      "Unplug electrical appliances during intense lightning strikes",
+      "Avoid taking shelter under tall coconut trees along coastal tracts",
+      "Keep dry battery torches and essential medical supplies ready",
+      "Follow updates on Kerala Disaster Management portal"
+    ],
+    "recommendedActionsMl": [
+      "ശക്തമായ ഇടിമിന്നലുള്ളപ്പോൾ വൈദ്യുത ഉപകരണങ്ങൾ ഓഫ് ചെയ്യുക",
+      "തീരപ്രദേശത്തെ ഉയർന്ന തെങ്ങുകൾക്കോ മരങ്ങൾക്കോ താഴെ നിൽക്കരുത്",
+      "ടോർച്ചും അത്യാവശ്യ മരുന്നുകളും കുടിവെള്ളവും കരുതുക",
+      "കേരള ദുരന്തനിവാരണ അതോറിറ്റിയുടെ ഔദ്യോഗിക വിവരങ്ങൾ ശ്രദ്ധിക്കുക"
+    ],
+    "isDemo": true
+  }
+]
