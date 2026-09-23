@@ -6,6 +6,7 @@ import 'package:printing/printing.dart';
 import '../models/eligibility_result.dart';
 import '../models/household_profile.dart';
 import '../services/localization_service.dart';
+import 'pdf_font_helper.dart';
 import 'pdf_downloader_stub.dart'
     if (dart.library.html) 'pdf_downloader_web.dart' as downloader;
 
@@ -27,7 +28,8 @@ class PdfExportService {
     bool includeMoreInfoNeeded = true,
     Set<String>? selectedSchemeIds,
   }) async {
-    final pdf = pw.Document(compress: false);
+    final theme = await PdfFontHelper.getPdfTheme();
+    final pdf = pw.Document(theme: theme, compress: false);
 
     final potentialSchemes = results
         .where((r) => r.isPotentiallyEligible)
@@ -44,9 +46,8 @@ class PdfExportService {
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} '
         '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
 
-    // Built-in standard Helvetica fonts ensure 100% crisp, zero-latency vector rendering
-    final fontRegular = pw.Font.helvetica();
-    final fontBold = pw.Font.helveticaBold();
+    final fontRegular = PdfFontHelper.getLatinRegular();
+    final fontBold = PdfFontHelper.getLatinBold();
     final fontOblique = pw.Font.helveticaOblique();
 
     pdf.addPage(
@@ -66,9 +67,9 @@ class PdfExportService {
 
           if (includePotentiallyEligible) ...[
             _buildSectionHeader(
-              title: '1. POTENTIALLY ELIGIBLE SCHEMES (${potentialSchemes.length})',
+              title: '1. POTENTIALLY ELIGIBLE SCHEMES (${potentialSchemes.length}) (${PdfFontHelper.shape("സാധ്യതയുള്ള അർഹത")})',
               subtitle: 'Identified based on applicant screening answers and official rules',
-              color: PdfColor.fromInt(0xFF006D77),
+              color: const PdfColor.fromInt(0xFF006D77),
               fontBold: fontBold,
               fontRegular: fontRegular,
             ),
@@ -98,9 +99,9 @@ class PdfExportService {
 
           if (includeMoreInfoNeeded && incompleteSchemes.isNotEmpty) ...[
             _buildSectionHeader(
-              title: '2. SCHEMES REQUIRING ADDITIONAL INFORMATION (${incompleteSchemes.length})',
+              title: '2. SCHEMES REQUIRING ADDITIONAL INFORMATION (${incompleteSchemes.length}) (${PdfFontHelper.shape("കൂടുതൽ വിവരങ്ങൾ ആവശ്യമാണ്")})',
               subtitle: 'Clarify missing details or documents with an Akshaya operator',
-              color: PdfColor.fromInt(0xFFC05621),
+              color: const PdfColor.fromInt(0xFFC05621),
               fontBold: fontBold,
               fontRegular: fontRegular,
             ),
@@ -381,45 +382,45 @@ class PdfExportService {
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
-            'SCREENED HOUSEHOLD PROFILE DETAILS',
+            'SCREENED HOUSEHOLD PROFILE DETAILS (${PdfFontHelper.shape("കുടുംബ വിവരങ്ങൾ")})',
             style: pw.TextStyle(font: fontBold, fontSize: 10, color: const PdfColor.fromInt(0xFF006D77)),
           ),
           pw.SizedBox(height: 6),
           pw.Table(
             columnWidths: {
-              0: const pw.FlexColumnWidth(2),
-              1: const pw.FlexColumnWidth(3),
-              2: const pw.FlexColumnWidth(2),
-              3: const pw.FlexColumnWidth(3),
+              0: const pw.FlexColumnWidth(2.2),
+              1: const pw.FlexColumnWidth(2.8),
+              2: const pw.FlexColumnWidth(2.2),
+              3: const pw.FlexColumnWidth(2.8),
             },
             children: [
               pw.TableRow(children: [
-                _buildTableCell('Sector:', fontBold, isLabel: true),
+                _buildTableCell('Sector (${PdfFontHelper.shape("മേഖല")}):', fontBold, isLabel: true),
                 _buildTableCell(occText, fontRegular),
-                _buildTableCell('District:', fontBold, isLabel: true),
+                _buildTableCell('District (${PdfFontHelper.shape("ജില്ല")}):', fontBold, isLabel: true),
                 _buildTableCell(profile.district ?? 'Not specified', fontRegular),
               ]),
               pw.TableRow(children: [
-                _buildTableCell('Applicant Age:', fontBold, isLabel: true),
+                _buildTableCell('Age (${PdfFontHelper.shape("വയസ്സ്")}):', fontBold, isLabel: true),
                 _buildTableCell(profile.age != null ? '${profile.age} years' : 'Not answered', fontRegular),
-                _buildTableCell('Welfare Board:', fontBold, isLabel: true),
+                _buildTableCell('Board (${PdfFontHelper.shape("ബോർഡ്")}):', fontBold, isLabel: true),
                 _buildTableCell(boardText, fontRegular),
               ]),
               pw.TableRow(children: [
-                _buildTableCell('Ration Card:', fontBold, isLabel: true),
+                _buildTableCell('Ration Card (${PdfFontHelper.shape("കാർഡ്")}):', fontBold, isLabel: true),
                 _buildTableCell(profile.rationCardCategory ?? 'Not answered', fontRegular),
-                _buildTableCell('Housing State:', fontBold, isLabel: true),
+                _buildTableCell('Housing (${PdfFontHelper.shape("ഭവനം")}):', fontBold, isLabel: true),
                 _buildTableCell(profile.housingCondition ?? 'Not answered', fontRegular),
               ]),
               pw.TableRow(children: [
-                _buildTableCell('Monthly Income:', fontBold, isLabel: true),
+                _buildTableCell('Income (${PdfFontHelper.shape("വരുമാനം")}):', fontBold, isLabel: true),
                 _buildTableCell(incomeText, fontRegular),
-                _buildTableCell('Student Child:', fontBold, isLabel: true),
+                _buildTableCell('Children (${PdfFontHelper.shape("മക്കൾ")}):', fontBold, isLabel: true),
                 _buildTableCell(
                   profile.hasStudentChild == true
-                      ? 'Yes (Higher Sec/College)'
+                      ? 'Yes (${PdfFontHelper.shape("ഉണ്ട്")})'
                       : profile.hasStudentChild == false
-                          ? 'No'
+                          ? 'No (${PdfFontHelper.shape("ഇല്ല")})'
                           : 'Not answered',
                   fontRegular,
                 ),
@@ -484,6 +485,16 @@ class PdfExportService {
     final badgeBg = isPotential ? const PdfColor.fromInt(0xFFE6FFFA) : const PdfColor.fromInt(0xFFFFFBEB);
     final badgeLabel = isPotential ? 'POTENTIALLY ELIGIBLE' : 'MORE INFORMATION NEEDED';
 
+    final chEn = scheme.applicationChannelsEn.isNotEmpty ? scheme.applicationChannelsEn.first : '';
+    final chMl = (scheme.applicationChannelsMl.isNotEmpty && scheme.applicationChannelsMl.first.isNotEmpty)
+        ? ' (${PdfFontHelper.shape(scheme.applicationChannelsMl.first)})'
+        : '';
+
+    final stepEn = scheme.nextStepsEn.isNotEmpty ? scheme.nextStepsEn.first : '';
+    final stepMl = (scheme.nextStepsMl.isNotEmpty && scheme.nextStepsMl.first.isNotEmpty)
+        ? ' (${PdfFontHelper.shape(scheme.nextStepsMl.first)})'
+        : '';
+
     return pw.Container(
       margin: const pw.EdgeInsets.only(bottom: 10),
       padding: const pw.EdgeInsets.all(10),
@@ -505,8 +516,8 @@ class PdfExportService {
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Text(
-                      scheme.nameEn,
-                      style: pw.TextStyle(font: fontBold, fontSize: 11, color: PdfColors.black),
+                      '${scheme.nameEn}${scheme.nameMl.isNotEmpty ? " (${PdfFontHelper.shape(scheme.nameMl)})" : ""}',
+                      style: pw.TextStyle(font: fontBold, fontSize: 10.5, color: PdfColors.black),
                     ),
                     pw.Text(
                       'Scheme Code: ${scheme.id}',
@@ -514,7 +525,7 @@ class PdfExportService {
                     ),
                     pw.SizedBox(height: 2),
                     pw.Text(
-                      '${scheme.departmentEn} | Sector: ${scheme.category.toUpperCase()}',
+                      '${scheme.departmentEn}${scheme.departmentMl.isNotEmpty ? " (${PdfFontHelper.shape(scheme.departmentMl)})" : ""} | Sector: ${scheme.category.toUpperCase()}',
                       style: pw.TextStyle(font: fontRegular, fontSize: 8, color: PdfColors.grey600),
                     ),
                   ],
@@ -592,14 +603,18 @@ class PdfExportService {
           // Checklist of Required Documents
           if (scheme.requiredDocumentsEn.isNotEmpty) ...[
             pw.Text(
-              'Documents to Present at Akshaya Centre / Welfare Board:',
+              'Documents to Present (${PdfFontHelper.shape("ആവശ്യമായ രേഖകൾ")}):',
               style: pw.TextStyle(font: fontBold, fontSize: 8.5, color: PdfColors.grey800),
             ),
             pw.SizedBox(height: 2),
             pw.Wrap(
               spacing: 8,
               runSpacing: 3,
-              children: scheme.requiredDocumentsEn.map((doc) {
+              children: List.generate(scheme.requiredDocumentsEn.length, (idx) {
+                final docEn = scheme.requiredDocumentsEn[idx];
+                final docMl = (idx < scheme.requiredDocumentsMl.length && scheme.requiredDocumentsMl[idx].isNotEmpty)
+                    ? ' (${PdfFontHelper.shape(scheme.requiredDocumentsMl[idx])})'
+                    : '';
                 return pw.Row(
                   mainAxisSize: pw.MainAxisSize.min,
                   children: [
@@ -612,18 +627,26 @@ class PdfExportService {
                       ),
                     ),
                     pw.SizedBox(width: 4),
-                    pw.Text(doc, style: pw.TextStyle(font: fontRegular, fontSize: 8, color: PdfColors.grey800)),
+                    pw.Text('$docEn$docMl', style: pw.TextStyle(font: fontRegular, fontSize: 8, color: PdfColors.grey800)),
                   ],
                 );
-              }).toList(),
+              }),
             ),
             pw.SizedBox(height: 6),
           ],
 
           // Application Channel and Next Steps
+          if (scheme.applicationChannelsEn.isNotEmpty) ...[
+            pw.Text(
+              'Where to Apply (${PdfFontHelper.shape("എവിടെ അപേക്ഷിക്കാം")}): $chEn$chMl',
+              style: pw.TextStyle(font: fontRegular, fontSize: 8, color: const PdfColor.fromInt(0xFF006D77)),
+            ),
+            pw.SizedBox(height: 2),
+          ],
+
           if (scheme.nextStepsEn.isNotEmpty) ...[
             pw.Text(
-              'Recommended Next Steps: ${scheme.nextStepsEn.first}',
+              'Next Steps (${PdfFontHelper.shape("അടുത്ത ഘട്ടങ്ങൾ")}): $stepEn$stepMl',
               style: pw.TextStyle(font: fontOblique, fontSize: 8, color: PdfColors.grey700),
             ),
           ],

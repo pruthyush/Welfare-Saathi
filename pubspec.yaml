@@ -65,6 +65,14 @@ flutter:
 
   assets:
     - assets/data/
+    - assets/fonts/
+
+  fonts:
+    - family: NotoSansMalayalam
+      fonts:
+        - asset: assets/fonts/NotoSansMalayalam-Regular.ttf
+        - asset: assets/fonts/NotoSansMalayalam-Bold.ttf
+          weight: 700
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

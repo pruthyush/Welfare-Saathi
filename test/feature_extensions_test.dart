@@ -144,6 +144,8 @@ void main() {
       // Valid PDF files start with %PDF- header
       final header = String.fromCharCodes(pdfBytes.take(5));
       expect(header, '%PDF-');
+
+      File('welfare_saathi_self_declaration_actual.pdf').writeAsBytesSync(pdfBytes);
     });
   });
 }
