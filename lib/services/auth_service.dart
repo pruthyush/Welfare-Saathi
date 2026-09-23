@@ -110,6 +110,15 @@ class FirebaseAuthService extends ChangeNotifier implements AuthService {
       );
     }
 
+    // Timeout fallback: if Firebase auth state doesn't resolve in 5 seconds,
+    // mark as initialized (unauthenticated) so the app doesn't hang on SplashScreen.
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!_isInitialized) {
+        _isInitialized = true;
+        notifyListeners();
+      }
+    });
+
     auth.authStateChanges().listen((User? user) {
       if (user != null) {
         _currentUser = AppUser(
