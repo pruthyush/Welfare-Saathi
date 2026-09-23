@@ -120,26 +120,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                         ],
                       ),
                     ),
-                    PopupMenuItem(
-                      value: 'operator',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.verified_user_outlined, size: 20),
-                          const SizedBox(width: 10),
-                          Text(isMl ? 'അക്ഷയ ഓപ്പറേറ്റർ ടെർമിനൽ' : 'Akshaya Operator View'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'qr',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.qr_code_2_rounded, size: 20),
-                          const SizedBox(width: 10),
-                          Text(isMl ? 'ഫാസ്റ്റ് ട്രാക്ക് QR' : 'Fast-Track QR Code'),
-                        ],
-                      ),
-                    ),
+
                     PopupMenuItem(
                       value: 'affidavit',
                       child: Row(
@@ -1725,39 +1706,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
-          const SizedBox(height: 10),
 
-          // 3. Fast-Track QR Packet Dialog
-          OutlinedButton.icon(
-            onPressed: () => _showFastTrackQrDialog(
-              context,
-              potentialList.map((r) => r.scheme.id).toList(),
-            ),
-            icon: const Icon(Icons.qr_code_2_rounded, size: 18),
-            label: Text(
-              isMl ? 'ഫാസ്റ്റ് ട്രാക്ക് QR കോഡ്' : 'Offline Fast-Track QR Packet',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // 4. Akshaya Operator Terminal View
-          OutlinedButton.icon(
-            onPressed: _openOperatorTerminal,
-            icon: const Icon(Icons.verified_user_outlined, size: 18),
-            label: Text(
-              isMl ? 'അക്ഷയ ഓപ്പറേറ്റർ ടെർമിനൽ' : 'Akshaya Operator View',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-          ),
           const SizedBox(height: 14),
           const Divider(),
           const SizedBox(height: 8),

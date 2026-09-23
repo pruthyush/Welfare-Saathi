@@ -117,207 +117,247 @@ class _SchemeDirectoryScreenState extends State<SchemeDirectoryScreen> {
           const SizedBox(width: 16),
         ],
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 860),
-          child: Column(
-            children: [
-              // Top Search and Sector Filter Header
-              Container(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                child: Column(
-                  children: [
-                    // Search Bar
-                    TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: loc.tr('searchSchemes'),
-                        prefixIcon: const Icon(Icons.search_rounded),
-                        suffixIcon: _searchQuery.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  setState(() => _searchQuery = '');
-                                },
-                              )
-                            : null,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: isDark ? const Color(0xFF444444) : const Color(0xFFD1D5DB),
-                          ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final isDesktop = screenWidth >= 960;
+          final horizontalPadding = isDesktop ? 32.0 : 16.0;
+
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1400),
+              child: Column(
+                children: [
+                  // Top Search and Sector Filter Header
+                  Container(
+                    padding: EdgeInsets.fromLTRB(horizontalPadding, 16, horizontalPadding, 14),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: isDark ? const Color(0xFF333333) : const Color(0xFFE5E7EB),
                         ),
-                        filled: true,
-                        fillColor: isDark ? const Color(0xFF262626) : const Color(0xFFF9FAFB),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                      onChanged: (val) => setState(() => _searchQuery = val.trim()),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Sector Filter Chips
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _buildFilterChip(
-                            label: '${loc.tr('allSectors')} (${allSchemes.length})',
-                            isSelected: _selectedSector == 'all',
-                            icon: Icons.apps_rounded,
-                            onTap: () => setState(() => _selectedSector = 'all'),
-                            isDark: isDark,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildFilterChip(
-                            label: '${loc.tr('fishingSector')} ($fishingCount)',
-                            isSelected: _selectedSector == 'fishing',
-                            icon: Icons.phishing_rounded,
-                            onTap: () => setState(() => _selectedSector = 'fishing'),
-                            isDark: isDark,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildFilterChip(
-                            label: '${loc.tr('plantationSector')} ($plantationCount)',
-                            isSelected: _selectedSector == 'plantation',
-                            icon: Icons.eco_rounded,
-                            onTap: () => setState(() => _selectedSector = 'plantation'),
-                            isDark: isDark,
-                          ),
-                        ],
                       ),
                     ),
-
-                    const SizedBox(height: 8),
-
-                    // Benefit Category Filter Chips
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _buildCategoryTag(
-                            label: isMl ? 'എല്ലാ ആനുകൂല്യങ്ങളും' : 'All Benefits',
-                            isSelected: _selectedBenefitType == 'all',
-                            onTap: () => setState(() => _selectedBenefitType = 'all'),
-                            isDark: isDark,
-                          ),
-                          const SizedBox(width: 6),
-                          _buildCategoryTag(
-                            label: isMl ? 'പെൻഷൻ' : 'Pensions',
-                            isSelected: _selectedBenefitType == 'pension',
-                            onTap: () => setState(() => _selectedBenefitType = 'pension'),
-                            isDark: isDark,
-                          ),
-                          const SizedBox(width: 6),
-                          _buildCategoryTag(
-                            label: isMl ? 'ഭവനം & പുനരധിവാസം' : 'Housing & Relocation',
-                            isSelected: _selectedBenefitType == 'housing',
-                            onTap: () => setState(() => _selectedBenefitType = 'housing'),
-                            isDark: isDark,
-                          ),
-                          const SizedBox(width: 6),
-                          _buildCategoryTag(
-                            label: isMl ? 'വിദ്യാഭ്യാസം' : 'Education & Scholarships',
-                            isSelected: _selectedBenefitType == 'education',
-                            onTap: () => setState(() => _selectedBenefitType = 'education'),
-                            isDark: isDark,
-                          ),
-                          const SizedBox(width: 6),
-                          _buildCategoryTag(
-                            label: isMl ? 'ചികിത്സ & ഇൻഷുറൻസ്' : 'Medical & Insurance',
-                            isSelected: _selectedBenefitType == 'medical',
-                            onTap: () => setState(() => _selectedBenefitType = 'medical'),
-                            isDark: isDark,
-                          ),
-                          const SizedBox(width: 6),
-                          _buildCategoryTag(
-                            label: isMl ? 'വിവാഹം & പ്രസവം' : 'Marriage & Maternity',
-                            isSelected: _selectedBenefitType == 'family',
-                            onTap: () => setState(() => _selectedBenefitType = 'family'),
-                            isDark: isDark,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const Divider(height: 1),
-
-              // Disclaimer Banner
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: DisclaimerBanner(loc: loc, compact: true),
-              ),
-
-              // Count Summary
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isMl
-                          ? 'കണ്ടെത്തിയ പദ്ധതികൾ: ${filteredSchemes.length} എണ്ണം'
-                          : 'Showing ${filteredSchemes.length} of ${allSchemes.length} schemes',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: widget.onStartScreening,
-                      icon: const Icon(Icons.arrow_forward, size: 16),
-                      label: Text(
-                        loc.tr('checkEligibility'),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Scheme Cards List
-              Expanded(
-                child: filteredSchemes.isEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(32),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.search_off_rounded,
-                                size: 56,
-                                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Search Bar
+                        TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: loc.tr('searchSchemes'),
+                            prefixIcon: const Icon(Icons.search_rounded),
+                            suffixIcon: _searchQuery.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() => _searchQuery = '');
+                                    },
+                                  )
+                                : null,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                color: isDark ? const Color(0xFF444444) : const Color(0xFFD1D5DB),
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                isMl
-                                    ? 'തിരഞ്ഞെടുത്ത വിവരങ്ങൾക്ക് അനുയോജ്യമായ പദ്ധതികൾ കണ്ടെത്തിയില്ല.'
-                                    : 'No schemes match your search criteria.',
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            filled: true,
+                            fillColor: isDark ? const Color(0xFF262626) : const Color(0xFFF9FAFB),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                          onChanged: (val) => setState(() => _searchQuery = val.trim()),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Sector Filter Chips
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              _buildFilterChip(
+                                label: '${loc.tr('allSectors')} (${allSchemes.length})',
+                                isSelected: _selectedSector == 'all',
+                                icon: Icons.apps_rounded,
+                                onTap: () => setState(() => _selectedSector = 'all'),
+                                isDark: isDark,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildFilterChip(
+                                label: '${loc.tr('fishingSector')} ($fishingCount)',
+                                isSelected: _selectedSector == 'fishing',
+                                icon: Icons.phishing_rounded,
+                                onTap: () => setState(() => _selectedSector = 'fishing'),
+                                isDark: isDark,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildFilterChip(
+                                label: '${loc.tr('plantationSector')} ($plantationCount)',
+                                isSelected: _selectedSector == 'plantation',
+                                icon: Icons.eco_rounded,
+                                onTap: () => setState(() => _selectedSector = 'plantation'),
+                                isDark: isDark,
                               ),
                             ],
                           ),
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                        itemCount: filteredSchemes.length,
-                        itemBuilder: (context, index) {
-                          final scheme = filteredSchemes[index];
-                          return _buildDirectoryCard(scheme, isMl, isDark);
-                        },
-                      ),
+
+                        const SizedBox(height: 8),
+
+                        // Benefit Category Filter Chips
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              _buildCategoryTag(
+                                label: isMl ? 'എല്ലാ ആനുകൂല്യങ്ങളും' : 'All Benefits',
+                                isSelected: _selectedBenefitType == 'all',
+                                onTap: () => setState(() => _selectedBenefitType = 'all'),
+                                isDark: isDark,
+                              ),
+                              const SizedBox(width: 6),
+                              _buildCategoryTag(
+                                label: isMl ? 'പെൻഷൻ' : 'Pensions',
+                                isSelected: _selectedBenefitType == 'pension',
+                                onTap: () => setState(() => _selectedBenefitType = 'pension'),
+                                isDark: isDark,
+                              ),
+                              const SizedBox(width: 6),
+                              _buildCategoryTag(
+                                label: isMl ? 'ഭവനം & പുനരധിവാസം' : 'Housing & Relocation',
+                                isSelected: _selectedBenefitType == 'housing',
+                                onTap: () => setState(() => _selectedBenefitType = 'housing'),
+                                isDark: isDark,
+                              ),
+                              const SizedBox(width: 6),
+                              _buildCategoryTag(
+                                label: isMl ? 'വിദ്യാഭ്യാസം' : 'Education & Scholarships',
+                                isSelected: _selectedBenefitType == 'education',
+                                onTap: () => setState(() => _selectedBenefitType = 'education'),
+                                isDark: isDark,
+                              ),
+                              const SizedBox(width: 6),
+                              _buildCategoryTag(
+                                label: isMl ? 'ചികിത്സ & ഇൻഷുറൻസ്' : 'Medical & Insurance',
+                                isSelected: _selectedBenefitType == 'medical',
+                                onTap: () => setState(() => _selectedBenefitType = 'medical'),
+                                isDark: isDark,
+                              ),
+                              const SizedBox(width: 6),
+                              _buildCategoryTag(
+                                label: isMl ? 'വിവാഹം & പ്രസവം' : 'Marriage & Maternity',
+                                isSelected: _selectedBenefitType == 'family',
+                                onTap: () => setState(() => _selectedBenefitType = 'family'),
+                                isDark: isDark,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Disclaimer Banner
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(horizontalPadding, 12, horizontalPadding, 8),
+                    child: DisclaimerBanner(loc: loc, compact: true),
+                  ),
+
+                  // Count Summary
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          isMl
+                              ? 'കണ്ടെത്തിയ പദ്ധതികൾ: ${filteredSchemes.length} എണ്ണം'
+                              : 'Showing ${filteredSchemes.length} of ${allSchemes.length} schemes',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: widget.onStartScreening,
+                          icon: const Icon(Icons.arrow_forward, size: 16),
+                          label: Text(
+                            loc.tr('checkEligibility'),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Scheme Cards List
+                  Expanded(
+                    child: filteredSchemes.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.search_off_rounded,
+                                    size: 56,
+                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    isMl
+                                        ? 'തിരഞ്ഞെടുത്ത വിവരങ്ങൾക്ക് അനുയോജ്യമായ പദ്ധതികൾ കണ്ടെത്തിയില്ല.'
+                                        : 'No schemes match your search criteria.',
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : isDesktop
+                            ? SingleChildScrollView(
+                                padding: EdgeInsets.fromLTRB(horizontalPadding, 8, horizontalPadding, 24),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          for (int i = 0; i < filteredSchemes.length; i += 2)
+                                            _buildDirectoryCard(filteredSchemes[i], isMl, isDark),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 20),
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          for (int i = 1; i < filteredSchemes.length; i += 2)
+                                            _buildDirectoryCard(filteredSchemes[i], isMl, isDark),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                padding: EdgeInsets.fromLTRB(horizontalPadding, 8, horizontalPadding, 24),
+                                itemCount: filteredSchemes.length,
+                                itemBuilder: (context, index) {
+                                  final scheme = filteredSchemes[index];
+                                  return _buildDirectoryCard(scheme, isMl, isDark);
+                                },
+                              ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -414,7 +454,15 @@ class _SchemeDirectoryScreenState extends State<SchemeDirectoryScreen> {
     final channels = scheme.getApplicationChannels(isMl);
 
     return Card(
+      elevation: 0,
       margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isDark ? const Color(0xFF333333) : const Color(0xFFE5E7EB),
+        ),
+      ),
+      color: isDark ? const Color(0xFF1E293B) : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -454,12 +502,20 @@ class _SchemeDirectoryScreenState extends State<SchemeDirectoryScreen> {
                     ],
                   ),
                 ),
-                Text(
-                  scheme.id,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    scheme.id,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
                   ),
                 ),
               ],
@@ -559,15 +615,26 @@ class _SchemeDirectoryScreenState extends State<SchemeDirectoryScreen> {
             const SizedBox(height: 18),
 
             // Card Action Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                TextButton.icon(
+                OutlinedButton.icon(
                   onPressed: widget.onStartScreening,
                   icon: const Icon(Icons.check_circle_outline, size: 16),
                   label: Text(
                     isMl ? 'അർഹത പരിശോധിക്കുക' : 'Check Eligibility',
                     style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                    side: BorderSide(
+                      color: isDark ? const Color(0xFFFFD166).withValues(alpha: 0.5) : const Color(0xFF006D77).withValues(alpha: 0.4),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
                 ElevatedButton.icon(
@@ -579,7 +646,9 @@ class _SchemeDirectoryScreenState extends State<SchemeDirectoryScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
                     foregroundColor: isDark ? Colors.black : Colors.white,
+                    elevation: 0,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
               ],

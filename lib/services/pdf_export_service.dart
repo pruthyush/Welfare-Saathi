@@ -117,6 +117,17 @@ class PdfExportService {
           ],
 
           _buildAkshayaActionPlanBox(fontRegular, fontBold),
+          pw.SizedBox(height: 18),
+
+          // Integrated Akshaya Operator View & Verification Roster Pages
+          pw.NewPage(),
+          _buildAkshayaOperatorViewPages(
+            profile: profile,
+            potentialSchemes: potentialSchemes,
+            fontRegular: fontRegular,
+            fontBold: fontBold,
+            fontOblique: fontOblique,
+          ),
         ],
       ),
     );
@@ -685,6 +696,255 @@ class PdfExportService {
             '3. In case of missing information, bring revenue income certificates or ward member certifications.\n'
             '4. Keep the receipt and application reference acknowledgement number safe after submission.',
             style: pw.TextStyle(font: fontRegular, fontSize: 8.5, color: const PdfColor.fromInt(0xFF166534), height: 1.3),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static pw.Widget _buildAkshayaOperatorViewPages({
+    required HouseholdProfile profile,
+    required List<EligibilityResult> potentialSchemes,
+    required pw.Font fontRegular,
+    required pw.Font fontBold,
+    required pw.Font fontOblique,
+  }) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(
+          title: 'AKSHAYA OPERATOR PROCESSING ROSTER (${PdfFontHelper.shape("അക്ഷയ ഓപ്പറേറ്റർ പ്രോസസ്സിംഗ് ഗൈഡ്")})',
+          subtitle: 'Official intake protocol, physical document verification checklist, and direct portal upload routes',
+          color: const PdfColor.fromInt(0xFF006D77),
+          fontBold: fontBold,
+          fontRegular: fontRegular,
+        ),
+        pw.SizedBox(height: 8),
+
+        // Operator Verification Protocol Box
+        pw.Container(
+          padding: const pw.EdgeInsets.all(10),
+          decoration: pw.BoxDecoration(
+            color: const PdfColor.fromInt(0xFFF0FDF4),
+            border: pw.Border.all(color: const PdfColor.fromInt(0xFF16A34A), width: 0.8),
+            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+          ),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                'AKSHAYA OPERATOR VERIFICATION PROTOCOL (${PdfFontHelper.shape("ഓപ്പറേറ്റർ നിർദ്ദേശങ്ങൾ")})',
+                style: pw.TextStyle(font: fontBold, fontSize: 9.5, color: const PdfColor.fromInt(0xFF15803D)),
+              ),
+              pw.SizedBox(height: 4),
+              pw.Text(
+                '1. Verify original ration card, welfare fund passbook, and bank passbook linked with Aadhaar before upload.\n'
+                '2. Check off physical documents on the scanning checklist below as they are scanned and uploaded.\n'
+                '3. Use the direct departmental portal URLs listed below to fast-track submission without manual re-typing.\n'
+                '4. Issue official printed government acknowledgement receipt with reference tracking number.',
+                style: pw.TextStyle(font: fontRegular, fontSize: 8.5, color: const PdfColor.fromInt(0xFF166534), height: 1.3),
+              ),
+            ],
+          ),
+        ),
+        pw.SizedBox(height: 10),
+
+        // Verified Applicant Profile Summary Box
+        pw.Container(
+          padding: const pw.EdgeInsets.all(10),
+          decoration: pw.BoxDecoration(
+            color: PdfColors.grey100,
+            border: pw.Border.all(color: PdfColors.grey400, width: 0.8),
+            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+          ),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                'VERIFIED APPLICANT INTAKE PROFILE (${PdfFontHelper.shape("അപേക്ഷകന്റെ വിവരങ്ങൾ")})',
+                style: pw.TextStyle(font: fontBold, fontSize: 9, color: PdfColors.grey800),
+              ),
+              pw.SizedBox(height: 5),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text(
+                    'Sector: ${profile.occupation == "fishing" ? "Fishing Sector / മത്സ്യം" : profile.occupation == "plantation" ? "Plantation / തോട്ടം" : "Other Sector"}',
+                    style: pw.TextStyle(font: fontRegular, fontSize: 8),
+                  ),
+                  pw.Text(
+                    'District: ${profile.district ?? "Not specified"}',
+                    style: pw.TextStyle(font: fontRegular, fontSize: 8),
+                  ),
+                  pw.Text(
+                    'Age: ${profile.age != null ? "${profile.age} yrs" : "Not stated"}',
+                    style: pw.TextStyle(font: fontRegular, fontSize: 8),
+                  ),
+                  pw.Text(
+                    'Board: ${profile.isBoardMember == true ? "Member (${profile.yearsOfMembership ?? 0} yrs)" : "Not Registered"}',
+                    style: pw.TextStyle(font: fontRegular, fontSize: 8),
+                  ),
+                  pw.Text(
+                    'Ration: ${profile.rationCardCategory ?? "Not stated"}',
+                    style: pw.TextStyle(font: fontRegular, fontSize: 8),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        pw.SizedBox(height: 12),
+
+        // Actionable Schemes with Physical Document Scanning Checklist & Portal URLs
+        pw.Text(
+          'SCHEME PROCESSING ROSTER & DOCUMENT SCANNING CHECKLIST',
+          style: pw.TextStyle(font: fontBold, fontSize: 9.5, color: const PdfColor.fromInt(0xFF006D77)),
+        ),
+        pw.SizedBox(height: 6),
+
+        if (potentialSchemes.isEmpty)
+          pw.Container(
+            padding: const pw.EdgeInsets.all(10),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.grey100,
+              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+            ),
+            child: pw.Text(
+              'No actionable potential schemes found under current answers.',
+              style: pw.TextStyle(font: fontOblique, fontSize: 8.5, color: PdfColors.grey700),
+            ),
+          )
+        else
+          ...potentialSchemes.map((r) => _buildOperatorSchemeCard(
+                result: r,
+                fontRegular: fontRegular,
+                fontBold: fontBold,
+                fontOblique: fontOblique,
+              )),
+
+        pw.SizedBox(height: 12),
+
+        // Government Approved Akshaya Fee Schedule Transparency
+        pw.Container(
+          padding: const pw.EdgeInsets.all(10),
+          decoration: pw.BoxDecoration(
+            color: const PdfColor.fromInt(0xFFFFFBEB),
+            border: pw.Border.all(color: const PdfColor.fromInt(0xFFF59E0B), width: 0.8),
+            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+          ),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                'GOVERNMENT APPROVED AKSHAYA SERVICE FEE SCHEDULE (G.O. Rt. No. 12/2021/ITD)',
+                style: pw.TextStyle(font: fontBold, fontSize: 9, color: const PdfColor.fromInt(0xFF92400E)),
+              ),
+              pw.SizedBox(height: 4),
+              pw.Text(
+                '• Online Welfare Application Upload: Max Rs. 25/-\n'
+                '• Document Scanning & Upload: Rs. 5/- per page\n'
+                '• Acknowledgement Receipt Printout: Rs. 3/-\n'
+                'Statutory Notice: Charging excess fee above government mandated rates is strictly prohibited under Kerala IT Rules and punishable under law.',
+                style: pw.TextStyle(font: fontRegular, fontSize: 8, color: const PdfColor.fromInt(0xFF78350F), height: 1.3),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  static pw.Widget _buildOperatorSchemeCard({
+    required EligibilityResult result,
+    required pw.Font fontRegular,
+    required pw.Font fontBold,
+    required pw.Font fontOblique,
+  }) {
+    final scheme = result.scheme;
+    final nameEn = scheme.nameEn;
+    final nameMl = scheme.nameMl.isNotEmpty ? ' (${PdfFontHelper.shape(scheme.nameMl)})' : '';
+    final deptEn = scheme.departmentEn;
+    final deptMl = scheme.departmentMl.isNotEmpty ? ' (${PdfFontHelper.shape(scheme.departmentMl)})' : '';
+
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(bottom: 8),
+      padding: const pw.EdgeInsets.all(8),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.white,
+        border: pw.Border.all(color: const PdfColor.fromInt(0xFF006D77), width: 0.8),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Expanded(
+                child: pw.Text(
+                  '$nameEn$nameMl',
+                  style: pw.TextStyle(font: fontBold, fontSize: 9, color: const PdfColor.fromInt(0xFF006D77)),
+                ),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: pw.BoxDecoration(
+                  color: const PdfColor.fromInt(0xFFE0F2F1),
+                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+                ),
+                child: pw.Text(
+                  scheme.id,
+                  style: pw.TextStyle(font: fontBold, fontSize: 8, color: const PdfColor.fromInt(0xFF006D77)),
+                ),
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 2),
+          pw.Text(
+            '$deptEn$deptMl',
+            style: pw.TextStyle(font: fontRegular, fontSize: 7.5, color: PdfColors.grey700),
+          ),
+          pw.SizedBox(height: 5),
+
+          // Portal Upload Link
+          if (scheme.officialUrl != null && scheme.officialUrl!.isNotEmpty) ...[
+            pw.Text(
+              'Direct Official Portal: ${scheme.officialUrl}',
+              style: pw.TextStyle(font: fontBold, fontSize: 8, color: const PdfColor.fromInt(0xFF1D4ED8)),
+            ),
+            pw.SizedBox(height: 4),
+          ],
+
+          // Checklist of physical documents for scanning
+          pw.Text(
+            'Physical Verification & Scanning Checklist (${PdfFontHelper.shape("പരിശോധിക്കേണ്ട രേഖകൾ")}):',
+            style: pw.TextStyle(font: fontBold, fontSize: 8, color: PdfColors.grey800),
+          ),
+          pw.SizedBox(height: 3),
+          pw.Wrap(
+            spacing: 12,
+            runSpacing: 4,
+            children: List.generate(scheme.requiredDocumentsEn.length, (idx) {
+              final docEn = scheme.requiredDocumentsEn[idx];
+              final docMl = (idx < scheme.requiredDocumentsMl.length && scheme.requiredDocumentsMl[idx].isNotEmpty)
+                  ? ' (${PdfFontHelper.shape(scheme.requiredDocumentsMl[idx])})'
+                  : '';
+              return pw.Row(
+                mainAxisSize: pw.MainAxisSize.min,
+                children: [
+                  pw.Container(
+                    width: 9,
+                    height: 9,
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: PdfColors.grey700, width: 0.9),
+                      borderRadius: const pw.BorderRadius.all(pw.Radius.circular(2)),
+                    ),
+                  ),
+                  pw.SizedBox(width: 4),
+                  pw.Text('$docEn$docMl', style: pw.TextStyle(font: fontRegular, fontSize: 7.5, color: PdfColors.grey800)),
+                ],
+              );
+            }),
           ),
         ],
       ),
