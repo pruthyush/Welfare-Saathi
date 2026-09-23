@@ -112,6 +112,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final isMl = loc.isMalayalam;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth >= 880;
 
     return Scaffold(
       appBar: AppBar(
@@ -137,128 +139,165 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          padding: EdgeInsets.symmetric(
+            horizontal: isDesktop ? 32 : 24,
+            vertical: isDesktop ? 36 : 24,
+          ),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 540),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Branding Header
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isDark
-                          ? [const Color(0xFF1E1E1E), const Color(0xFF2A2A2A)]
-                          : [const Color(0xFF006D77), const Color(0xFF0F4C5C)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
-                        blurRadius: 16,
-                        offset: const Offset(0, 8),
+            constraints: BoxConstraints(maxWidth: isDesktop ? 980 : 540),
+            child: isDesktop
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildBrandingHeader(loc, isMl, isDark),
+                            const SizedBox(height: 20),
+                            _buildDisclaimerBox(theme, isMl, isDark),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 28),
+                      Expanded(
+                        flex: 6,
+                        child: _buildLoginCard(theme, isMl, isDark),
                       ),
                     ],
-                  ),
-                  child: Column(
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.volunteer_activism_rounded,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
+                      _buildBrandingHeader(loc, isMl, isDark),
+                      const SizedBox(height: 24),
+                      _buildLoginCard(theme, isMl, isDark),
+                      const SizedBox(height: 20),
+                      _buildDisclaimerBox(theme, isMl, isDark),
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBrandingHeader(LocalizationService loc, bool isMl, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF1E1E1E), const Color(0xFF2A2A2A)]
+              : [const Color(0xFF006D77), const Color(0xFF0F4C5C)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.volunteer_activism_rounded,
+              color: Colors.white,
+              size: 40,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            loc.tr('appTitle'),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            isMl
+                ? 'തോട്ടം & മത്സ്യത്തൊഴിലാളി ക്ഷേമസഹായി'
+                : 'Plantation & Fisherfolk Welfare Assistant',
+            style: TextStyle(
+              color: isDark ? const Color(0xFFFFD166) : const Color(0xFFFFDDD2),
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            isMl
+                ? 'നിങ്ങളുടെ കുടുംബ വിവരങ്ങൾ സുരക്ഷിതമായി സൂക്ഷിക്കാനും കൃത്യമായ ക്ഷേമപദ്ധതികൾ അറിയാനും ലോഗിൻ ചെയ്യുക.'
+                : 'Sign in once to securely store your household profile and access 16 verified welfare schemes.',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.9),
+              fontSize: 13,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoginCard(ThemeData theme, bool isMl, bool isDark) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF006D77).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.phone_android_rounded, color: Color(0xFF006D77), size: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        loc.tr('appTitle'),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 26,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                        ),
+                        isMl ? 'മൊബൈൽ ലോഗിൻ' : 'Mobile Sign In',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 4),
                       Text(
-                        isMl
-                            ? 'തോട്ടം & മത്സ്യത്തൊഴിലാളി ക്ഷേമസഹായി'
-                            : 'Plantation & Fisherfolk Welfare Assistant',
+                        _otpSent
+                            ? (isMl ? 'ഒ.ടി.പി നൽകുക' : 'Enter 6-digit OTP code')
+                            : (isMl ? 'മൊബൈൽ നമ്പർ നൽകുക' : 'Enter 10-digit mobile number'),
                         style: TextStyle(
-                          color: isDark ? const Color(0xFFFFD166) : const Color(0xFFFFDDD2),
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 12.5,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        isMl
-                            ? 'നിങ്ങളുടെ കുടുംബ വിവരങ്ങൾ സുരക്ഷിതമായി സൂക്ഷിക്കാനും കൃത്യമായ ക്ഷേമപദ്ധതികൾ അറിയാനും ലോഗിൻ ചെയ്യുക.'
-                            : 'Sign in once to securely store your household profile and access 16 verified welfare schemes.',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 13,
-                          height: 1.4,
-                        ),
-                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 24),
-
-                // Main Login Card
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF006D77).withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(Icons.phone_android_rounded, color: Color(0xFF006D77), size: 24),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    isMl ? 'മൊബൈൽ ലോഗിൻ' : 'Mobile Sign In',
-                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    _otpSent
-                                        ? (isMl ? 'ഒ.ടി.പി നൽകുക' : 'Enter 6-digit OTP code')
-                                        : (isMl ? 'മൊബൈൽ നമ്പർ നൽകുക' : 'Enter 10-digit mobile number'),
-                                    style: TextStyle(
-                                      fontSize: 12.5,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+              ],
+            ),
 
                         const SizedBox(height: 20),
 
@@ -464,48 +503,41 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                ),
+                );
+  }
 
-                const SizedBox(height: 20),
-
-                // Non-government Disclaimer
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0),
-                    ),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.shield_outlined,
-                        size: 18,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          isMl
-                            ? 'ശ്രദ്ധിക്കുക: ഈ ലോഗിൻ നിങ്ങളുടെ കുടുംബ വിവരങ്ങൾ ഈ ഉപകരണത്തിൽ മാത്രമായി സുരക്ഷിതമായി സൂക്ഷിക്കാനുള്ളതാണ്. ഇതൊരു ഔദ്യോഗിക സർക്കാർ തിരിച്ചറിയൽ രേഖയോ ആനുകൂല്യ അനുമതിയോ അല്ല.'
-                            : 'Notice: This account is exclusively for saving household screening details locally and in your session. It does NOT constitute an official government identity or benefit approval.',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+  Widget _buildDisclaimerBox(ThemeData theme, bool isMl, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.shield_outlined,
+            size: 18,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              isMl
+                  ? 'ശ്രദ്ധിക്കുക: ഈ ലോഗിൻ നിങ്ങളുടെ കുടുംബ വിവരങ്ങൾ ഈ ഉപകരണത്തിൽ മാത്രമായി സുരക്ഷിതമായി സൂക്ഷിക്കാനുള്ളതാണ്. ഇതൊരു ഔദ്യോഗിക സർക്കാർ തിരിച്ചറിയൽ രേഖയോ ആനുകൂല്യ അനുമതിയോ അല്ല.'
+                  : 'Notice: This account is exclusively for saving household screening details locally and in your session. It does NOT constitute an official government identity or benefit approval.',
+              style: TextStyle(
+                fontSize: 11,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                height: 1.4,
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

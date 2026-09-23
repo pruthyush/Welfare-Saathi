@@ -148,7 +148,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 620;
+    final isDesktop = screenWidth >= 880;
+    final isMobile = !isDesktop;
     final isMl = loc.isMalayalam;
     final auth = widget.authService;
     final isAuthenticated = auth?.isAuthenticated ?? false;
@@ -376,282 +377,335 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+          padding: EdgeInsets.symmetric(
+            horizontal: isDesktop ? 32 : 20,
+            vertical: isDesktop ? 32 : 24,
+          ),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Hero Header Card
-                Container(
-                  padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isDark
-                          ? [const Color(0xFF1E1E1E), const Color(0xFF2A2A2A)]
-                          : [const Color(0xFF006D77), const Color(0xFF0F4C5C)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
-                        blurRadius: 16,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
+            constraints: BoxConstraints(maxWidth: isDesktop ? 1180 : 680),
+            child: isDesktop
+                ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.18),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Icon(
-                              Icons.volunteer_activism_rounded,
-                              color: Colors.white,
-                              size: 36,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  loc.tr('appTitle'),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  isMl ? 'തോട്ടം & മത്സ്യത്തൊഴിലാളി ക്ഷേമസഹായി' : 'Plantation & Fisherfolk Welfare Assistant',
-                                  style: TextStyle(
-                                    color: isDark ? const Color(0xFFFFD166) : const Color(0xFFFFDDD2),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        loc.tr('appSubtitle'),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          height: 1.4,
-                          fontWeight: FontWeight.w500,
+                      // Left Column: Branding, Legal Disclaimer, Directory, Alerts
+                      Expanded(
+                        flex: 6,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildHeroHeader(loc, isMl, isDark),
+                            const SizedBox(height: 20),
+                            DisclaimerBanner(loc: loc),
+                            const SizedBox(height: 20),
+                            _buildDirectoryButton(isMl),
+                            if (widget.onOpenAlerts != null) ...[
+                              const SizedBox(height: 14),
+                              _buildSafetyAlertsBanner(loc, isMl, isDark, theme),
+                            ],
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        loc.tr('welcomeBanner'),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          fontSize: 14,
-                          height: 1.45,
+                      const SizedBox(width: 28),
+                      // Right Column: Active Profile / Screening Workflow & Benchmarks
+                      Expanded(
+                        flex: 5,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildProfilePersistenceCard(context, isAuthenticated),
+                            const SizedBox(height: 24),
+                            _buildSampleProfilesSection(controller, loc, isMl, isDark, theme),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Mandatory Official Disclaimer
-                DisclaimerBanner(loc: loc),
-
-                const SizedBox(height: 28),
-
-                // ==========================================
-                // USER PROFILE PERSISTENCE WORKFLOW CARD
-                // ==========================================
-                if (_isLoadingProfile)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: CircularProgressIndicator(),
-                    ),
                   )
-                else if (isAuthenticated && _savedProfile != null)
-                  _buildReturningUserCard(context, _savedProfile!)
-                else if (isAuthenticated && _savedProfile == null)
-                  _buildFirstTimeAuthenticatedCard(context)
-                else
-                  _buildGuestUserCard(context),
-
-                const SizedBox(height: 16),
-
-                // Scheme Directory Button
-                OutlinedButton.icon(
-                  onPressed: widget.onOpenDirectory,
-                  icon: const Icon(Icons.menu_book_rounded, size: 20),
-                  label: Text(
-                    isMl
-                        ? 'എല്ലാ 16 ക്ഷേമപദ്ധതികളും കാണുക (Scheme Directory)'
-                        : 'Browse All 16 Verified Schemes & Handbook',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildHeroHeader(loc, isMl, isDark),
+                      const SizedBox(height: 20),
+                      DisclaimerBanner(loc: loc),
+                      const SizedBox(height: 24),
+                      _buildProfilePersistenceCard(context, isAuthenticated),
+                      const SizedBox(height: 16),
+                      _buildDirectoryButton(isMl),
+                      if (widget.onOpenAlerts != null) ...[
+                        const SizedBox(height: 12),
+                        _buildSafetyAlertsBanner(loc, isMl, isDark, theme),
+                      ],
+                      const SizedBox(height: 28),
+                      _buildSampleProfilesSection(controller, loc, isMl, isDark, theme),
+                    ],
                   ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Community Safety Alerts Banner
-                if (widget.onOpenAlerts != null)
-                  InkWell(
-                    onTap: widget.onOpenAlerts,
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF261D12) : const Color(0xFFFFFBEB),
-                        border: Border.all(
-                          color: isDark ? const Color(0xFFD97706) : const Color(0xFFF59E0B),
-                          width: 1.2,
-                        ),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFD97706).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(Icons.shield_rounded, color: Color(0xFFD97706), size: 24),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 4,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    Text(
-                                      loc.tr('safetyAlerts'),
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFF3CD),
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(color: const Color(0xFF856404), width: 0.5),
-                                      ),
-                                      child: Text(
-                                        isMl ? 'ഡെമോ' : 'DEMO',
-                                        style: const TextStyle(
-                                          fontSize: 9.5,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF856404),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  isMl
-                                      ? 'തീരദേശ & മലയോര തോട്ടം സുരക്ഷാ ജാഗ്രതാ നിർദ്ദേശങ്ങൾ'
-                                      : 'Coastal & Hill Plantation Safety Advisories (INCOIS / KSDMA)',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(Icons.chevron_right_rounded, color: Color(0xFFD97706)),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                const SizedBox(height: 32),
-
-                // Organiser / Benchmark Sample Profiles section
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        loc.tr('loadSampleProfile'),
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ),
-                    const Expanded(child: Divider()),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                ...controller.repository.sampleProfiles.map((sample) {
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                      leading: CircleAvatar(
-                        backgroundColor: isDark ? const Color(0xFF333333) : const Color(0xFFE0F2F1),
-                        child: Icon(
-                          sample.profile.occupation == 'fishing'
-                              ? Icons.phishing_rounded
-                              : sample.profile.occupation == 'plantation'
-                                  ? Icons.eco_rounded
-                                  : Icons.work_outline_rounded,
-                          color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
-                        ),
-                      ),
-                      title: Text(
-                        sample.getTitle(isMl),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                      ),
-                      subtitle: Text(
-                        sample.getDescription(isMl),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () {
-                        controller.loadSampleProfile(sample);
-                        widget.onSampleLoaded();
-                      },
-                    ),
-                  );
-                }),
-              ],
-            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeroHeader(LocalizationService loc, bool isMl, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF1E1E1E), const Color(0xFF2A2A2A)]
+              : [const Color(0xFF006D77), const Color(0xFF0F4C5C)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.volunteer_activism_rounded,
+                  color: Colors.white,
+                  size: 36,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      loc.tr('appTitle'),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isMl ? 'തോട്ടം & മത്സ്യത്തൊഴിലാളി ക്ഷേമസഹായി' : 'Plantation & Fisherfolk Welfare Assistant',
+                      style: TextStyle(
+                        color: isDark ? const Color(0xFFFFD166) : const Color(0xFFFFDDD2),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            loc.tr('appSubtitle'),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              height: 1.4,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            loc.tr('welcomeBanner'),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.85),
+              fontSize: 14,
+              height: 1.45,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDirectoryButton(bool isMl) {
+    return OutlinedButton.icon(
+      onPressed: widget.onOpenDirectory,
+      icon: const Icon(Icons.menu_book_rounded, size: 20),
+      label: Text(
+        isMl
+            ? 'എല്ലാ 16 ക്ഷേമപദ്ധതികളും കാണുക (Scheme Directory)'
+            : 'Browse All 16 Verified Schemes & Handbook',
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      ),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+      ),
+    );
+  }
+
+  Widget _buildSafetyAlertsBanner(LocalizationService loc, bool isMl, bool isDark, ThemeData theme) {
+    return InkWell(
+      onTap: widget.onOpenAlerts,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF261D12) : const Color(0xFFFFFBEB),
+          border: Border.all(
+            color: isDark ? const Color(0xFFD97706) : const Color(0xFFF59E0B),
+            width: 1.2,
+          ),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD97706).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.shield_rounded, color: Color(0xFFD97706), size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        loc.tr('safetyAlerts'),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF3CD),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFF856404), width: 0.5),
+                        ),
+                        child: Text(
+                          isMl ? 'ഡെമോ' : 'DEMO',
+                          style: const TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF856404),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isMl
+                        ? 'തീരദേശ & മലയോര തോട്ടം സുരക്ഷാ ജാഗ്രതാ നിർദ്ദേശങ്ങൾ'
+                        : 'Coastal & Hill Plantation Safety Advisories (INCOIS / KSDMA)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFFD97706)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfilePersistenceCard(BuildContext context, bool isAuthenticated) {
+    if (_isLoadingProfile) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 24),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    } else if (isAuthenticated && _savedProfile != null) {
+      return _buildReturningUserCard(context, _savedProfile!);
+    } else if (isAuthenticated && _savedProfile == null) {
+      return _buildFirstTimeAuthenticatedCard(context);
+    } else {
+      return _buildGuestUserCard(context);
+    }
+  }
+
+  Widget _buildSampleProfilesSection(
+    ScreeningController controller,
+    LocalizationService loc,
+    bool isMl,
+    bool isDark,
+    ThemeData theme,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const Expanded(child: Divider()),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                loc.tr('loadSampleProfile'),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ),
+            const Expanded(child: Divider()),
+          ],
+        ),
+        const SizedBox(height: 16),
+        ...controller.repository.sampleProfiles.map((sample) {
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              leading: CircleAvatar(
+                backgroundColor: isDark ? const Color(0xFF333333) : const Color(0xFFE0F2F1),
+                child: Icon(
+                  sample.profile.occupation == 'fishing'
+                      ? Icons.phishing_rounded
+                      : sample.profile.occupation == 'plantation'
+                          ? Icons.eco_rounded
+                          : Icons.work_outline_rounded,
+                  color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                ),
+              ),
+              title: Text(
+                sample.getTitle(isMl),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+              subtitle: Text(
+                sample.getDescription(isMl),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () {
+                controller.loadSampleProfile(sample);
+                widget.onSampleLoaded();
+              },
+            ),
+          );
+        }),
+      ],
     );
   }
 

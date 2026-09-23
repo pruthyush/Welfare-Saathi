@@ -65,7 +65,8 @@ class _ResultsScreenState extends State<ResultsScreen>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 620;
+    final isDesktop = screenWidth >= 960;
+    final isMobile = !isDesktop;
 
     final potentialList = controller.potentiallyEligible;
     final incompleteList = controller.moreInformationNeeded;
@@ -78,6 +79,61 @@ class _ResultsScreenState extends State<ResultsScreen>
       sector: controller.profile.occupation,
       district: controller.profile.district,
     ) ?? [];
+
+    final safetyAdvisoryBanner = matchingAlerts.isNotEmpty && widget.onOpenAlerts != null
+        ? Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: InkWell(
+              onTap: () {
+                widget.alertController?.syncWithProfile(
+                  sector: controller.profile.occupation,
+                  district: controller.profile.district,
+                );
+                widget.onOpenAlerts!();
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF261D12) : const Color(0xFFFFFBEB),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFFD97706) : const Color(0xFFF59E0B),
+                    width: 1.2,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.shield_rounded, color: Color(0xFFD97706), size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        isMl
+                            ? 'ജാഗ്രതാ നിർദ്ദേശം: ${controller.profile.district ?? ""} മേഖലയിൽ ${matchingAlerts.length} സുരക്ഷാ മുന്നറിയിപ്പുകൾ സജീവമാണ് (ഡെമോ വിവരങ്ങൾ)'
+                            : 'Safety Advisory: ${matchingAlerts.length} active alerts relevant to ${controller.profile.district ?? "your sector"} (Demo Feed)',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? const Color(0xFFFFD166) : const Color(0xFF92400E),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isMl ? 'കാണുക' : 'View',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? const Color(0xFFFFD166) : const Color(0xFFD97706),
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFFD97706)),
+                  ],
+                ),
+              ),
+            ),
+          )
+        : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -211,145 +267,148 @@ class _ResultsScreenState extends State<ResultsScreen>
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 820),
-          child: Column(
-            children: [
-              // Top Notice Banner
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                child: DisclaimerBanner(loc: loc, compact: true),
-              ),
-
-              // Contextual Safety Advisories Banner if matching alerts exist for applicant's profile
-              if (matchingAlerts.isNotEmpty && widget.onOpenAlerts != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: InkWell(
-                    onTap: () {
-                      widget.alertController?.syncWithProfile(
-                        sector: controller.profile.occupation,
-                        district: controller.profile.district,
-                      );
-                      widget.onOpenAlerts!();
-                    },
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF261D12) : const Color(0xFFFFFBEB),
-                        border: Border.all(
-                          color: isDark ? const Color(0xFFD97706) : const Color(0xFFF59E0B),
-                          width: 1.2,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
+          constraints: BoxConstraints(maxWidth: isDesktop ? 1280 : 820),
+          child: isDesktop
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Column: Scheme Cards TabBarView
+                    Expanded(
+                      flex: 6,
+                      child: Column(
                         children: [
-                          const Icon(Icons.shield_rounded, color: Color(0xFFD97706), size: 20),
-                          const SizedBox(width: 10),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                            child: DisclaimerBanner(loc: loc, compact: true),
+                          ),
+                          if (safetyAdvisoryBanner != null) safetyAdvisoryBanner,
                           Expanded(
-                            child: Text(
-                              isMl
-                                  ? 'ജാഗ്രതാ നിർദ്ദേശം: ${controller.profile.district ?? ""} മേഖലയിൽ ${matchingAlerts.length} സുരക്ഷാ മുന്നറിയിപ്പുകൾ സജീവമാണ് (ഡെമോ വിവരങ്ങൾ)'
-                                  : 'Safety Advisory: ${matchingAlerts.length} active alerts relevant to ${controller.profile.district ?? "your sector"} (Demo Feed)',
-                              style: TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? const Color(0xFFFFD166) : const Color(0xFF92400E),
-                              ),
+                            child: TabBarView(
+                              controller: _tabController,
+                              children: [
+                                _buildSchemeList(potentialList, isMl, isDark),
+                                _buildSchemeList(incompleteList, isMl, isDark),
+                                _buildSchemeList(notMatchedList, isMl, isDark),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            isMl ? 'കാണുക' : 'View',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? const Color(0xFFFFD166) : const Color(0xFFD97706),
-                            ),
-                          ),
-                          const Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFFD97706)),
                         ],
                       ),
                     ),
-                  ),
-                ),
-
-              // Entitlement Value Summary Card
-              _buildValueSummaryCard(entitlementSummary, isMl, isDark),
-
-              // Entitlement Leakage Audit Warning Card (USP 2)
-              if (leakageReport != null)
-                _buildLeakageAuditCard(leakageReport, isMl, isDark),
-
-              // Fast-Track QR & Affidavit Action Chips Row
-              _buildActionChipsRow(context, potentialList, isMl, isDark),
-              const SizedBox(height: 8),
-
-              // Tab View Content
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
+                    const SizedBox(width: 16),
+                    // Right Column: Summary, Leakage Audit, and Action Panel
+                    Expanded(
+                      flex: 4,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.only(top: 14, right: 16, bottom: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildValueSummaryCard(entitlementSummary, isMl, isDark),
+                            if (leakageReport != null)
+                              _buildLeakageAuditCard(leakageReport, isMl, isDark),
+                            const SizedBox(height: 12),
+                            _buildDesktopActionPanel(
+                              context,
+                              potentialList,
+                              incompleteList,
+                              isMl,
+                              isDark,
+                              theme,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
                   children: [
-                    _buildSchemeList(potentialList, isMl, isDark),
-                    _buildSchemeList(incompleteList, isMl, isDark),
-                    _buildSchemeList(notMatchedList, isMl, isDark),
+                    // Top Notice Banner
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                      child: DisclaimerBanner(loc: loc, compact: true),
+                    ),
+
+                    if (safetyAdvisoryBanner != null) safetyAdvisoryBanner,
+
+                    // Entitlement Value Summary Card
+                    _buildValueSummaryCard(entitlementSummary, isMl, isDark),
+
+                    // Entitlement Leakage Audit Warning Card (USP 2)
+                    if (leakageReport != null)
+                      _buildLeakageAuditCard(leakageReport, isMl, isDark),
+
+                    // Fast-Track QR & Affidavit Action Chips Row
+                    _buildActionChipsRow(context, potentialList, isMl, isDark),
+                    const SizedBox(height: 8),
+
+                    // Tab View Content
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildSchemeList(potentialList, isMl, isDark),
+                          _buildSchemeList(incompleteList, isMl, isDark),
+                          _buildSchemeList(notMatchedList, isMl, isDark),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: widget.onReset,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(loc.tr('clearAll')),
+      bottomNavigationBar: isDesktop
+          ? null
+          : Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: widget.onReset,
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: Text(loc.tr('clearAll')),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: _isGeneratingPdf
+                          ? null
+                          : () => _showExportDialog(context, potentialList, incompleteList),
+                      icon: _isGeneratingPdf
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.picture_as_pdf_rounded),
+                      label: Text(
+                        isMl ? 'അക്ഷയ റിപ്പോർട്ട് (PDF)' : 'Export Akshaya PDF',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                        foregroundColor: isDark ? Colors.black : Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              flex: 2,
-              child: ElevatedButton.icon(
-                onPressed: _isGeneratingPdf
-                    ? null
-                    : () => _showExportDialog(context, potentialList, incompleteList),
-                icon: _isGeneratingPdf
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Icon(Icons.picture_as_pdf_rounded),
-                label: Text(
-                  isMl ? 'അക്ഷയ റിപ്പോർട്ട് (PDF)' : 'Export Akshaya PDF',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
-                  foregroundColor: isDark ? Colors.black : Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -1612,6 +1671,172 @@ class _ResultsScreenState extends State<ResultsScreen>
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopActionPanel(
+    BuildContext context,
+    List<EligibilityResult> potentialList,
+    List<EligibilityResult> incompleteList,
+    bool isMl,
+    bool isDark,
+    ThemeData theme,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77)).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.handyman_rounded,
+                  color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isMl ? 'അക്ഷയ സേവന ടൂളുകൾ' : 'Akshaya Verification Tools',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    Text(
+                      isMl ? 'ഔദ്യോഗിക രേഖകളും വേഗത്തിലുള്ള പ്രക്രിയയും' : 'Fast-Track Facilitation & Exports',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 14),
+
+          // 1. Primary Action: Export Akshaya PDF Report
+          ElevatedButton.icon(
+            onPressed: _isGeneratingPdf
+                ? null
+                : () => _showExportDialog(context, potentialList, incompleteList),
+            icon: _isGeneratingPdf
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.picture_as_pdf_rounded),
+            label: Text(
+              isMl ? 'അക്ഷയ റിപ്പോർട്ട് (PDF)' : 'Export Akshaya PDF Report',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+              foregroundColor: isDark ? Colors.black : Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 2. Self-Declaration Affidavit Form (PDF)
+          OutlinedButton.icon(
+            onPressed: () => _exportSelfDeclaration(share: false),
+            icon: const Icon(Icons.assignment_turned_in_outlined, size: 18),
+            label: Text(
+              isMl ? 'സത്യപ്രസ്താവന ഫോം (Affidavit PDF)' : 'Self-Declaration Affidavit (PDF)',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 3. Fast-Track QR Packet Dialog
+          OutlinedButton.icon(
+            onPressed: () => _showFastTrackQrDialog(
+              context,
+              potentialList.map((r) => r.scheme.id).toList(),
+            ),
+            icon: const Icon(Icons.qr_code_2_rounded, size: 18),
+            label: Text(
+              isMl ? 'ഫാസ്റ്റ് ട്രാക്ക് QR കോഡ്' : 'Offline Fast-Track QR Packet',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 4. Akshaya Operator Terminal View
+          OutlinedButton.icon(
+            onPressed: _openOperatorTerminal,
+            icon: const Icon(Icons.verified_user_outlined, size: 18),
+            label: Text(
+              isMl ? 'അക്ഷയ ഓപ്പറേറ്റർ ടെർമിനൽ' : 'Akshaya Operator View',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Divider(),
+          const SizedBox(height: 8),
+
+          // 5. Review / Edit Answers
+          TextButton.icon(
+            onPressed: widget.onReviewAnswers,
+            icon: const Icon(Icons.edit_note_rounded, size: 18),
+            label: Text(
+              isMl ? 'വിവരങ്ങൾ തിരുത്തുക / മാറ്റുക' : 'Review / Edit Answers',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+          ),
+
+          // 6. Reset & Start Fresh Screening
+          TextButton.icon(
+            onPressed: widget.onReset,
+            icon: const Icon(Icons.refresh_rounded, size: 18, color: Colors.grey),
+            label: Text(
+              widget.loc.tr('clearAll'),
+              style: const TextStyle(color: Colors.grey, fontSize: 12),
             ),
           ),
         ],

@@ -124,6 +124,8 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
     final isMl = loc.isMalayalam;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth >= 920;
 
     return Scaffold(
       appBar: AppBar(
@@ -149,7 +151,7 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 720),
+          constraints: BoxConstraints(maxWidth: isDesktop ? 1160 : 720),
           child: Column(
             children: [
               // Progress Bar
@@ -165,37 +167,78 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Step Title Header
-                      Text(
-                        _getStepTitle(step, isMl),
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        _getStepSubtitle(step, isMl),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Form Body per step
-                      if (step == 0) _buildStep0(context),
-                      if (step == 1) _buildStep1(context),
-                      if (step == 2) _buildStep2(context),
-
-                      const SizedBox(height: 32),
-                    ],
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 28 : 20,
+                    vertical: 20,
                   ),
+                  child: isDesktop
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Left Column: Step Questions
+                            Expanded(
+                              flex: 6,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    _getStepTitle(step, isMl),
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    _getStepSubtitle(step, isMl),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  if (step == 0) _buildStep0(context),
+                                  if (step == 1) _buildStep1(context),
+                                  if (step == 2) _buildStep2(context),
+                                  const SizedBox(height: 32),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 28),
+                            // Right Column: Live Household Profile & Screening Preview
+                            Expanded(
+                              flex: 5,
+                              child: _buildDesktopLiveSummaryCard(context, isMl, isDark, theme),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              _getStepTitle(step, isMl),
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              _getStepSubtitle(step, isMl),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            if (step == 0) _buildStep0(context),
+                            if (step == 1) _buildStep1(context),
+                            if (step == 2) _buildStep2(context),
+                            const SizedBox(height: 32),
+                          ],
+                        ),
                 ),
               ),
 
@@ -776,4 +819,206 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
       ),
     );
   }
+
+  Widget _buildDesktopLiveSummaryCard(
+    BuildContext context,
+    bool isMl,
+    bool isDark,
+    ThemeData theme,
+  ) {
+    final occText = _occupation == 'fishing'
+        ? (isMl ? 'പരമ്പരാഗത മത്സ്യത്തൊഴിലാളി' : 'Coastal Fishing Labor')
+        : _occupation == 'plantation'
+            ? (isMl ? 'തോട്ടം തൊഴിലാളി' : 'Plantation Labor')
+            : _occupation == 'other'
+                ? (isMl ? 'ജനറൽ / മറ്റ് തൊഴിലാളി' : 'General / Informal Labor')
+                : (isMl ? 'തിരഞ്ഞെടുത്തിട്ടില്ല' : 'Not selected');
+
+    final boardText = _isBoardMember == true
+        ? (isMl
+            ? 'അംഗം (${_yearsOfMembership ?? 0} വർഷം)'
+            : 'Member (${_yearsOfMembership ?? 0} Years)')
+        : _isBoardMember == false
+            ? (isMl ? 'അംഗമല്ല' : 'Non-Member')
+            : (isMl ? 'വ്യക്തമാക്കിയിട്ടില്ല' : 'Not specified');
+
+    final cardText = _rationCardCategory == 'AAY'
+        ? (isMl ? 'മഞ്ഞ കാർഡ് (AAY)' : 'Yellow Card (AAY)')
+        : _rationCardCategory == 'PHH'
+            ? (isMl ? 'പിങ്ക് കാർഡ് (PHH)' : 'Pink Card (PHH)')
+            : _rationCardCategory == 'NPHH'
+                ? (isMl ? 'നീല കാർഡ് (NPHH)' : 'Blue Card (NPHH)')
+                : _rationCardCategory == 'Non-Priority'
+                    ? (isMl ? 'വെള്ള കാർഡ് (Non-Priority)' : 'White Card')
+                    : (isMl ? 'തിരഞ്ഞെടുത്തിട്ടില്ല' : 'Not selected');
+
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77))
+                      .withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.insights_rounded,
+                  color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isMl ? 'തത്സമയ വിവര സംഗ്രഹം' : 'Live Applicant Summary',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    Text(
+                      isMl ? 'വിൻഡോസ് / ഡെസ്ക്ടോപ്പ് പ്രിവ്യൂ' : 'Desktop Workbench View',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 12),
+
+          _buildSummaryItem(
+            isMl ? 'തൊഴിൽ മേഖല' : 'Primary Sector',
+            occText,
+            Icons.work_outline_rounded,
+            theme,
+            isDark,
+          ),
+          _buildSummaryItem(
+            isMl ? 'ജില്ല' : 'District',
+            _district ?? (isMl ? 'നൽകിയിട്ടില്ല' : 'Not specified'),
+            Icons.location_on_outlined,
+            theme,
+            isDark,
+          ),
+          _buildSummaryItem(
+            isMl ? 'പ്രായം' : 'Applicant Age',
+            _age != null ? '$_age ${isMl ? "വയസ്സ്" : "Years"}' : (isMl ? 'നൽകിയിട്ടില്ല' : 'Not specified'),
+            Icons.cake_outlined,
+            theme,
+            isDark,
+          ),
+          _buildSummaryItem(
+            isMl ? 'റേഷൻ കാർഡ്' : 'Ration Card',
+            cardText,
+            Icons.credit_card_rounded,
+            theme,
+            isDark,
+          ),
+          _buildSummaryItem(
+            isMl ? 'ക്ഷേമനിധി ബോർഡ്' : 'Welfare Board',
+            boardText,
+            Icons.badge_outlined,
+            theme,
+            isDark,
+          ),
+          _buildSummaryItem(
+            isMl ? 'മാസവരുമാനം' : 'Monthly Income',
+            _monthlyIncome != null ? 'Rs. $_monthlyIncome /-' : (isMl ? 'രേഖപ്പെടുത്തിയിട്ടില്ല' : 'Not entered'),
+            Icons.currency_rupee_rounded,
+            theme,
+            isDark,
+          ),
+
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF262626) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isDark ? const Color(0xFF404040) : const Color(0xFFE2E8F0),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.verified_outlined, size: 18, color: Color(0xFF006D77)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isMl
+                        ? '16 കേരള സർക്കാർ ക്ഷേമപദ്ധതികളുമായി തത്സമയം പൊരുത്തപ്പെടുത്തുന്നു. പൂർണ്ണമായും സുരക്ഷിതവും രഹസ്യവുമായിരിക്കും.'
+                        : 'Evaluated deterministically across 16 official Kerala welfare schemes with zero PII retention.',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      height: 1.35,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryItem(
+    String label,
+    String value,
+    IconData icon,
+    ThemeData theme,
+    bool isDark,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.5,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
