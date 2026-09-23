@@ -1,8 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:welfare_saathi/controllers/screening_controller.dart';
+import 'package:welfare_saathi/main.dart';
 import 'package:welfare_saathi/models/eligibility_result.dart';
 import 'package:welfare_saathi/models/household_profile.dart';
+import 'package:welfare_saathi/screens/login_screen.dart';
+import 'package:welfare_saathi/screens/welcome_screen.dart';
 import 'package:welfare_saathi/services/auth_service.dart';
+import 'package:welfare_saathi/services/localization_service.dart';
 import 'package:welfare_saathi/services/profile_repository.dart';
 import 'package:welfare_saathi/services/scheme_repository.dart';
 
@@ -266,6 +270,91 @@ void main() {
           .firstWhere((r) => r.scheme.id == 'SCHEME-01');
       expect(updatedSchemeResult.status, equals(EligibilityStatus.potentiallyEligible));
       expect(updatedSchemeResult.missingRules, isEmpty);
+    });
+  });
+
+  group('AUTH GATE & APP STARTUP WIDGET TESTS', () {
+    late LocalizationService loc;
+
+    setUpAll(() async {
+      loc = LocalizationService();
+      await loc.loadTranslations();
+      loc.setLanguage('en');
+    });
+
+    testWidgets('12. Unauthenticated user on app startup is routed to LoginScreen', (tester) async {
+      await mockAuth.signOut();
+
+      await tester.pumpWidget(WelfareSaathiApp(
+        repository: schemeRepository,
+        loc: loc,
+        controller: controller,
+        authService: mockAuth,
+        profileRepository: mockProfileRepo,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LoginScreen), findsOneWidget);
+      expect(find.textContaining('Mobile Sign In'), findsOneWidget);
+      expect(find.byType(WelcomeScreen), findsNothing);
+    });
+
+    testWidgets('13. Authenticated returning user with saved profile bypasses LoginScreen and sees WelcomeScreen', (tester) async {
+      // Setup authenticated user
+      await mockAuth.signInWithPhoneNumber(phoneNumber: '9847123456', otp: '123456');
+      final uid = mockAuth.currentUser!.uid;
+      mockProfileRepo.currentUid = uid;
+
+      // Seed saved profile
+      const savedProfile = HouseholdProfile(
+        occupation: 'fishing',
+        district: 'Alappuzha',
+        age: 62,
+        isBoardMember: true,
+        yearsOfMembership: 6,
+        monthlyIncome: 7000,
+        rationCardCategory: 'PHH',
+      );
+      await mockProfileRepo.saveProfile(savedProfile);
+
+      await tester.pumpWidget(WelfareSaathiApp(
+        repository: schemeRepository,
+        loc: loc,
+        controller: controller,
+        authService: mockAuth,
+        profileRepository: mockProfileRepo,
+      ));
+      await tester.pumpAndSettle();
+
+      // LoginScreen must NOT be shown
+      expect(find.byType(LoginScreen), findsNothing);
+      expect(find.byType(WelcomeScreen), findsOneWidget);
+      // Saved details must be presented
+      expect(find.textContaining('Review My Details'), findsOneWidget);
+      expect(find.textContaining('Continue with Saved Details'), findsOneWidget);
+    });
+
+    testWidgets('14. Explicit logout immediately redirects user to LoginScreen', (tester) async {
+      await mockAuth.signInWithPhoneNumber(phoneNumber: '9847123456', otp: '123456');
+
+      await tester.pumpWidget(WelfareSaathiApp(
+        repository: schemeRepository,
+        loc: loc,
+        controller: controller,
+        authService: mockAuth,
+        profileRepository: mockProfileRepo,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(WelcomeScreen), findsOneWidget);
+
+      // Perform logout
+      await mockAuth.signOut();
+      await tester.pumpAndSettle();
+
+      // AuthGate must immediately show LoginScreen
+      expect(find.byType(LoginScreen), findsOneWidget);
+      expect(find.byType(WelcomeScreen), findsNothing);
     });
   });
 }

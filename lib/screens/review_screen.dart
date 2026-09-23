@@ -179,17 +179,40 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
                 const SizedBox(height: 28),
 
-                // Recalculate Button
+                // Save Changes & Re-screen Button
                 ElevatedButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
                     widget.controller.evaluateCurrentProfile();
-                    widget.controller.saveCurrentProfileToRemote();
+                    await widget.controller.saveCurrentProfileToRemote();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: const Color(0xFF006D77),
+                          behavior: SnackBarBehavior.floating,
+                          content: Row(
+                            children: [
+                              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  isMl
+                                      ? 'നിങ്ങളുടെ കുടുംബ വിവരങ്ങൾ പുതുക്കി സേവ് ചെയ്തു.'
+                                      : 'Your household details have been updated.',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    }
                     widget.onRecalculate();
                   },
-                  icon: const Icon(Icons.sync_rounded, size: 24),
+                  icon: const Icon(Icons.save_as_rounded, size: 22),
                   label: Text(
-                    loc.tr('recalculate'),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    isMl ? 'മാറ്റങ്ങൾ സേവ് ചെയ്ത് വീണ്ടും പരിശോധിക്കുക' : 'Save Changes & Re-screen',
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),

@@ -4,11 +4,13 @@ import 'controllers/alert_controller.dart';
 import 'controllers/screening_controller.dart';
 import 'firebase_options.dart';
 import 'screens/alerts_screen.dart';
+import 'screens/login_screen.dart';
 import 'screens/results_screen.dart';
 import 'screens/review_screen.dart';
 import 'screens/scheme_detail_screen.dart';
 import 'screens/scheme_directory_screen.dart';
 import 'screens/screening_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/welcome_screen.dart';
 import 'services/alert_repository.dart';
 import 'services/auth_service.dart';
@@ -95,6 +97,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
   // 'welcome' | 'screening' | 'results' | 'detail' | 'review' | 'alerts'
   String _currentRoute = 'welcome';
   String _previousRoute = 'welcome';
+  bool _hasLoadedStartupProfile = false;
 
   @override
   void initState() {
@@ -103,6 +106,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
     widget.loc.addListener(_onStateChange);
     widget.alertController.addListener(_onStateChange);
     widget.authService?.addListener(_onStateChange);
+    _checkStartupProfile();
   }
 
   @override
@@ -114,7 +118,18 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
     super.dispose();
   }
 
+  void _checkStartupProfile() {
+    final auth = widget.authService;
+    if (auth != null && auth.isAuthenticated && !_hasLoadedStartupProfile) {
+      _hasLoadedStartupProfile = true;
+      widget.controller.loadProfileFromRemote();
+    } else if (auth != null && !auth.isAuthenticated) {
+      _hasLoadedStartupProfile = false;
+    }
+  }
+
   void _onStateChange() {
+    _checkStartupProfile();
     setState(() {});
   }
 
@@ -153,6 +168,31 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
     ScreeningController controller,
     LocalizationService loc,
   ) {
+    // -----------------------------------------------------------------
+    // AUTHENTICATION GATE & PERSISTENT SESSION SOURCE OF TRUTH
+    // -----------------------------------------------------------------
+    final auth = widget.authService;
+    if (auth != null) {
+      // 1. Initializing check (prevents premature Home flash or navigation flicker)
+      if (!auth.isInitialized) {
+        return SplashScreen(loc: loc);
+      }
+
+      // 2. Unauthenticated state -> Enforce single-time Login first
+      if (!auth.isAuthenticated) {
+        return LoginScreen(
+          authService: auth,
+          loc: loc,
+          controller: controller,
+          onAuthenticated: () async {
+            await widget.controller.loadProfileFromRemote();
+            _navigateTo('welcome');
+          },
+        );
+      }
+    }
+
+    // 3. Authenticated session active -> proceed to app screens
     switch (_currentRoute) {
       case 'screening':
         return ScreeningScreen(
@@ -238,7 +278,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
           controller: controller,
           loc: loc,
           onRecalculate: () => _navigateTo('results'),
-          onBack: () => _navigateTo('results'),
+          onBack: () => _navigateTo(_previousRoute == 'results' ? 'results' : 'welcome'),
         );
 
       case 'welcome':
@@ -249,6 +289,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
           alertController: widget.alertController,
           authService: widget.authService,
           onOpenAlerts: () => _navigateTo('alerts'),
+          onReviewProfile: () => _navigateTo('review'),
           onStartScreening: () {
             controller.setStep(0);
             _navigateTo('screening');
@@ -259,3 +300,4 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
     }
   }
 }
+

@@ -49,6 +49,8 @@ class FirestoreProfileRepository implements ProfileRepository {
     if (db == null) return;
 
     try {
+      final profileMap = profile.toMap();
+      profileMap['updatedAt'] = FieldValue.serverTimestamp();
       await db
           .collection('users')
           .doc(uid)
@@ -56,7 +58,7 @@ class FirestoreProfileRepository implements ProfileRepository {
         'uid': uid,
         'phoneNumber': _authService.currentUser?.phoneNumber ?? '',
         'updatedAt': FieldValue.serverTimestamp(),
-        'householdProfile': profile.toMap(),
+        'householdProfile': profileMap,
       }, SetOptions(merge: true));
     } catch (e) {
       // Local cache ensures offline operation continues

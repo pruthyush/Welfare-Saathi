@@ -16,6 +16,7 @@ class WelcomeScreen extends StatefulWidget {
   final VoidCallback onOpenDirectory;
   final AlertController? alertController;
   final VoidCallback? onOpenAlerts;
+  final VoidCallback? onReviewProfile;
   final AuthService? authService;
 
   const WelcomeScreen({
@@ -27,6 +28,7 @@ class WelcomeScreen extends StatefulWidget {
     required this.onOpenDirectory,
     this.alertController,
     this.onOpenAlerts,
+    this.onReviewProfile,
     this.authService,
   });
 
@@ -681,15 +683,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
           const SizedBox(height: 20),
 
-          // BUTTON 1: Continue with Saved Details (Deterministic evaluation)
+          // BUTTON 1: Review My Details (Review previously saved household details & edit only what changed)
           ElevatedButton.icon(
             onPressed: () {
-              widget.controller.continueWithSavedProfile(profile);
-              widget.onSampleLoaded();
+              widget.controller.editSavedProfile(profile);
+              if (widget.onReviewProfile != null) {
+                widget.onReviewProfile!();
+              } else {
+                widget.controller.setStep(0);
+                widget.onStartScreening();
+              }
             },
-            icon: const Icon(Icons.arrow_forward_rounded, size: 22),
+            icon: const Icon(Icons.rate_review_rounded, size: 22),
             label: Text(
-              isMl ? 'സേവ് ചെയ്ത വിവരങ്ങൾ വച്ച് തുടരുക' : 'Continue with Saved Details',
+              isMl ? 'വിവരങ്ങൾ പരിശോധിക്കുക (Review My Details)' : 'Review My Details',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
@@ -702,16 +709,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
           const SizedBox(height: 10),
 
-          // BUTTON 2: Edit Household Details (Pre-filled screening, edit only changed fields)
+          // BUTTON 2: Continue with Saved Details (Instant re-screening & results)
           OutlinedButton.icon(
             onPressed: () {
-              widget.controller.editSavedProfile(profile);
-              widget.controller.setStep(0);
-              widget.onStartScreening();
+              widget.controller.continueWithSavedProfile(profile);
+              widget.onSampleLoaded();
             },
-            icon: const Icon(Icons.edit_note_rounded, size: 20),
+            icon: const Icon(Icons.arrow_forward_rounded, size: 20),
             label: Text(
-              isMl ? 'വിവരങ്ങൾ മാറ്റുക (Edit Household Details)' : 'Edit Household Details',
+              isMl ? 'നേരിട്ട് പരിശോധനാ ഫലങ്ങൾ കാണുക' : 'Continue with Saved Details',
               style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
             ),
             style: OutlinedButton.styleFrom(
@@ -720,7 +726,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
           // BUTTON 3: Start New Screening (Clean profile, no silent copying)
           TextButton.icon(
@@ -733,7 +739,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               isMl ? 'മറ്റൊരു കുടുംബത്തിനായി പുതിയ പരിശോധന (Start New Screening)' : 'Start New Screening (Clean Session)',
               style: TextStyle(
                 fontSize: 13,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+          ),
+
+          const Divider(height: 20),
+
+          // Sign Out Option
+          Align(
+            alignment: Alignment.center,
+            child: TextButton.icon(
+              onPressed: _confirmSignOut,
+              icon: const Icon(Icons.logout_rounded, color: Colors.red, size: 16),
+              label: Text(
+                isMl ? 'ലോഗ് ഔട്ട് (Sign Out)' : 'Sign Out / Log Out',
+                style: const TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ),
           ),

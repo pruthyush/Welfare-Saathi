@@ -35,6 +35,7 @@ abstract class AuthService extends ChangeNotifier {
   AppUser? get currentUser;
   bool get isAuthenticated => currentUser != null;
   bool get isFirebaseAvailable;
+  bool get isInitialized;
   String? get pendingPhoneNumber;
 
   /// Sends an OTP to the specified 10-digit Indian phone number.
@@ -60,6 +61,7 @@ class FirebaseAuthService extends ChangeNotifier implements AuthService {
   final FirebaseAuth? _firebaseAuth;
   AppUser? _currentUser;
   bool _isFirebaseAvailable = false;
+  bool _isInitialized = false;
   String? _pendingPhoneNumber;
   ConfirmationResult? _confirmationResult;
 
@@ -78,22 +80,37 @@ class FirebaseAuthService extends ChangeNotifier implements AuthService {
 
   void _init() {
     final auth = _firebaseAuth;
-    if (auth != null) {
-      _isFirebaseAvailable = true;
-      auth.authStateChanges().listen((User? user) {
-        if (user != null) {
-          _currentUser = AppUser(
-            uid: user.uid,
-            phoneNumber: user.phoneNumber ?? _pendingPhoneNumber ?? '+919876543210',
-            email: user.email,
-            isAnonymous: user.isAnonymous,
-          );
-        } else {
-          _currentUser = null;
-        }
-        notifyListeners();
-      });
+    if (auth == null) {
+      _isInitialized = true;
+      notifyListeners();
+      return;
     }
+
+    _isFirebaseAvailable = true;
+    final initialUser = auth.currentUser;
+    if (initialUser != null) {
+      _currentUser = AppUser(
+        uid: initialUser.uid,
+        phoneNumber: initialUser.phoneNumber ?? '+919876543210',
+        email: initialUser.email,
+        isAnonymous: initialUser.isAnonymous,
+      );
+    }
+
+    auth.authStateChanges().listen((User? user) {
+      if (user != null) {
+        _currentUser = AppUser(
+          uid: user.uid,
+          phoneNumber: user.phoneNumber ?? _pendingPhoneNumber ?? '+919876543210',
+          email: user.email,
+          isAnonymous: user.isAnonymous,
+        );
+      } else {
+        _currentUser = null;
+      }
+      _isInitialized = true;
+      notifyListeners();
+    });
   }
 
   @override
@@ -104,6 +121,9 @@ class FirebaseAuthService extends ChangeNotifier implements AuthService {
 
   @override
   bool get isFirebaseAvailable => _isFirebaseAvailable;
+
+  @override
+  bool get isInitialized => _isInitialized;
 
   @override
   String? get pendingPhoneNumber => _pendingPhoneNumber;
@@ -237,6 +257,7 @@ class FirebaseAuthService extends ChangeNotifier implements AuthService {
 class MockAuthService extends ChangeNotifier implements AuthService {
   AppUser? _user;
   String? _pendingPhone;
+  bool _isInitialized = true;
 
   @override
   AppUser? get currentUser => _user;
@@ -246,6 +267,14 @@ class MockAuthService extends ChangeNotifier implements AuthService {
 
   @override
   bool get isFirebaseAvailable => true;
+
+  @override
+  bool get isInitialized => _isInitialized;
+
+  set isInitialized(bool val) {
+    _isInitialized = val;
+    notifyListeners();
+  }
 
   @override
   String? get pendingPhoneNumber => _pendingPhone;
