@@ -122,25 +122,47 @@ For each verified scheme, the application connects the household with nearest **
 
 ---
 
-## 🧪 Automated Test Suite (9 Tests Passing)
+## 🧪 Automated Test Suite (42 Tests Passing)
 
-The project includes unit and widget tests in `test/`:
-1. **Verified Dataset Size:** Confirms 10+ schemes exist in the dataset (currently 11).
-2. **Potentially Eligible Case:** Confirms senior fisherman profile qualifies for Pension, Monsoon Relief, and Group Insurance.
-3. **Not Matched Case:** Confirms non-qualifying household is disqualified across all sector schemes.
-4. **Missing Information Case:** Confirms skipped income flags `moreInformationRequired` with exact missing prompt.
-5. **Correction & Recalculation:** Confirms updating a skipped answer recalculates to `potentiallyEligible`.
-6. **Boundary Conditions:** Exact age 59 vs 60, exact income ₹8,333 vs ₹8,334.
-7. **Strict Safety Text:** Asserts the application strictly uses "Potentially Eligible" and never "You are eligible".
-8. **Plantation Coverage:** Confirms plantation worker matches housing and student merit scholarships.
-9. **Bilingual UI Smoke Test:** Asserts Welcome screen renders in Malayalam and English with reactive disclaimers.
+The project includes an extensive test suite across 6 dedicated test files in `test/`:
+1. **Authentication & Profile Persistence (`test/auth_profile_test.dart` — 15 Tests):**
+   - Unauthenticated startup routing to `LoginScreen` via `AuthGate`.
+   - 10-digit mobile number input & `+91` E.164 normalization.
+   - OTP verification with test code (`123456`) support.
+   - Session restoration on app reopen (bypasses login).
+   - Profile loading and field mapping (Age, District, Occupation, Income, Board, Ration Card).
+   - Returning user edit-only-changed-fields (e.g. Age 62 → 63).
+   - Clearing fields to `null` without fake/artificial defaults.
+   - "Start New Screening" clean session without silent copying.
+   - Deterministic eligibility recalculation on profile updates.
+   - Explicit logout immediately returning to `LoginScreen`.
+2. **Deterministic Eligibility Engine (`test/eligibility_engine_test.dart` — 10 Tests):**
+   - Verified 16-scheme dataset integrity.
+   - Senior fisherman profile (Pension, Relief, Insurance).
+   - Non-qualifying household disqualification across all sector schemes.
+   - Missing information flags `moreInformationRequired` with exact prompts.
+   - Correction & recalculation to `potentiallyEligible`.
+   - Exact boundary conditions (age 59 vs 60, income ₹8,333 vs ₹8,334).
+   - Strict safety language asserting "Potentially Eligible" (never "You are eligible").
+   - Plantation coverage (housing, education scholarships, maternity, marriage aid).
+3. **Fresh Screening & Null Preservation (`test/fresh_screening_test.dart` — 6 Tests):**
+   - Asserts unselected fields remain strictly `null` (never defaults like age 58 or dilapidated).
+4. **Community Safety Alerts (`test/safety_alerts_test.dart` — 7 Tests):**
+   - High-seas rough weather warnings, landslide hill advisories, bilingual text, sector/district filtering.
+5. **Welfare Screening PDF Export (`test/pdf_export_test.dart` — 4 Tests):**
+   - PDF entitlement report generation with official legal disclaimers.
+6. **Bilingual UI Smoke & Directory Navigation (`test/widget_test.dart` — 2 Tests):**
+   - Full smoke test and 16-scheme handbook index navigation.
 
 ```bash
-# Run test suite
+# Run complete test suite (42/42 passing)
 flutter test
 
-# Run static analysis
+# Run static analysis (0 issues)
 flutter analyze
+
+# Build production web bundle
+flutter build web --release
 ```
 
 ---
