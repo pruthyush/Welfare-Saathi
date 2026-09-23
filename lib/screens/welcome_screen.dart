@@ -379,66 +379,68 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
             horizontal: isDesktop ? 32 : 20,
-            vertical: isDesktop ? 32 : 24,
+            vertical: isDesktop ? 28 : 24,
           ),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isDesktop ? 1180 : 680),
-            child: isDesktop
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Left Column: Branding, Legal Disclaimer, Directory, Alerts
-                      Expanded(
-                        flex: 6,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _buildHeroHeader(loc, isMl, isDark),
-                            const SizedBox(height: 20),
-                            DisclaimerBanner(loc: loc),
-                            const SizedBox(height: 20),
-                            _buildDirectoryButton(isMl),
-                            if (widget.onOpenAlerts != null) ...[
-                              const SizedBox(height: 14),
-                              _buildSafetyAlertsBanner(loc, isMl, isDark, theme),
-                            ],
+          child: isDesktop
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Column: Branding, Legal Disclaimer, Directory, Alerts
+                    Expanded(
+                      flex: 6,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildHeroHeader(loc, isMl, isDark),
+                          const SizedBox(height: 20),
+                          DisclaimerBanner(loc: loc),
+                          const SizedBox(height: 20),
+                          _buildDirectoryButton(isMl),
+                          if (widget.onOpenAlerts != null) ...[
+                            const SizedBox(height: 14),
+                            _buildSafetyAlertsBanner(loc, isMl, isDark, theme),
                           ],
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 28),
-                      // Right Column: Active Profile / Screening Workflow & Benchmarks
-                      Expanded(
-                        flex: 5,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _buildProfilePersistenceCard(context, isAuthenticated),
-                            const SizedBox(height: 24),
-                            _buildSampleProfilesSection(controller, loc, isMl, isDark, theme),
-                          ],
-                        ),
+                    ),
+                    const SizedBox(width: 32),
+                    // Right Column: Active Profile / Screening Workflow & Benchmarks
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildProfilePersistenceCard(context, isAuthenticated),
+                          const SizedBox(height: 24),
+                          _buildSampleProfilesSection(controller, loc, isMl, isDark, theme),
+                        ],
                       ),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildHeroHeader(loc, isMl, isDark),
-                      const SizedBox(height: 20),
-                      DisclaimerBanner(loc: loc),
-                      const SizedBox(height: 24),
-                      _buildProfilePersistenceCard(context, isAuthenticated),
-                      const SizedBox(height: 16),
-                      _buildDirectoryButton(isMl),
-                      if (widget.onOpenAlerts != null) ...[
-                        const SizedBox(height: 12),
-                        _buildSafetyAlertsBanner(loc, isMl, isDark, theme),
+                    ),
+                  ],
+                )
+              : Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 680),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildHeroHeader(loc, isMl, isDark),
+                        const SizedBox(height: 20),
+                        DisclaimerBanner(loc: loc),
+                        const SizedBox(height: 24),
+                        _buildProfilePersistenceCard(context, isAuthenticated),
+                        const SizedBox(height: 16),
+                        _buildDirectoryButton(isMl),
+                        if (widget.onOpenAlerts != null) ...[
+                          const SizedBox(height: 12),
+                          _buildSafetyAlertsBanner(loc, isMl, isDark, theme),
+                        ],
+                        const SizedBox(height: 28),
+                        _buildSampleProfilesSection(controller, loc, isMl, isDark, theme),
                       ],
-                      const SizedBox(height: 28),
-                      _buildSampleProfilesSection(controller, loc, isMl, isDark, theme),
-                    ],
+                    ),
                   ),
-          ),
+                ),
         ),
       ),
     );

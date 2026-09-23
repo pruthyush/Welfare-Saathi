@@ -149,71 +149,143 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
           const SizedBox(width: 16),
         ],
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: isDesktop ? 1160 : 720),
-          child: Column(
-            children: [
-              // Progress Bar
-              LinearProgressIndicator(
-                value: (step + 1) / 3,
-                minHeight: 6,
-                backgroundColor: isDark ? const Color(0xFF333333) : const Color(0xFFE5E7EB),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
-                ),
-              ),
-
-              Expanded(
-                child: SingleChildScrollView(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 28 : 20,
-                    vertical: 20,
+      body: isDesktop
+          ? Column(
+              children: [
+                // Progress Bar
+                LinearProgressIndicator(
+                  value: (step + 1) / 3,
+                  minHeight: 6,
+                  backgroundColor: isDark ? const Color(0xFF333333) : const Color(0xFFE5E7EB),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
                   ),
-                  child: isDesktop
-                      ? Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Left Column: Step Questions
-                            Expanded(
-                              flex: 6,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Text(
-                                    _getStepTitle(step, isMl),
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    _getStepSubtitle(step, isMl),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  if (step == 0) _buildStep0(context),
-                                  if (step == 1) _buildStep1(context),
-                                  if (step == 2) _buildStep2(context),
-                                  const SizedBox(height: 32),
-                                ],
+                ),
+
+                Expanded(
+                  child: SingleChildScrollView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Left Column: Step Questions
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                _getStepTitle(step, isMl),
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 28),
-                            // Right Column: Live Household Profile & Screening Preview
-                            Expanded(
-                              flex: 5,
-                              child: _buildDesktopLiveSummaryCard(context, isMl, isDark, theme),
-                            ),
-                          ],
-                        )
-                      : Column(
+                              const SizedBox(height: 6),
+                              Text(
+                                _getStepSubtitle(step, isMl),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              if (step == 0) _buildStep0(context),
+                              if (step == 1) _buildStep1(context),
+                              if (step == 2) _buildStep2(context),
+                              const SizedBox(height: 32),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 32),
+                        // Right Column: Live Household Profile & Screening Preview
+                        SizedBox(
+                          width: 420,
+                          child: _buildDesktopLiveSummaryCard(context, isMl, isDark, theme),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Bottom Navigation Bar
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.06),
+                        blurRadius: 10,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      if (step > 0)
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              _saveCurrentStepToController();
+                              widget.controller.prevStep();
+                            },
+                            icon: const Icon(Icons.arrow_back),
+                            label: Text(loc.tr('back')),
+                          ),
+                        ),
+                      if (step > 0) const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            _saveCurrentStepToController();
+                            if (step < 2) {
+                              widget.controller.nextStep();
+                            } else {
+                              widget.controller.evaluateCurrentProfile();
+                              widget.controller.saveCurrentProfileToRemote();
+                              widget.onComplete();
+                            }
+                          },
+                          icon: Icon(step < 2 ? Icons.arrow_forward : Icons.check_circle_outline),
+                          label: Text(
+                            step < 2 ? loc.tr('next') : loc.tr('submit'),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                            foregroundColor: isDark ? Colors.black : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          : Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: Column(
+                  children: [
+                    // Progress Bar
+                    LinearProgressIndicator(
+                      value: (step + 1) / 3,
+                      minHeight: 6,
+                      backgroundColor: isDark ? const Color(0xFF333333) : const Color(0xFFE5E7EB),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                      ),
+                    ),
+
+                    Expanded(
+                      child: SingleChildScrollView(
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
@@ -239,68 +311,68 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
                             const SizedBox(height: 32),
                           ],
                         ),
-                ),
-              ),
+                      ),
+                    ),
 
-              // Bottom Navigation Bar
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 10,
-                      offset: const Offset(0, -4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    if (step > 0)
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            _saveCurrentStepToController();
-                            widget.controller.prevStep();
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                          label: Text(loc.tr('back')),
-                        ),
+                    // Bottom Navigation Bar
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            blurRadius: 10,
+                            offset: const Offset(0, -4),
+                          ),
+                        ],
                       ),
-                    if (step > 0) const SizedBox(width: 16),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          _saveCurrentStepToController();
-                          if (step < 2) {
-                            widget.controller.nextStep();
-                          } else {
-                            widget.controller.evaluateCurrentProfile();
-                            widget.controller.saveCurrentProfileToRemote();
-                            widget.onComplete();
-                          }
-                        },
-                        icon: Icon(step < 2 ? Icons.arrow_forward : Icons.check_circle_outline),
-                        label: Text(
-                          step < 2 ? loc.tr('next') : loc.tr('submit'),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
-                          foregroundColor: isDark ? Colors.black : Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
+                      child: Row(
+                        children: [
+                          if (step > 0)
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  _saveCurrentStepToController();
+                                  widget.controller.prevStep();
+                                },
+                                icon: const Icon(Icons.arrow_back),
+                                label: Text(loc.tr('back')),
+                              ),
+                            ),
+                          if (step > 0) const SizedBox(width: 16),
+                          Expanded(
+                            flex: 2,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                _saveCurrentStepToController();
+                                if (step < 2) {
+                                  widget.controller.nextStep();
+                                } else {
+                                  widget.controller.evaluateCurrentProfile();
+                                  widget.controller.saveCurrentProfileToRemote();
+                                  widget.onComplete();
+                                }
+                              },
+                              icon: Icon(step < 2 ? Icons.arrow_forward : Icons.check_circle_outline),
+                              label: Text(
+                                step < 2 ? loc.tr('next') : loc.tr('submit'),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                                foregroundColor: isDark ? Colors.black : Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 

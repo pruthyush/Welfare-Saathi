@@ -265,64 +265,68 @@ class _ResultsScreenState extends State<ResultsScreen>
           ],
         ),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: isDesktop ? 1280 : 820),
-          child: isDesktop
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left Column: Scheme Cards TabBarView
-                    Expanded(
-                      flex: 6,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-                            child: DisclaimerBanner(loc: loc, compact: true),
+      body: isDesktop
+          ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Left Column: Scheme Cards TabBarView (expands across available screen)
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 12, 12, 6),
+                          child: DisclaimerBanner(loc: loc, compact: true),
+                        ),
+                        if (safetyAdvisoryBanner != null) safetyAdvisoryBanner,
+                        Expanded(
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: [
+                              _buildSchemeList(potentialList, isMl, isDark),
+                              _buildSchemeList(incompleteList, isMl, isDark),
+                              _buildSchemeList(notMatchedList, isMl, isDark),
+                            ],
                           ),
-                          if (safetyAdvisoryBanner != null) safetyAdvisoryBanner,
-                          Expanded(
-                            child: TabBarView(
-                              controller: _tabController,
-                              children: [
-                                _buildSchemeList(potentialList, isMl, isDark),
-                                _buildSchemeList(incompleteList, isMl, isDark),
-                                _buildSchemeList(notMatchedList, isMl, isDark),
-                              ],
-                            ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  // Right Column: Summary, Leakage Audit, and Action Panel
+                  SizedBox(
+                    width: 420,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(top: 12, right: 4, bottom: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildValueSummaryCard(entitlementSummary, isMl, isDark),
+                          if (leakageReport != null) ...[
+                            const SizedBox(height: 12),
+                            _buildLeakageAuditCard(leakageReport, isMl, isDark),
+                          ],
+                          const SizedBox(height: 14),
+                          _buildDesktopActionPanel(
+                            context,
+                            potentialList,
+                            incompleteList,
+                            isMl,
+                            isDark,
+                            theme,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    // Right Column: Summary, Leakage Audit, and Action Panel
-                    Expanded(
-                      flex: 4,
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(top: 14, right: 16, bottom: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _buildValueSummaryCard(entitlementSummary, isMl, isDark),
-                            if (leakageReport != null)
-                              _buildLeakageAuditCard(leakageReport, isMl, isDark),
-                            const SizedBox(height: 12),
-                            _buildDesktopActionPanel(
-                              context,
-                              potentialList,
-                              incompleteList,
-                              isMl,
-                              isDark,
-                              theme,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : Column(
+                  ),
+                ],
+              ),
+            )
+          : Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 820),
+                child: Column(
                   children: [
                     // Top Notice Banner
                     Padding(
@@ -356,8 +360,8 @@ class _ResultsScreenState extends State<ResultsScreen>
                     ),
                   ],
                 ),
-        ),
-      ),
+              ),
+            ),
       bottomNavigationBar: isDesktop
           ? null
           : Container(
