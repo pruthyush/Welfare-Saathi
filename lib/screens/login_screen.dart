@@ -407,6 +407,26 @@ class _LoginScreenState extends State<LoginScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                           ),
+                          const SizedBox(height: 10),
+                          OutlinedButton.icon(
+                            onPressed: _isLoading
+                                ? null
+                                : () {
+                                    _otpController.text = '123456';
+                                    _handleVerifyOtp();
+                                  },
+                            icon: const Icon(Icons.flash_on_rounded, size: 18, color: Color(0xFF006D77)),
+                            label: Text(
+                              isMl
+                                  ? 'ഡെമോ ഒ.ടി.പി (123456) നൽകി തുടരുക'
+                                  : 'Auto-fill Evaluation Code (123456)',
+                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
                         ],
 
                         const SizedBox(height: 16),
