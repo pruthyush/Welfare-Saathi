@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/screening_controller.dart';
 import '../services/localization_service.dart';
 import '../widgets/language_selector.dart';
+import '../widgets/ration_card_helper.dart';
 
 class ScreeningScreen extends StatefulWidget {
   final ScreeningController controller;
@@ -488,6 +489,7 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
   Widget _buildStep2(BuildContext context) {
     final loc = widget.loc;
     final isMl = loc.isMalayalam;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -542,36 +544,86 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
           loc.tr('rationCardLabel'),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
+        const SizedBox(height: 8),
+        // Quick visual card selector
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: RationCardOption.allOptions.skip(1).map((opt) {
+            final isSelected = opt.code == _rationCardCategory;
+            return InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () => setState(() => _rationCardCategory = isSelected ? null : opt.code),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.transparent : opt.bgTint,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: opt.borderColor,
+                    width: isSelected ? 2.5 : 1.0,
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: opt.cardColor.withValues(alpha: 0.4),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 18,
+                      height: 13,
+                      decoration: BoxDecoration(
+                        color: opt.cardColor,
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: opt.borderColor, width: 1.0),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      opt.code ?? '',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12.5,
+                        color: isDark ? Colors.white : opt.textColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
         const SizedBox(height: 10),
         DropdownButtonFormField<String?>(
           value: _rationCardCategory,
+          isExpanded: true,
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.credit_card_outlined),
             filled: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
-          items: [
-            DropdownMenuItem<String?>(
-              value: null,
-              child: Text(isMl ? 'തിരഞ്ഞെടുത്തിട്ടില്ല (രേഖപ്പെടുത്തിയിട്ടില്ല)' : 'Not answered / Unsure'),
-            ),
-            DropdownMenuItem<String?>(
-              value: 'AAY',
-              child: Text(isMl ? 'മഞ്ഞ കാർഡ് (AAY - അതീവ മുൻഗണന)' : 'Yellow Card (AAY - Antyodaya Anna Yojana)'),
-            ),
-            DropdownMenuItem<String?>(
-              value: 'PHH',
-              child: Text(isMl ? 'പിങ്ക് കാർഡ് (PHH - മുൻഗണന വിഭാഗം)' : 'Pink Card (PHH - Priority Household)'),
-            ),
-            DropdownMenuItem<String?>(
-              value: 'NPHH',
-              child: Text(isMl ? 'നീല കാർഡ് (NPHH - സബ്സിഡി ഇതര മുൻഗണന)' : 'Blue Card (NPHH - Non-Priority Subsidy)'),
-            ),
-            DropdownMenuItem<String?>(
-              value: 'Non-Priority',
-              child: Text(isMl ? 'വെള്ള കാർഡ് (പൊതു വിഭാഗം)' : 'White Card (Non-Priority / General)'),
-            ),
-          ],
+          selectedItemBuilder: (BuildContext context) {
+            return RationCardOption.allOptions.map((opt) {
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: opt.buildVisualRow(isMl, isSelected: true, isDark: isDark),
+              );
+            }).toList();
+          },
+          items: RationCardOption.allOptions.map((opt) {
+            return DropdownMenuItem<String?>(
+              value: opt.code,
+              child: opt.buildVisualRow(isMl, isSelected: opt.code == _rationCardCategory, isDark: isDark),
+            );
+          }).toList(),
           onChanged: (val) => setState(() => _rationCardCategory = val),
         ),
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/screening_controller.dart';
 import '../services/localization_service.dart';
 import '../widgets/language_selector.dart';
+import '../widgets/ration_card_helper.dart';
 
 class ReviewScreen extends StatefulWidget {
   final ScreeningController controller;
@@ -144,7 +145,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         const Divider(),
                         _buildRow(
                           label: isMl ? 'റേഷൻ കാർഡ് വിഭാഗം' : 'Ration Card',
-                          value: p.rationCardCategory ?? (isMl ? 'തിരഞ്ഞെടുത്തിട്ടില്ല' : 'Not selected'),
+                          value: p.rationCardCategory != null
+                              ? RationCardOption.getByCode(p.rationCardCategory).getLabel(isMl)
+                              : (isMl ? 'തിരഞ്ഞെടുത്തിട്ടില്ല' : 'Not selected'),
                           onEdit: () => _editRationCardDialog(context),
                         ),
                         const Divider(),
@@ -597,44 +600,34 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   void _editRationCardDialog(BuildContext context) {
-    final cards = ['AAY', 'PHH', 'NPHH', 'Non-Priority'];
+    final isMl = widget.loc.isMalayalam;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (ctx) => SimpleDialog(
         title: Text(widget.loc.tr('rationCardLabel')),
-        children: [
-          SimpleDialogOption(
+        children: RationCardOption.allOptions.map((opt) {
+          final isSelected = opt.code == widget.controller.profile.rationCardCategory;
+          return SimpleDialogOption(
             onPressed: () {
-              widget.controller.updateProfile(
-                widget.controller.profile.copyWith(clearRationCardCategory: true),
-              );
+              if (opt.code == null) {
+                widget.controller.updateProfile(
+                  widget.controller.profile.copyWith(clearRationCardCategory: true),
+                );
+              } else {
+                widget.controller.updateProfile(
+                  widget.controller.profile.copyWith(rationCardCategory: opt.code),
+                );
+              }
               Navigator.pop(ctx);
               setState(() {});
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text(
-                widget.loc.isMalayalam ? 'തിരഞ്ഞെടുത്തിട്ടില്ല (രേഖപ്പെടുത്തിയിട്ടില്ല)' : 'Not selected / Unsure',
-                style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: opt.buildVisualRow(isMl, isSelected: isSelected, isDark: isDark),
             ),
-          ),
-          ...cards.map((c) {
-            return SimpleDialogOption(
-              onPressed: () {
-                widget.controller.updateProfile(
-                  widget.controller.profile.copyWith(rationCardCategory: c),
-                );
-                Navigator.pop(ctx);
-                setState(() {});
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Text(c, style: const TextStyle(fontSize: 16)),
-              ),
-            );
-          }),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
