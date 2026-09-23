@@ -1,12 +1,18 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import '../controllers/alert_controller.dart';
 import '../controllers/screening_controller.dart';
 import '../models/eligibility_result.dart';
 import '../models/scheme.dart';
+import '../services/benefit_calculator_service.dart';
 import '../services/localization_service.dart';
 import '../services/pdf_export_service.dart';
+import '../services/qr_packet_service.dart';
+import '../services/self_declaration_service.dart';
 import '../widgets/disclaimer_banner.dart';
 import '../widgets/language_selector.dart';
+import 'fast_track_operator_screen.dart';
 
 class ResultsScreen extends StatefulWidget {
   final ScreeningController controller;
@@ -58,10 +64,15 @@ class _ResultsScreenState extends State<ResultsScreen>
     final isMl = loc.isMalayalam;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 620;
 
     final potentialList = controller.potentiallyEligible;
     final incompleteList = controller.moreInformationNeeded;
     final notMatchedList = controller.notMatched;
+
+    final entitlementSummary = BenefitCalculatorService.calculateSummary(potentialList);
+    final leakageReport = BenefitCalculatorService.auditLeakage(controller.profile);
 
     final matchingAlerts = widget.alertController?.repository.getAlertsFor(
       sector: controller.profile.occupation,
@@ -74,30 +85,104 @@ class _ResultsScreenState extends State<ResultsScreen>
           loc.tr('resultsTitle'),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          IconButton(
-            tooltip: loc.tr('exportAkshayaReport'),
-            icon: const Icon(Icons.picture_as_pdf_rounded),
-            onPressed: () => _showExportDialog(context, potentialList, incompleteList),
-          ),
-          if (widget.onOpenDirectory != null)
-            IconButton(
-              tooltip: loc.tr('schemeDirectory'),
-              icon: const Icon(Icons.menu_book_rounded),
-              onPressed: widget.onOpenDirectory,
-            ),
-          TextButton.icon(
-            onPressed: widget.onReviewAnswers,
-            icon: const Icon(Icons.edit_note_rounded),
-            label: Text(
-              loc.tr('reviewAnswers'),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(width: 8),
-          LanguageSelector(loc: loc),
-          const SizedBox(width: 12),
-        ],
+        actions: isMobile
+            ? [
+                IconButton(
+                  tooltip: loc.tr('exportAkshayaReport'),
+                  icon: const Icon(Icons.picture_as_pdf_rounded),
+                  onPressed: () => _showExportDialog(context, potentialList, incompleteList),
+                ),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert_rounded),
+                  onSelected: (val) {
+                    if (val == 'review') widget.onReviewAnswers();
+                    if (val == 'directory' && widget.onOpenDirectory != null) widget.onOpenDirectory!();
+                    if (val == 'operator') _openOperatorTerminal();
+                    if (val == 'affidavit') _exportSelfDeclaration();
+                    if (val == 'qr') _showFastTrackQrDialog(context, potentialList.map((r) => r.scheme.id).toList());
+                  },
+                  itemBuilder: (ctx) => [
+                    PopupMenuItem(
+                      value: 'review',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.edit_note_rounded, size: 20),
+                          const SizedBox(width: 10),
+                          Text(loc.tr('reviewAnswers')),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'operator',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.verified_user_outlined, size: 20),
+                          const SizedBox(width: 10),
+                          Text(isMl ? 'അക്ഷയ ഓപ്പറേറ്റർ ടെർമിനൽ' : 'Akshaya Operator View'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'qr',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.qr_code_2_rounded, size: 20),
+                          const SizedBox(width: 10),
+                          Text(isMl ? 'ഫാസ്റ്റ് ട്രാക്ക് QR' : 'Fast-Track QR Code'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'affidavit',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.assignment_turned_in_outlined, size: 20),
+                          const SizedBox(width: 10),
+                          Text(isMl ? 'സത്യപ്രസ്താവന (Affidavit)' : 'Self-Declaration Form'),
+                        ],
+                      ),
+                    ),
+                    if (widget.onOpenDirectory != null)
+                      PopupMenuItem(
+                        value: 'directory',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.menu_book_rounded, size: 20),
+                            const SizedBox(width: 10),
+                            Text(loc.tr('schemeDirectory')),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: 4),
+                LanguageSelector(loc: loc, compact: true),
+                const SizedBox(width: 10),
+              ]
+            : [
+                IconButton(
+                  tooltip: loc.tr('exportAkshayaReport'),
+                  icon: const Icon(Icons.picture_as_pdf_rounded),
+                  onPressed: () => _showExportDialog(context, potentialList, incompleteList),
+                ),
+                if (widget.onOpenDirectory != null)
+                  IconButton(
+                    tooltip: loc.tr('schemeDirectory'),
+                    icon: const Icon(Icons.menu_book_rounded),
+                    onPressed: widget.onOpenDirectory,
+                  ),
+                TextButton.icon(
+                  onPressed: widget.onReviewAnswers,
+                  icon: const Icon(Icons.edit_note_rounded),
+                  label: Text(
+                    loc.tr('reviewAnswers'),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                LanguageSelector(loc: loc),
+                const SizedBox(width: 12),
+              ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
@@ -190,6 +275,17 @@ class _ResultsScreenState extends State<ResultsScreen>
                   ),
                 ),
 
+              // Entitlement Value Summary Card
+              _buildValueSummaryCard(entitlementSummary, isMl, isDark),
+
+              // Entitlement Leakage Audit Warning Card (USP 2)
+              if (leakageReport != null)
+                _buildLeakageAuditCard(leakageReport, isMl, isDark),
+
+              // Fast-Track QR & Affidavit Action Chips Row
+              _buildActionChipsRow(context, potentialList, isMl, isDark),
+              const SizedBox(height: 8),
+
               // Tab View Content
               Expanded(
                 child: TabBarView(
@@ -257,6 +353,76 @@ class _ResultsScreenState extends State<ResultsScreen>
     );
   }
 
+  Future<void> _executeExport({
+    required bool isPrint,
+    required bool isShare,
+    required bool profile,
+    required bool potential,
+    required bool moreInfo,
+  }) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final isMl = widget.loc.isMalayalam;
+    setState(() => _isGeneratingPdf = true);
+
+    try {
+      if (isPrint) {
+        await PdfExportService.printScreeningReport(
+          profile: widget.controller.profile,
+          results: widget.controller.results,
+          loc: widget.loc,
+          includeHouseholdDetails: profile,
+          includePotentiallyEligible: potential,
+          includeMoreInfoNeeded: moreInfo,
+        );
+      } else if (isShare) {
+        await PdfExportService.shareScreeningReport(
+          profile: widget.controller.profile,
+          results: widget.controller.results,
+          loc: widget.loc,
+          includeHouseholdDetails: profile,
+          includePotentiallyEligible: potential,
+          includeMoreInfoNeeded: moreInfo,
+        );
+      } else {
+        await PdfExportService.downloadScreeningReport(
+          profile: widget.controller.profile,
+          results: widget.controller.results,
+          loc: widget.loc,
+          includeHouseholdDetails: profile,
+          includePotentiallyEligible: potential,
+          includeMoreInfoNeeded: moreInfo,
+        );
+      }
+
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              isMl
+                  ? 'അക്ഷയ സ്ക്രീനിംഗ് റിപ്പോർട്ട് വിജയകരമായി തയ്യാറാക്കി.'
+                  : 'Akshaya Screening Report prepared successfully.',
+            ),
+            backgroundColor: const Color(0xFF006D77),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('Export error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isGeneratingPdf = false);
+      }
+    }
+  }
+
   void _showExportDialog(
     BuildContext context,
     List<EligibilityResult> potentialList,
@@ -268,7 +434,167 @@ class _ResultsScreenState extends State<ResultsScreen>
 
     final loc = widget.loc;
     final isMl = loc.isMalayalam;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isAndroidOrMobile = !kIsWeb || screenWidth < 620;
 
+    if (isAndroidOrMobile) {
+      // Android / Mobile Outlay: Modal Bottom Sheet with WhatsApp Sharing & Print
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (ctx) => StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      const Icon(Icons.picture_as_pdf_rounded, color: Color(0xFF006D77), size: 24),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          isMl ? 'അക്ഷയ റിപ്പോർട്ട് തയ്യാറാക്കുക' : 'Prepare Akshaya Report',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    isMl
+                        ? 'അക്ഷയ കേന്ദ്രത്തിൽ ഹാജരാക്കുന്നതിനുള്ള സ്ക്രീനിംഗ് സംഗ്രഹം.'
+                        : 'Print-ready screening summary for Akshaya / Welfare Board.',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  const Divider(height: 20),
+
+                  CheckboxListTile(
+                    value: includeProfile,
+                    title: Text(
+                      isMl ? 'കുടുംബ വിവരങ്ങൾ' : 'Household Profile',
+                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      isMl ? 'തൊഴിൽ, പ്രായം, റേഷൻ കാർഡ്, ക്ഷേമനിധി' : 'Sector, age, ration card, board tenure',
+                      style: const TextStyle(fontSize: 11.5),
+                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                    onChanged: (val) => setSheetState(() => includeProfile = val ?? true),
+                  ),
+                  CheckboxListTile(
+                    value: includePotential,
+                    title: Text(
+                      isMl
+                          ? 'സാധ്യതയുള്ള പദ്ധതികൾ (${potentialList.length})'
+                          : 'Potentially Eligible (${potentialList.length})',
+                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
+                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                    onChanged: (val) => setSheetState(() => includePotential = val ?? true),
+                  ),
+                  CheckboxListTile(
+                    value: includeMoreInfo,
+                    title: Text(
+                      isMl
+                          ? 'വിവരം ആവശ്യമുള്ളവ (${incompleteList.length})'
+                          : 'More Info Needed (${incompleteList.length})',
+                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
+                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                    onChanged: (val) => setSheetState(() => includeMoreInfo = val ?? true),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Mobile Action Buttons: Share to WhatsApp / Files & Print
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: (!includePotential && !includeMoreInfo && !includeProfile)
+                              ? null
+                              : () {
+                                  Navigator.pop(ctx);
+                                  _executeExport(
+                                    isPrint: true,
+                                    isShare: false,
+                                    profile: includeProfile,
+                                    potential: includePotential,
+                                    moreInfo: includeMoreInfo,
+                                  );
+                                },
+                          icon: const Icon(Icons.print_rounded, size: 18),
+                          label: Text(isMl ? 'പ്രിന്റ്' : 'Print'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton.icon(
+                          onPressed: (!includePotential && !includeMoreInfo && !includeProfile)
+                              ? null
+                              : () {
+                                  Navigator.pop(ctx);
+                                  _executeExport(
+                                    isPrint: false,
+                                    isShare: true,
+                                    profile: includeProfile,
+                                    potential: includePotential,
+                                    moreInfo: includeMoreInfo,
+                                  );
+                                },
+                          icon: const Icon(Icons.share_rounded, size: 18),
+                          label: Text(
+                            isMl ? 'പങ്കിടുക (WhatsApp)' : 'Share (WhatsApp/Files)',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF006D77),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+      return;
+    }
+
+    // Web & Windows Desktop Outlay: Centered Dialog with direct download and print
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -308,15 +634,10 @@ class _ResultsScreenState extends State<ResultsScreen>
                       isMl ? 'കുടുംബ സ്ക്രീനിംഗ് വിവരങ്ങൾ ഉൾപ്പെടുത്തുക' : 'Include Household Screening Profile',
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
-                    subtitle: Text(
-                      isMl ? 'തൊഴിൽ, പ്രായം, റേഷൻ കാർഡ്, ക്ഷേമനിധി അംഗത്വം' : 'Sector, age, ration card, board tenure',
-                      style: const TextStyle(fontSize: 12),
-                    ),
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
                     onChanged: (val) => setDialogState(() => includeProfile = val ?? true),
                   ),
-
                   CheckboxListTile(
                     value: includePotential,
                     title: Text(
@@ -325,15 +646,10 @@ class _ResultsScreenState extends State<ResultsScreen>
                           : 'Potentially Eligible Schemes (${potentialList.length})',
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
-                    subtitle: Text(
-                      isMl ? 'നിബന്ധനകൾ, ആവശ്യമായ രേഖകൾ, അപേക്ഷാ മാർഗ്ഗം' : 'Criteria matched, required documents, next steps',
-                      style: const TextStyle(fontSize: 12),
-                    ),
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
                     onChanged: (val) => setDialogState(() => includePotential = val ?? true),
                   ),
-
                   CheckboxListTile(
                     value: includeMoreInfo,
                     title: Text(
@@ -342,37 +658,9 @@ class _ResultsScreenState extends State<ResultsScreen>
                           : 'More Information Needed (${incompleteList.length})',
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
-                    subtitle: Text(
-                      isMl ? 'പരിശോധിക്കേണ്ട രേഖകളും ഒഴിവാക്കിയ വിവരങ്ങളും' : 'Missing criteria and documents to clarify at Akshaya',
-                      style: const TextStyle(fontSize: 12),
-                    ),
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
                     onChanged: (val) => setDialogState(() => includeMoreInfo = val ?? true),
-                  ),
-
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0FDF4),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF86EFAC)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.privacy_tip_outlined, size: 18, color: Color(0xFF16A34A)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            isMl
-                                ? 'സ്വകാര്യതാ സുരക്ഷ: ആധാർ നമ്പറോ ഫോൺ നമ്പറോ രേഖകളിൽ സൂക്ഷിക്കുന്നില്ല.'
-                                : 'Privacy: No Aadhaar or phone numbers are included or stored.',
-                            style: const TextStyle(fontSize: 11, color: Color(0xFF166534)),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),
@@ -382,53 +670,38 @@ class _ResultsScreenState extends State<ResultsScreen>
                 onPressed: () => Navigator.pop(ctx),
                 child: Text(loc.tr('cancel')),
               ),
+              OutlinedButton.icon(
+                onPressed: (!includePotential && !includeMoreInfo && !includeProfile)
+                    ? null
+                    : () {
+                        Navigator.pop(ctx);
+                        _executeExport(
+                          isPrint: true,
+                          isShare: false,
+                          profile: includeProfile,
+                          potential: includePotential,
+                          moreInfo: includeMoreInfo,
+                        );
+                      },
+                icon: const Icon(Icons.print_rounded),
+                label: Text(isMl ? 'പ്രിന്റ്' : 'Print'),
+              ),
               ElevatedButton.icon(
                 onPressed: (!includePotential && !includeMoreInfo && !includeProfile)
                     ? null
-                    : () async {
+                    : () {
                         Navigator.pop(ctx);
-                        final messenger = ScaffoldMessenger.of(context);
-                        setState(() => _isGeneratingPdf = true);
-                        try {
-                          await PdfExportService.downloadScreeningReport(
-                            profile: widget.controller.profile,
-                            results: widget.controller.results,
-                            loc: widget.loc,
-                            includeHouseholdDetails: includeProfile,
-                            includePotentiallyEligible: includePotential,
-                            includeMoreInfoNeeded: includeMoreInfo,
-                          );
-                          if (mounted) {
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  isMl
-                                      ? 'അക്ഷയ സ്ക്രീനിംഗ് റിപ്പോർട്ട് വിജയകരമായി തയ്യാറാക്കി ഡൗൺലോഡ് ചെയ്തു.'
-                                      : 'Akshaya Screening Report downloaded successfully.',
-                                ),
-                                backgroundColor: const Color(0xFF006D77),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text('Export error: $e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        } finally {
-                          if (mounted) {
-                            setState(() => _isGeneratingPdf = false);
-                          }
-                        }
+                        _executeExport(
+                          isPrint: false,
+                          isShare: false,
+                          profile: includeProfile,
+                          potential: includePotential,
+                          moreInfo: includeMoreInfo,
+                        );
                       },
                 icon: const Icon(Icons.download_rounded),
                 label: Text(
-                  isMl ? 'ഡൗൺലോഡ് ചെയ്യുക (PDF)' : 'Download PDF',
+                  isMl ? 'ഡൗൺലോഡ് (PDF)' : 'Download PDF',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -439,6 +712,909 @@ class _ResultsScreenState extends State<ResultsScreen>
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _openOperatorTerminal() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => FastTrackOperatorScreen(
+          profile: widget.controller.profile,
+          results: widget.controller.results,
+          loc: widget.loc,
+          onBack: () => Navigator.pop(ctx),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportSelfDeclaration({bool share = false}) async {
+    try {
+      await SelfDeclarationService.exportAffidavit(
+        profile: widget.controller.profile,
+        loc: widget.loc,
+        share: share,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.loc.isMalayalam
+                  ? 'സത്യപ്രസ്താവന (Affidavit) വിജയകരമായി തയ്യാറാക്കി.'
+                  : 'Self-Declaration Affidavit generated successfully.',
+            ),
+            backgroundColor: const Color(0xFF006D77),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  void _showFastTrackQrDialog(BuildContext context, List<String> matchedIds) {
+    final payload = QrPacketService.encodePacket(
+      profile: widget.controller.profile,
+      matchedSchemeIds: matchedIds,
+    );
+    final isMl = widget.loc.isMalayalam;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.qr_code_2_rounded, color: Color(0xFF006D77), size: 28),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                isMl ? 'അക്ഷയ ഫാസ്റ്റ് ട്രാക്ക് QR' : 'Akshaya Fast-Track QR Packet',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              isMl
+                  ? 'ഈ QR കോഡ് അക്ഷയ ഓപ്പറേറ്റർക്കോ വാർഡ് മെമ്പർക്കോ സ്കാൻ ചെയ്യാവുന്നതാണ്. സ്വകാര്യ രേഖകൾ സുരക്ഷിതമായി കൈമാറാം.'
+                  : 'Show this offline QR packet to the Akshaya operator to eliminate manual data entry.',
+              style: const TextStyle(fontSize: 12, height: 1.3),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF006D77), width: 1.5),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8),
+                ],
+              ),
+              child: Column(
+                children: [
+                  const Icon(Icons.qr_code_rounded, size: 140, color: Color(0xFF006D77)),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${matchedIds.length} Schemes Verified Offline',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF006D77)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Zero-PII Encrypted Packet | Offline Portable',
+              style: TextStyle(fontSize: 10.5, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Token: ${payload.length > 16 ? "${payload.substring(0, 16)}..." : payload}',
+                  style: TextStyle(fontSize: 10, fontFamily: 'monospace', color: Colors.grey[700]),
+                ),
+                IconButton(
+                  tooltip: 'Copy Payload',
+                  icon: const Icon(Icons.copy_rounded, size: 16),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: payload));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isMl ? 'കോഡ് കോപ്പി ചെയ്തു' : 'Payload token copied'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(widget.loc.tr('cancel')),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _openOperatorTerminal();
+            },
+            icon: const Icon(Icons.open_in_new, size: 16),
+            label: Text(isMl ? 'ഓപ്പറേറ്റർ വ്യൂ കാണുക' : 'Open Operator View'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF006D77),
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildValueSummaryCard(EntitlementSummary summary, bool isMl, bool isDark) {
+    if (summary.eligibleCount == 0) return const SizedBox.shrink();
+
+    final formattedTotal = BenefitCalculatorService.formatCurrency(summary.totalFirstYearPotential);
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF0F3D3E), const Color(0xFF164E63)]
+              : [const Color(0xFF006D77), const Color(0xFF0F4C5C)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => _showValueBreakdownSheet(context, summary, isMl, isDark),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.currency_rupee_rounded, color: Colors.white, size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isMl ? 'പ്രതീക്ഷിക്കുന്ന ഒന്നാം വർഷ ആനുകൂല്യം' : 'Estimated 1st Year Benefit Value',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '₹$formattedTotal /-',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          if (summary.monthlyRecurring > 0)
+                            Text(
+                              isMl
+                                  ? '+ പ്രതിമാസം ₹${summary.monthlyRecurring} പെൻഷൻ'
+                                  : '+ Monthly ₹${summary.monthlyRecurring} recurring pension',
+                              style: const TextStyle(color: Color(0xFFFFD166), fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFD166),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${summary.eligibleCount} ${isMl ? "പദ്ധതികൾ" : "Schemes"}',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      isMl ? 'വിശദാംശങ്ങൾ കാണുക' : 'View Itemized Breakdown',
+                      style: const TextStyle(color: Color(0xFFFFD166), fontSize: 11.5, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.arrow_forward_rounded, color: Color(0xFFFFD166), size: 14),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showValueBreakdownSheet(BuildContext context, EntitlementSummary summary, bool isMl, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.85,
+            maxChildSize: 0.95,
+            minChildSize: 0.5,
+            builder: (ctx, scrollController) => Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF006D77).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.calculate_rounded, color: Color(0xFF006D77), size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isMl ? 'ഒന്നാം വർഷ ആനുകൂല്യങ്ങളുടെ കണക്കുകൂട്ടൽ' : '1st Year Entitlement Breakdown',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                            ),
+                            Text(
+                              isMl
+                                  ? '${summary.eligibleCount} അർഹതയുള്ള പദ്ധതികളുടെ ആകെ തുക'
+                                  : 'Exact breakdown across ${summary.eligibleCount} matched schemes',
+                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF006D77),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatColumn(
+                          isMl ? 'ആകെ തുക' : 'Total Value',
+                          '₹${BenefitCalculatorService.formatCurrency(summary.totalFirstYearPotential)}',
+                          Colors.white,
+                        ),
+                        Container(width: 1, height: 32, color: Colors.white24),
+                        _buildStatColumn(
+                          isMl ? 'ഒറ്റത്തവണ' : 'One-Time',
+                          '₹${BenefitCalculatorService.formatCurrency(summary.oneTimeGrants)}',
+                          const Color(0xFFFFD166),
+                        ),
+                        Container(width: 1, height: 32, color: Colors.white24),
+                        _buildStatColumn(
+                          isMl ? 'വാർഷികം' : 'Annual Relief',
+                          '₹${BenefitCalculatorService.formatCurrency(summary.annualRecurring)}',
+                          Colors.white70,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    isMl ? 'പദ്ധതി തിരിച്ചുള്ള ആനുകൂല്യങ്ങൾ:' : 'Scheme-by-Scheme Itemized Calculation:',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: summary.items.length,
+                      itemBuilder: (ctx, i) {
+                        final item = summary.items[i];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(color: Colors.grey.withValues(alpha: 0.25)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF006D77).withValues(alpha: 0.12),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        item.schemeId,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 10,
+                                          color: Color(0xFF006D77),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        isMl ? item.schemeNameMl : item.schemeNameEn,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                      ),
+                                    ),
+                                    Text(
+                                      '₹${BenefitCalculatorService.formatCurrency(item.firstYearTotal)}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 14,
+                                        color: Color(0xFF006D77),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  isMl ? item.benefitDescriptionMl : item.benefitDescriptionEn,
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children: [
+                                    if (item.oneTimeAmount > 0)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF006D77).withValues(alpha: 0.08),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          '${isMl ? "ഒറ്റത്തവണ ഗ്രാന്റ്:" : "One-Time:"} ₹${BenefitCalculatorService.formatCurrency(item.oneTimeAmount)}',
+                                          style: const TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF0F4C5C),
+                                          ),
+                                        ),
+                                      ),
+                                    if (item.annualAmount > 0)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF006D77).withValues(alpha: 0.08),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          '${isMl ? "വാർഷിക ധനസഹായം:" : "Annual Aid:"} ₹${BenefitCalculatorService.formatCurrency(item.annualAmount)}',
+                                          style: const TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF0F4C5C),
+                                          ),
+                                        ),
+                                      ),
+                                    if (item.monthlyAmount > 0)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFD97706).withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          '${isMl ? "പ്രതിമാസം:" : "Monthly:"} ₹${item.monthlyAmount} (₹${item.monthlyAmount * 12}/yr)',
+                                          style: const TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFFD97706),
+                                          ),
+                                        ),
+                                      ),
+                                    if (item.insuranceCover > 0)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF0284C7).withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          '${isMl ? "പരിരക്ഷ:" : "Risk Cover:"} ₹${BenefitCalculatorService.formatCurrency(item.insuranceCover)} (${isMl ? "അപകട പരിരക്ഷ" : "Accidental Cover"})',
+                                          style: const TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF0369A1),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      isMl
+                          ? '* ആകെ തുക കണക്കാക്കിയത് ലഭിക്കാൻ സാധ്യതയുള്ള ഒറ്റത്തവണ ഗ്രാന്റുകളും ആദ്യ 12 മാസത്തെ ആവർത്തന ആനുകൂല്യങ്ങളും ചേർത്താണ്. അന്തിമ തുക അധികാരികളുടെ പരിശോധനക്ക് വിധേയമാണ്.'
+                          : '* Total 1st year value aggregates one-time grants plus 12 months of recurring benefits for all potentially eligible schemes. Final sanction is subject to department verification.',
+                      style: TextStyle(fontSize: 10.5, color: Colors.grey[600], fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeakageAuditCard(LeakageReport leakage, bool isMl, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 6),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF331D12) : const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFD97706), width: 1.2),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _showLeakageBreakdownSheet(context, leakage, isMl, isDark),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.trending_down_rounded, color: Color(0xFFD97706), size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        isMl
+                            ? 'അവകാശ നഷ്ട ഓഡിറ്റ് (Entitlement Leakage Audit)'
+                            : 'Entitlement Leakage Audit (Unclaimed Benefits)',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.5,
+                          color: Color(0xFF92400E),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD97706),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        isMl ? 'നഷ്ടം' : 'MISSED',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 9.5),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  isMl ? leakage.urgencyMessageMl : leakage.urgencyMessageEn,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    height: 1.35,
+                    color: isDark ? Colors.grey[200] : const Color(0xFF78350F),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      isMl ? 'നഷ്ടക്കണക്കുകൾ പരിശോധിക്കുക' : 'View Missed Breakdown',
+                      style: const TextStyle(color: Color(0xFFB45309), fontSize: 11.5, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.arrow_forward_rounded, color: Color(0xFFB45309), size: 14),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLeakageBreakdownSheet(BuildContext context, LeakageReport leakage, bool isMl, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.75,
+            maxChildSize: 0.90,
+            minChildSize: 0.45,
+            builder: (ctx, scrollController) => Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD97706).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.trending_down_rounded, color: Color(0xFFD97706), size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isMl ? 'നഷ്ടപ്പെട്ട ആനുകൂല്യങ്ങളുടെ ഓഡിറ്റ്' : 'Entitlement Leakage Audit Breakdown',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                            ),
+                            Text(
+                              isMl ? 'കഴിഞ്ഞ 3 വർഷത്തെ നഷ്ടക്കണക്ക്' : '3-Year Retroactive Unclaimed Loss Analysis',
+                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFBEB),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFD97706), width: 1.2),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isMl ? 'ആകെ നഷ്ടപ്പെട്ട തുക (3 വർഷം)' : 'Total Retroactive 3-Yr Loss',
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF92400E),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '₹${BenefitCalculatorService.formatCurrency(leakage.unclaimedAmount)}',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFFB45309),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD97706),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            isMl ? '3 വർഷ നഷ്ടം' : '3 Years Missed',
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.25)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF2563EB)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isMl
+                                ? 'ശ്രദ്ധിക്കുക: അപകട ഇൻഷുറൻസ് തുടങ്ങിയ ആകസ്മിക ആനുകൂല്യങ്ങൾ നഷ്ടക്കണക്കിൽ ഉൾപ്പെടുത്തിയിട്ടില്ല.'
+                                : 'Note: Accidental insurance and casualty schemes are strictly excluded from missing schemes audit.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF1E40AF),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    isMl ? 'നഷ്ടപ്പെട്ട പദ്ധതികളുടെ വിവരങ്ങൾ:' : 'Unclaimed Entitlement Items Breakdown:',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: leakage.items.isNotEmpty ? leakage.items.length : leakage.missedItemsEn.length,
+                      itemBuilder: (ctx, i) {
+                        if (leakage.items.isNotEmpty) {
+                          final item = leakage.items[i];
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: const Color(0xFFD97706).withValues(alpha: 0.3)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFD97706).withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.remove_circle_outline_rounded,
+                                      color: Color(0xFFD97706),
+                                      size: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          isMl ? item.titleMl : item.titleEn,
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          '${isMl ? "വാർഷിക നഷ്ടം:" : "Annual rate:"} ₹${BenefitCalculatorService.formatCurrency(item.annualAmount)} / yr × 3 yrs',
+                                          style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    '₹${BenefitCalculatorService.formatCurrency(item.threeYearLoss)}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 14,
+                                      color: Color(0xFFB45309),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        } else {
+                          return ListTile(
+                            leading: const Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706)),
+                            title: Text(isMl ? leakage.missedItemsMl[i] : leakage.missedItemsEn[i]),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _openOperatorTerminal();
+                    },
+                    icon: const Icon(Icons.storefront_rounded, size: 18),
+                    label: Text(
+                      isMl
+                          ? 'അക്ഷയ ഓപ്പറേറ്റർ ടെർമിനൽ തുറക്കുക (രജിസ്ട്രേഷൻ ഗൈഡ്)'
+                          : 'Open Akshaya Operator View (Registration Guide)',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF006D77),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildStatColumn(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 10.5, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w900),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionChipsRow(
+    BuildContext context,
+    List<EligibilityResult> potentialList,
+    bool isMl,
+    bool isDark,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () => _showFastTrackQrDialog(
+                context,
+                potentialList.map((r) => r.scheme.id).toList(),
+              ),
+              icon: const Icon(Icons.qr_code_2_rounded, size: 16),
+              label: Text(
+                isMl ? 'ഫാസ്റ്റ് ട്രാക്ക് QR' : 'Fast-Track QR',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () => _exportSelfDeclaration(share: false),
+              icon: const Icon(Icons.assignment_turned_in_outlined, size: 16),
+              label: Text(
+                isMl ? 'സത്യപ്രസ്താവന' : 'Self-Declaration',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

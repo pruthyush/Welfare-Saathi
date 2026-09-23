@@ -154,7 +154,76 @@ class PdfExportService {
     }
   }
 
+  /// Shares the screening PDF via the native platform Share Sheet (WhatsApp, Files, Drive on Android).
+  /// Falls back to client-side browser download when running on Flutter Web.
+  static Future<void> shareScreeningReport({
+    required HouseholdProfile profile,
+    required List<EligibilityResult> results,
+    required LocalizationService loc,
+    bool includeHouseholdDetails = true,
+    bool includePotentiallyEligible = true,
+    bool includeMoreInfoNeeded = true,
+    Set<String>? selectedSchemeIds,
+    String filename = 'welfare_saathi_screening_summary.pdf',
+  }) async {
+    final pdfBytes = await generateScreeningReport(
+      profile: profile,
+      results: results,
+      loc: loc,
+      includeHouseholdDetails: includeHouseholdDetails,
+      includePotentiallyEligible: includePotentiallyEligible,
+      includeMoreInfoNeeded: includeMoreInfoNeeded,
+      selectedSchemeIds: selectedSchemeIds,
+    );
+
+    if (kIsWeb) {
+      downloader.downloadPdfFile(pdfBytes, filename);
+    } else {
+      await Printing.sharePdf(
+        bytes: pdfBytes,
+        filename: filename,
+      );
+    }
+  }
+
+  /// Opens the native print dialog / spooler across Android, Web, and Windows.
+  static Future<void> printScreeningReport({
+    required HouseholdProfile profile,
+    required List<EligibilityResult> results,
+    required LocalizationService loc,
+    bool includeHouseholdDetails = true,
+    bool includePotentiallyEligible = true,
+    bool includeMoreInfoNeeded = true,
+    Set<String>? selectedSchemeIds,
+    String filename = 'welfare_saathi_screening_summary.pdf',
+  }) async {
+    final pdfBytes = await generateScreeningReport(
+      profile: profile,
+      results: results,
+      loc: loc,
+      includeHouseholdDetails: includeHouseholdDetails,
+      includePotentiallyEligible: includePotentiallyEligible,
+      includeMoreInfoNeeded: includeMoreInfoNeeded,
+      selectedSchemeIds: selectedSchemeIds,
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (format) async => pdfBytes,
+      name: filename,
+    );
+  }
+
   // --- PDF Component Builders ---
+
+  static String _cleanPdfText(String text) {
+    return text
+        .replaceAll('✓', '')
+        .replaceAll('✔', '')
+        .replaceAll('✗', '')
+        .replaceAll('•', '-')
+        .replaceAll('₹', 'Rs. ')
+        .trim();
+  }
 
   static pw.Widget _buildHeader(
     pw.Context context,
@@ -483,7 +552,7 @@ class PdfExportService {
                     pw.Text('- ', style: pw.TextStyle(font: fontBold, fontSize: 8, color: const PdfColor.fromInt(0xFF006D77))),
                     pw.Expanded(
                       child: pw.Text(
-                        r.explanationEn,
+                        _cleanPdfText(r.explanationEn),
                         style: pw.TextStyle(font: fontRegular, fontSize: 8, color: PdfColors.grey800),
                       ),
                     ),
@@ -509,7 +578,7 @@ class PdfExportService {
                     pw.Text('? ', style: pw.TextStyle(font: fontBold, fontSize: 8, color: const PdfColor.fromInt(0xFFC05621))),
                     pw.Expanded(
                       child: pw.Text(
-                        r.explanationEn,
+                        _cleanPdfText(r.explanationEn),
                         style: pw.TextStyle(font: fontRegular, fontSize: 8, color: PdfColors.grey800),
                       ),
                     ),

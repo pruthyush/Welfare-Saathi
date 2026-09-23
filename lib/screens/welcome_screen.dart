@@ -147,6 +147,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final loc = widget.loc;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 620;
     final isMl = loc.isMalayalam;
     final auth = widget.authService;
     final isAuthenticated = auth?.isAuthenticated ?? false;
@@ -158,126 +160,220 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           loc.tr('appTitle'),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          // User Account Action
-          if (auth != null)
-            if (isAuthenticated)
-              PopupMenuButton<String>(
-                tooltip: currentUser?.displayPhoneNumber ?? 'User Account',
-                icon: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF333333) : const Color(0xFFE0F2F1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
+        actions: isMobile
+            ? [
+                if (auth != null && isAuthenticated)
+                  PopupMenuButton<String>(
+                    tooltip: currentUser?.displayPhoneNumber ?? 'User Account',
+                    icon: Icon(
+                      Icons.phone_android_rounded,
+                      size: 20,
                       color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
-                      width: 1,
                     ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.phone_android_rounded,
-                        size: 18,
-                        color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        currentUser?.displayPhoneNumber ?? 'User',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : const Color(0xFF004D40),
-                        ),
-                      ),
-                      const Icon(Icons.arrow_drop_down, size: 18),
-                    ],
-                  ),
-                ),
-                onSelected: (val) {
-                  if (val == 'signout') {
-                    _confirmSignOut();
-                  }
-                },
-                itemBuilder: (ctx) => [
-                  PopupMenuItem(
-                    enabled: false,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
+                    onSelected: (val) {
+                      if (val == 'signout') {
+                        _confirmSignOut();
+                      }
+                    },
+                    itemBuilder: (ctx) => [
+                      PopupMenuItem(
+                        enabled: false,
+                        child: Text(
                           currentUser?.displayPhoneNumber ?? '',
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          isMl
-                              ? 'ഉപയോക്താവിന്റെ അക്കൗണ്ട് (വിവരങ്ങൾ സൂക്ഷിക്കാൻ മാത്രം)'
-                              : 'User Account (Profile storage only)',
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                      const PopupMenuDivider(),
+                      PopupMenuItem(
+                        value: 'signout',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.logout, color: Colors.red, size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              isMl ? 'ലോഗ് ഔട്ട് (Sign Out)' : 'Sign Out',
+                              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                IconButton(
+                  tooltip: loc.tr('schemeDirectory'),
+                  icon: const Icon(Icons.menu_book_rounded),
+                  onPressed: widget.onOpenDirectory,
+                ),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert_rounded),
+                  onSelected: (val) {
+                    if (val == 'contrast') controller.toggleHighContrast();
+                    if (val == 'font') controller.toggleLargeText();
+                    if (val == 'alerts' && widget.onOpenAlerts != null) widget.onOpenAlerts!();
+                  },
+                  itemBuilder: (ctx) => [
+                    if (widget.onOpenAlerts != null)
+                      PopupMenuItem(
+                        value: 'alerts',
+                        child: Row(
+                          children: [
+                            Badge(
+                              isLabelVisible: (widget.alertController?.unreadCount ?? 0) > 0,
+                              label: Text('${widget.alertController?.unreadCount ?? 0}'),
+                              child: const Icon(Icons.shield_outlined, size: 20),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(loc.tr('safetyAlerts')),
+                          ],
+                        ),
+                      ),
+                    PopupMenuItem(
+                      value: 'contrast',
+                      child: Row(
+                        children: [
+                          Icon(controller.highContrast ? Icons.contrast : Icons.contrast_outlined, size: 20),
+                          const SizedBox(width: 10),
+                          Text(loc.tr('highContrast')),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'font',
+                      child: Row(
+                        children: [
+                          Icon(controller.largeText ? Icons.text_fields : Icons.format_size, size: 20),
+                          const SizedBox(width: 10),
+                          Text(loc.tr('fontSize')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 4),
+                LanguageSelector(loc: loc, compact: true),
+                const SizedBox(width: 10),
+              ]
+            : [
+                // User Account Action
+                if (auth != null)
+                  if (isAuthenticated)
+                    PopupMenuButton<String>(
+                      tooltip: currentUser?.displayPhoneNumber ?? 'User Account',
+                      icon: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF333333) : const Color(0xFFE0F2F1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.phone_android_rounded,
+                              size: 18,
+                              color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              currentUser?.displayPhoneNumber ?? 'User',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : const Color(0xFF004D40),
+                              ),
+                            ),
+                            const Icon(Icons.arrow_drop_down, size: 18),
+                          ],
+                        ),
+                      ),
+                      onSelected: (val) {
+                        if (val == 'signout') {
+                          _confirmSignOut();
+                        }
+                      },
+                      itemBuilder: (ctx) => [
+                        PopupMenuItem(
+                          enabled: false,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                currentUser?.displayPhoneNumber ?? '',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                isMl
+                                    ? 'ഉപയോക്താവിന്റെ അക്കൗണ്ട് (വിവരങ്ങൾ സൂക്ഷിക്കാൻ മാത്രം)'
+                                    : 'User Account (Profile storage only)',
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuDivider(),
+                        PopupMenuItem(
+                          value: 'signout',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.logout, color: Colors.red, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                isMl ? 'ലോഗ് ഔട്ട് (Sign Out)' : 'Sign Out',
+                                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
                         ),
                       ],
+                    )
+                  else
+                    TextButton.icon(
+                      icon: const Icon(Icons.lock_person_outlined, size: 18),
+                      label: Text(
+                        isMl ? 'ലോഗിൻ' : 'Sign In',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: _openAuthDialog,
                     ),
-                  ),
-                  const PopupMenuDivider(),
-                  PopupMenuItem(
-                    value: 'signout',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.logout, color: Colors.red, size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          isMl ? 'ലോഗ് ഔട്ട് (Sign Out)' : 'Sign Out',
-                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              )
-            else
-              TextButton.icon(
-                icon: const Icon(Icons.lock_person_outlined, size: 18),
-                label: Text(
-                  isMl ? 'ലോഗിൻ' : 'Sign In',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                onPressed: _openAuthDialog,
-              ),
 
-          if (widget.onOpenAlerts != null)
-            IconButton(
-              tooltip: loc.tr('safetyAlerts'),
-              icon: Badge(
-                isLabelVisible: (widget.alertController?.unreadCount ?? 0) > 0,
-                label: Text('${widget.alertController?.unreadCount ?? 0}'),
-                child: const Icon(Icons.shield_outlined),
-              ),
-              onPressed: widget.onOpenAlerts,
-            ),
-          IconButton(
-            tooltip: loc.tr('schemeDirectory'),
-            icon: const Icon(Icons.menu_book_rounded),
-            onPressed: widget.onOpenDirectory,
-          ),
-          IconButton(
-            tooltip: loc.tr('highContrast'),
-            icon: Icon(controller.highContrast ? Icons.contrast : Icons.contrast_outlined),
-            onPressed: () => controller.toggleHighContrast(),
-          ),
-          IconButton(
-            tooltip: loc.tr('fontSize'),
-            icon: Icon(controller.largeText ? Icons.text_fields : Icons.format_size),
-            onPressed: () => controller.toggleLargeText(),
-          ),
-          const SizedBox(width: 8),
-          LanguageSelector(loc: loc),
-          const SizedBox(width: 16),
-        ],
+                if (widget.onOpenAlerts != null)
+                  IconButton(
+                    tooltip: loc.tr('safetyAlerts'),
+                    icon: Badge(
+                      isLabelVisible: (widget.alertController?.unreadCount ?? 0) > 0,
+                      label: Text('${widget.alertController?.unreadCount ?? 0}'),
+                      child: const Icon(Icons.shield_outlined),
+                    ),
+                    onPressed: widget.onOpenAlerts,
+                  ),
+                IconButton(
+                  tooltip: loc.tr('schemeDirectory'),
+                  icon: const Icon(Icons.menu_book_rounded),
+                  onPressed: widget.onOpenDirectory,
+                ),
+                IconButton(
+                  tooltip: loc.tr('highContrast'),
+                  icon: Icon(controller.highContrast ? Icons.contrast : Icons.contrast_outlined),
+                  onPressed: () => controller.toggleHighContrast(),
+                ),
+                IconButton(
+                  tooltip: loc.tr('fontSize'),
+                  icon: Icon(controller.largeText ? Icons.text_fields : Icons.format_size),
+                  onPressed: () => controller.toggleLargeText(),
+                ),
+                const SizedBox(width: 8),
+                LanguageSelector(loc: loc),
+                const SizedBox(width: 16),
+              ],
+      ),
       ),
       body: Center(
         child: SingleChildScrollView(
