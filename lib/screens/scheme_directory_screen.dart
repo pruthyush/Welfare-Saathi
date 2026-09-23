@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/screening_controller.dart';
 import '../models/scheme.dart';
 import '../services/localization_service.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/disclaimer_banner.dart';
 import '../widgets/language_selector.dart';
 
@@ -98,8 +99,8 @@ class _SchemeDirectoryScreenState extends State<SchemeDirectoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: AppBackButton(
+          tooltip: loc.tr('back'),
           onPressed: widget.onBack,
         ),
         title: Text(

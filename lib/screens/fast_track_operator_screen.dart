@@ -5,6 +5,7 @@ import '../models/eligibility_result.dart';
 import '../models/household_profile.dart';
 import '../services/localization_service.dart';
 import '../services/self_declaration_service.dart';
+import '../widgets/app_back_button.dart';
 
 /// Akshaya e-Centre Fast-Track Operator Terminal (USP 1)
 ///
@@ -43,8 +44,8 @@ class _FastTrackOperatorScreenState extends State<FastTrackOperatorScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: AppBackButton(
+          tooltip: widget.loc.tr('back'),
           onPressed: widget.onBack,
         ),
         title: Column(

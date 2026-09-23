@@ -5,6 +5,7 @@ import '../controllers/screening_controller.dart';
 import '../models/eligibility_rule.dart';
 import '../models/scheme.dart';
 import '../services/localization_service.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/disclaimer_banner.dart';
 import '../widgets/language_selector.dart';
 
@@ -145,8 +146,8 @@ class SchemeDetailScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: AppBackButton(
+          tooltip: loc.tr('back'),
           onPressed: onBack,
         ),
         title: Text(

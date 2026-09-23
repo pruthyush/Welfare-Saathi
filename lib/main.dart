@@ -93,10 +93,11 @@ class WelfareSaathiApp extends StatefulWidget {
 }
 
 class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
-  // Navigation state enum
-  // 'welcome' | 'screening' | 'results' | 'detail' | 'review' | 'alerts'
-  String _currentRoute = 'welcome';
-  String _previousRoute = 'welcome';
+  // Navigation stack state
+  // 'welcome' | 'screening' | 'results' | 'detail' | 'review' | 'alerts' | 'directory'
+  final List<String> _routeHistory = ['welcome'];
+
+  String get _currentRoute => _routeHistory.isNotEmpty ? _routeHistory.last : 'welcome';
   bool _hasLoadedStartupProfile = false;
 
   @override
@@ -135,8 +136,29 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
 
   void _navigateTo(String route) {
     setState(() {
-      _previousRoute = _currentRoute;
-      _currentRoute = route;
+      if (route == 'welcome') {
+        _routeHistory.clear();
+        _routeHistory.add('welcome');
+      } else if (route == 'results' && _routeHistory.contains('results')) {
+        while (_routeHistory.isNotEmpty && _routeHistory.last != 'results') {
+          _routeHistory.removeLast();
+        }
+      } else {
+        if (_routeHistory.isEmpty || _routeHistory.last != route) {
+          _routeHistory.add(route);
+        }
+      }
+    });
+  }
+
+  void _navigateBack([String? fallbackRoute]) {
+    setState(() {
+      if (_routeHistory.length > 1) {
+        _routeHistory.removeLast();
+      } else {
+        _routeHistory.clear();
+        _routeHistory.add(fallbackRoute ?? 'welcome');
+      }
     });
   }
 
@@ -199,7 +221,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
           controller: controller,
           loc: loc,
           onComplete: () => _navigateTo('results'),
-          onBackToWelcome: () => _navigateTo('welcome'),
+          onBackToWelcome: () => _navigateBack('welcome'),
         );
 
       case 'results':
@@ -207,6 +229,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
           controller: controller,
           loc: loc,
           alertController: widget.alertController,
+          onBack: () => _navigateBack('screening'),
           onOpenAlerts: () => _navigateTo('alerts'),
           onSelectScheme: (scheme) {
             controller.selectScheme(scheme);
@@ -232,14 +255,14 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
             controller.setStep(0);
             _navigateTo('screening');
           },
-          onBack: () => _navigateTo('welcome'),
+          onBack: () => _navigateBack('welcome'),
         );
 
       case 'alerts':
         return AlertsScreen(
           alertController: widget.alertController,
           loc: loc,
-          onBack: () => _navigateTo(_previousRoute == 'alerts' ? 'welcome' : _previousRoute),
+          onBack: () => _navigateBack('welcome'),
         );
 
       case 'detail':
@@ -249,6 +272,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
             controller: controller,
             loc: loc,
             alertController: widget.alertController,
+            onBack: () => _navigateBack('welcome'),
             onOpenAlerts: () => _navigateTo('alerts'),
             onSelectScheme: (s) {
               controller.selectScheme(s);
@@ -266,7 +290,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
           scheme: scheme,
           controller: controller,
           loc: loc,
-          onBack: () => _navigateTo(_currentRoute == 'detail' && controller.hasRunScreening ? 'results' : 'directory'),
+          onBack: () => _navigateBack(controller.hasRunScreening ? 'results' : 'directory'),
           onStartScreening: () {
             controller.setStep(0);
             _navigateTo('screening');
@@ -278,7 +302,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
           controller: controller,
           loc: loc,
           onRecalculate: () => _navigateTo('results'),
-          onBack: () => _navigateTo(_previousRoute == 'results' ? 'results' : 'welcome'),
+          onBack: () => _navigateBack(controller.hasRunScreening ? 'results' : 'welcome'),
         );
 
       case 'welcome':

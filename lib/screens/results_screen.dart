@@ -10,6 +10,7 @@ import '../services/localization_service.dart';
 import '../services/pdf_export_service.dart';
 import '../services/qr_packet_service.dart';
 import '../services/self_declaration_service.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/language_selector.dart';
 import 'fast_track_operator_screen.dart';
 
@@ -19,6 +20,7 @@ class ResultsScreen extends StatefulWidget {
   final ValueChanged<Scheme> onSelectScheme;
   final VoidCallback onReviewAnswers;
   final VoidCallback onReset;
+  final VoidCallback? onBack;
   final VoidCallback? onOpenDirectory;
   final AlertController? alertController;
   final VoidCallback? onOpenAlerts;
@@ -30,6 +32,7 @@ class ResultsScreen extends StatefulWidget {
     required this.onSelectScheme,
     required this.onReviewAnswers,
     required this.onReset,
+    this.onBack,
     this.onOpenDirectory,
     this.alertController,
     this.onOpenAlerts,
@@ -76,6 +79,16 @@ class _ResultsScreenState extends State<ResultsScreen>
 
     return Scaffold(
       appBar: AppBar(
+        leading: AppBackButton(
+          tooltip: loc.tr('back'),
+          onPressed: () {
+            if (widget.onBack != null) {
+              widget.onBack!();
+            } else {
+              widget.onReset();
+            }
+          },
+        ),
         title: Text(
           loc.tr('resultsTitle'),
           style: const TextStyle(fontWeight: FontWeight.bold),

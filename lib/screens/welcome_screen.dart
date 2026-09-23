@@ -157,6 +157,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           loc.tr('appTitle'),
           style: const TextStyle(fontWeight: FontWeight.bold),

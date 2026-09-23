@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/alert_controller.dart';
 import '../models/safety_alert.dart';
 import '../services/localization_service.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/language_selector.dart';
 
 /// Community Safety Alerts Screen.
@@ -56,8 +57,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: AppBackButton(
+          tooltip: loc.tr('back'),
           onPressed: widget.onBack,
         ),
         title: Text(

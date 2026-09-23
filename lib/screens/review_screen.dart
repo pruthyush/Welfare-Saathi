@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/screening_controller.dart';
 import '../services/localization_service.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/language_selector.dart';
 import '../widgets/ration_card_helper.dart';
 
@@ -34,8 +35,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: AppBackButton(
+          tooltip: loc.tr('back'),
           onPressed: widget.onBack,
         ),
         title: Text(
