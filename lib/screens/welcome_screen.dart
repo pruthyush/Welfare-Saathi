@@ -328,9 +328,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ? [
               if (auth != null && isAuthenticated)
                 PopupMenuButton<String>(
-                  tooltip: currentUser?.displayPhoneNumber ?? 'User Account',
+                  tooltip: isMl ? 'അക്കൗണ്ട്' : 'Account',
                   icon: Icon(
-                    Icons.phone_android_rounded,
+                    Icons.account_circle_outlined,
                     size: 20,
                     color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
                   ),
@@ -341,7 +341,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     PopupMenuItem(
                       enabled: false,
                       child: Text(
-                        currentUser?.displayPhoneNumber ?? '',
+                        currentUser?.maskedPhoneNumber ?? (isMl ? 'അക്കൗണ്ട്' : 'Account'),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                       ),
                     ),
@@ -456,7 +456,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               if (auth != null)
                 if (isAuthenticated)
                   PopupMenuButton<String>(
-                    tooltip: currentUser?.displayPhoneNumber ?? 'User Account',
+                    tooltip: isMl ? 'അക്കൗണ്ട്' : 'Account',
                     icon: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
@@ -471,13 +471,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.phone_android_rounded,
+                            Icons.account_circle_outlined,
                             size: 16,
                             color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            currentUser?.displayPhoneNumber ?? 'User',
+                            isMl ? 'അക്കൗണ്ട്' : 'Account',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -498,14 +498,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              currentUser?.displayPhoneNumber ?? '',
+                              currentUser?.maskedPhoneNumber ?? (isMl ? 'അക്കൗണ്ട്' : 'Account'),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               isMl
-                                  ? 'ഉപയോക്താവിന്റെ അക്കൗണ്ട്'
-                                  : 'User Account (Profile storage)',
+                                  ? 'പരിശോധിച്ച ഫോൺ നമ്പർ'
+                                  : 'Verified Mobile',
                               style: TextStyle(
                                 fontSize: 10.5,
                                 color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
@@ -1016,7 +1016,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Account: ${widget.authService?.currentUser?.displayPhoneNumber}',
+                      'Account: ${widget.authService?.currentUser?.maskedPhoneNumber ?? (isMl ? 'ലോഗിൻ ചെയ്തിട്ടുണ്ട്' : 'Signed In')}',
                       style: TextStyle(
                         fontSize: 12,
                         color: theme.colorScheme.onSurface.withValues(alpha: 0.65),

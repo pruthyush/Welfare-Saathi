@@ -25,6 +25,19 @@ class AppUser {
     }
     return phoneNumber;
   }
+
+  /// Privacy-preserving masked presentation of the phone number (e.g., +91 ••••• ••456).
+  String get maskedPhoneNumber {
+    final cleaned = phoneNumber.replaceAll(RegExp(r'\s+'), '');
+    if (cleaned.startsWith('+91') && cleaned.length == 13) {
+      final last4 = cleaned.substring(cleaned.length - 4);
+      return '+91 ••••• •$last4';
+    }
+    if (cleaned.length >= 4) {
+      return '•••• ${cleaned.substring(cleaned.length - 4)}';
+    }
+    return '••••••••';
+  }
 }
 
 /// Abstract contract for Phone-based User Authentication.
