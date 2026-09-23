@@ -183,6 +183,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 ElevatedButton.icon(
                   onPressed: () {
                     widget.controller.evaluateCurrentProfile();
+                    widget.controller.saveCurrentProfileToRemote();
                     widget.onRecalculate();
                   },
                   icon: const Icon(Icons.sync_rounded, size: 24),

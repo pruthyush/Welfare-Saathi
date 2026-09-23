@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'controllers/alert_controller.dart';
 import 'controllers/screening_controller.dart';
+import 'firebase_options.dart';
 import 'screens/alerts_screen.dart';
 import 'screens/results_screen.dart';
 import 'screens/review_screen.dart';
@@ -9,23 +11,44 @@ import 'screens/scheme_directory_screen.dart';
 import 'screens/screening_screen.dart';
 import 'screens/welcome_screen.dart';
 import 'services/alert_repository.dart';
+import 'services/auth_service.dart';
 import 'services/localization_service.dart';
+import 'services/profile_repository.dart';
 import 'services/scheme_repository.dart';
 import 'widgets/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization notice: $e');
+  }
+
+  final authService = FirebaseAuthService();
+  final profileRepository = FirestoreProfileRepository(authService: authService);
+
   final repository = SchemeRepository();
   await repository.loadData();
 
   final alertRepository = AlertRepository();
   await alertRepository.loadAlerts();
+  // Fetch live alerts from Firestore if available
+  alertRepository.fetchLiveAlerts().catchError((e) {
+    debugPrint('Live alert fetch notice: $e');
+  });
 
   final loc = LocalizationService();
   await loc.loadTranslations();
 
-  final controller = ScreeningController(repository: repository);
+  final controller = ScreeningController(
+    repository: repository,
+    profileRepository: profileRepository,
+    authService: authService,
+  );
   final alertController = AlertController(repository: alertRepository);
 
   runApp(WelfareSaathiApp(
@@ -34,6 +57,8 @@ void main() async {
     loc: loc,
     controller: controller,
     alertController: alertController,
+    authService: authService,
+    profileRepository: profileRepository,
   ));
 }
 
@@ -43,6 +68,8 @@ class WelfareSaathiApp extends StatefulWidget {
   final LocalizationService loc;
   final ScreeningController controller;
   final AlertController alertController;
+  final AuthService? authService;
+  final ProfileRepository? profileRepository;
 
   WelfareSaathiApp({
     super.key,
@@ -51,6 +78,8 @@ class WelfareSaathiApp extends StatefulWidget {
     required this.loc,
     required this.controller,
     AlertController? alertController,
+    this.authService,
+    this.profileRepository,
   })  : alertRepository = alertRepository ?? AlertRepository(),
         alertController = alertController ??
             (alertRepository != null
@@ -73,6 +102,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
     widget.controller.addListener(_onStateChange);
     widget.loc.addListener(_onStateChange);
     widget.alertController.addListener(_onStateChange);
+    widget.authService?.addListener(_onStateChange);
   }
 
   @override
@@ -80,6 +110,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
     widget.controller.removeListener(_onStateChange);
     widget.loc.removeListener(_onStateChange);
     widget.alertController.removeListener(_onStateChange);
+    widget.authService?.removeListener(_onStateChange);
     super.dispose();
   }
 
@@ -216,6 +247,7 @@ class _WelfareSaathiAppState extends State<WelfareSaathiApp> {
           controller: controller,
           loc: loc,
           alertController: widget.alertController,
+          authService: widget.authService,
           onOpenAlerts: () => _navigateTo('alerts'),
           onStartScreening: () {
             controller.setStep(0);

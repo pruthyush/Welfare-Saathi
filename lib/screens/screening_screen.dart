@@ -234,6 +234,7 @@ class _ScreeningScreenState extends State<ScreeningScreen> {
                             widget.controller.nextStep();
                           } else {
                             widget.controller.evaluateCurrentProfile();
+                            widget.controller.saveCurrentProfileToRemote();
                             widget.onComplete();
                           }
                         },

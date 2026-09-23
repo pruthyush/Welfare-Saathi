@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import '../models/safety_alert.dart';
 
@@ -17,16 +18,24 @@ class AlertRepository {
     _alerts = List.from(alerts);
   }
 
-  /// Loads community safety alerts from the local asset bundle.
+  /// Loads community safety alerts from Firestore if available, with offline asset fallback.
   Future<void> loadAlerts() async {
+    // 1. First load local seed/demo alerts to guarantee immediate offline usability
     try {
       final jsonString = await rootBundle.loadString('assets/data/safety_alerts.json');
       final list = json.decode(jsonString) as List<dynamic>;
       _alerts = list
           .map((e) => SafetyAlert.fromJson(e as Map<String, dynamic>))
           .toList();
-    } catch (e) {
+    } catch (_) {
       _alerts = [];
+    }
+
+    // 2. Attempt to synchronize with Cloud Firestore if online
+    try {
+      await fetchLiveAlerts();
+    } catch (_) {
+      // Offline fallback preserved
     }
   }
 
@@ -50,8 +59,20 @@ class AlertRepository {
     }).toList();
   }
 
-  /// Extension point for future live authoritative push/REST integrations.
+  /// Extension point: queries live or cloud-synchronized alerts from Firestore if available.
   Future<void> fetchLiveAlerts() async {
-    // Production roadmap: Integrate KSDMA / INCOIS CAP (Common Alerting Protocol) RSS/REST feeds.
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('alerts').get();
+      if (snapshot.docs.isNotEmpty) {
+        final firestoreAlerts = snapshot.docs
+            .map((doc) => SafetyAlert.fromJson({...doc.data(), 'id': doc.id}))
+            .toList();
+        if (firestoreAlerts.isNotEmpty) {
+          _alerts = firestoreAlerts;
+        }
+      }
+    } catch (_) {
+      // Offline fallback preserved
+    }
   }
 }

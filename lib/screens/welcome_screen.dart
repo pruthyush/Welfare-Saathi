@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import '../controllers/alert_controller.dart';
 import '../controllers/screening_controller.dart';
+import '../models/household_profile.dart';
+import '../services/auth_service.dart';
 import '../services/localization_service.dart';
 import '../widgets/disclaimer_banner.dart';
 import '../widgets/language_selector.dart';
+import 'auth_dialog.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   final ScreeningController controller;
   final LocalizationService loc;
   final VoidCallback onStartScreening;
@@ -13,6 +16,7 @@ class WelcomeScreen extends StatelessWidget {
   final VoidCallback onOpenDirectory;
   final AlertController? alertController;
   final VoidCallback? onOpenAlerts;
+  final AuthService? authService;
 
   const WelcomeScreen({
     super.key,
@@ -23,13 +27,128 @@ class WelcomeScreen extends StatelessWidget {
     required this.onOpenDirectory,
     this.alertController,
     this.onOpenAlerts,
+    this.authService,
   });
 
   @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  HouseholdProfile? _savedProfile;
+  bool _isLoadingProfile = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.authService?.addListener(_onAuthChanged);
+    _checkAndLoadProfile();
+  }
+
+  @override
+  void didUpdateWidget(covariant WelcomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.authService != widget.authService) {
+      oldWidget.authService?.removeListener(_onAuthChanged);
+      widget.authService?.addListener(_onAuthChanged);
+      _checkAndLoadProfile();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.authService?.removeListener(_onAuthChanged);
+    super.dispose();
+  }
+
+  void _onAuthChanged() {
+    _checkAndLoadProfile();
+  }
+
+  Future<void> _checkAndLoadProfile() async {
+    final auth = widget.authService;
+    if (auth != null && auth.isAuthenticated) {
+      setState(() => _isLoadingProfile = true);
+      try {
+        final profile = await widget.controller.loadProfileFromRemote();
+        if (mounted) {
+          setState(() {
+            _savedProfile = profile;
+            _isLoadingProfile = false;
+          });
+        }
+      } catch (_) {
+        if (mounted) {
+          setState(() => _isLoadingProfile = false);
+        }
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _savedProfile = null;
+          _isLoadingProfile = false;
+        });
+      }
+    }
+  }
+
+  void _openAuthDialog() {
+    if (widget.authService == null) return;
+    AuthDialog.show(
+      context: context,
+      authService: widget.authService!,
+      loc: widget.loc,
+      onAuthenticated: () {
+        _checkAndLoadProfile();
+      },
+    );
+  }
+
+  void _confirmSignOut() {
+    final loc = widget.loc;
+    final isMl = loc.isMalayalam;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(isMl ? 'ലോഗ് ഔട്ട് ചെയ്യണോ?' : 'Sign Out?'),
+        content: Text(
+          isMl
+              ? 'നിങ്ങൾ ലോഗ് ഔട്ട് ചെയ്താൽ നിങ്ങളുടെ വിവരങ്ങൾ ഇവിടെ നിന്ന് ഒഴിവാകും. അടുത്ത തവണ ലോഗിൻ ചെയ്യുമ്പോൾ വീണ്ടും ലഭിക്കുന്നതാണ്.'
+              : 'Signing out will clear the active in-memory session. Your profile remains safely stored in the cloud.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(loc.tr('cancel')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[700],
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await widget.authService?.signOut();
+              widget.controller.reset();
+              _checkAndLoadProfile();
+            },
+            child: Text(isMl ? 'ലോഗ് ഔട്ട്' : 'Sign Out'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final loc = widget.loc;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final isMl = loc.isMalayalam;
+    final auth = widget.authService;
+    final isAuthenticated = auth?.isAuthenticated ?? false;
+    final currentUser = auth?.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -38,20 +157,110 @@ class WelcomeScreen extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
-          if (onOpenAlerts != null)
+          // User Account Action
+          if (auth != null)
+            if (isAuthenticated)
+              PopupMenuButton<String>(
+                tooltip: currentUser?.email ?? 'User Account',
+                icon: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF333333) : const Color(0xFFE0F2F1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.account_circle,
+                        size: 20,
+                        color: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        currentUser?.email.split('@').first ?? 'User',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF004D40),
+                        ),
+                      ),
+                      const Icon(Icons.arrow_drop_down, size: 18),
+                    ],
+                  ),
+                ),
+                onSelected: (val) {
+                  if (val == 'signout') {
+                    _confirmSignOut();
+                  }
+                },
+                itemBuilder: (ctx) => [
+                  PopupMenuItem(
+                    enabled: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          currentUser?.email ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          isMl
+                              ? 'ഉപയോക്താവിന്റെ അക്കൗണ്ട് (വിവരങ്ങൾ സൂക്ഷിക്കാൻ മാത്രം)'
+                              : 'User Account (Profile storage only)',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  PopupMenuItem(
+                    value: 'signout',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.logout, color: Colors.red, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          isMl ? 'ലോഗ് ഔട്ട് (Sign Out)' : 'Sign Out',
+                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            else
+              TextButton.icon(
+                icon: const Icon(Icons.lock_person_outlined, size: 18),
+                label: Text(
+                  isMl ? 'ലോഗിൻ' : 'Sign In',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onPressed: _openAuthDialog,
+              ),
+
+          if (widget.onOpenAlerts != null)
             IconButton(
               tooltip: loc.tr('safetyAlerts'),
               icon: Badge(
-                isLabelVisible: (alertController?.unreadCount ?? 0) > 0,
-                label: Text('${alertController?.unreadCount ?? 0}'),
+                isLabelVisible: (widget.alertController?.unreadCount ?? 0) > 0,
+                label: Text('${widget.alertController?.unreadCount ?? 0}'),
                 child: const Icon(Icons.shield_outlined),
               ),
-              onPressed: onOpenAlerts,
+              onPressed: widget.onOpenAlerts,
             ),
           IconButton(
             tooltip: loc.tr('schemeDirectory'),
             icon: const Icon(Icons.menu_book_rounded),
-            onPressed: onOpenDirectory,
+            onPressed: widget.onOpenDirectory,
           ),
           IconButton(
             tooltip: loc.tr('highContrast'),
@@ -171,28 +380,28 @@ class WelcomeScreen extends StatelessWidget {
 
                 const SizedBox(height: 28),
 
-                // Primary Action Button
-                ElevatedButton.icon(
-                  onPressed: onStartScreening,
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 24),
-                  label: Text(
-                    loc.tr('startScreening'),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
-                    foregroundColor: isDark ? Colors.black : Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                // ==========================================
+                // USER PROFILE PERSISTENCE WORKFLOW CARD
+                // ==========================================
+                if (_isLoadingProfile)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: CircularProgressIndicator(),
                     ),
-                  ),
-                ),
+                  )
+                else if (isAuthenticated && _savedProfile != null)
+                  _buildReturningUserCard(context, _savedProfile!)
+                else if (isAuthenticated && _savedProfile == null)
+                  _buildFirstTimeAuthenticatedCard(context)
+                else
+                  _buildGuestUserCard(context),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
+                // Scheme Directory Button
                 OutlinedButton.icon(
-                  onPressed: onOpenDirectory,
+                  onPressed: widget.onOpenDirectory,
                   icon: const Icon(Icons.menu_book_rounded, size: 20),
                   label: Text(
                     isMl
@@ -208,9 +417,9 @@ class WelcomeScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 // Community Safety Alerts Banner
-                if (onOpenAlerts != null)
+                if (widget.onOpenAlerts != null)
                   InkWell(
-                    onTap: onOpenAlerts,
+                    onTap: widget.onOpenAlerts,
                     borderRadius: BorderRadius.circular(14),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -336,7 +545,7 @@ class WelcomeScreen extends StatelessWidget {
                       trailing: const Icon(Icons.chevron_right_rounded),
                       onTap: () {
                         controller.loadSampleProfile(sample);
-                        onSampleLoaded();
+                        widget.onSampleLoaded();
                       },
                     ),
                   );
@@ -347,5 +556,381 @@ class WelcomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // ==========================================
+  // RETURNING USER EXPERIENCE (Section 10 & 11)
+  // ==========================================
+  Widget _buildReturningUserCard(BuildContext context, HouseholdProfile profile) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isMl = widget.loc.isMalayalam;
+
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E2824) : const Color(0xFFF0FDF4),
+        border: Border.all(
+          color: isDark ? const Color(0xFF10B981) : const Color(0xFF059669),
+          width: 1.5,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF059669).withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.verified_user_rounded, color: Color(0xFF059669), size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isMl
+                          ? 'നിങ്ങളുടെ കുടുംബ വിവരങ്ങൾ സേവ് ചെയ്തിട്ടുണ്ട്.'
+                          : 'Your household details are already saved.',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      isMl
+                          ? 'അക്കൗണ്ട്: ${widget.authService?.currentUser?.email}'
+                          : 'Account: ${widget.authService?.currentUser?.email}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Summary Chips of Saved Profile
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF262626) : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark ? const Color(0xFF404040) : const Color(0xFFE5E7EB),
+              ),
+            ),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildSummaryBadge(
+                  label: isMl ? 'തൊഴിൽ' : 'Work',
+                  value: _formatOccupation(profile.occupation, isMl),
+                  icon: Icons.work_outline_rounded,
+                ),
+                _buildSummaryBadge(
+                  label: isMl ? 'ജില്ല' : 'District',
+                  value: profile.district ?? (isMl ? 'തിരഞ്ഞെടുത്തിട്ടില്ല' : 'Not set'),
+                  icon: Icons.location_on_outlined,
+                ),
+                if (profile.age != null)
+                  _buildSummaryBadge(
+                    label: isMl ? 'പ്രായം' : 'Age',
+                    value: '${profile.age} ${isMl ? 'വയസ്സ്' : 'yrs'}',
+                    icon: Icons.cake_outlined,
+                  ),
+                if (profile.monthlyIncome != null)
+                  _buildSummaryBadge(
+                    label: isMl ? 'വരുമാനം' : 'Income',
+                    value: '₹${profile.monthlyIncome}/mo',
+                    icon: Icons.currency_rupee_rounded,
+                  ),
+                if (profile.isBoardMember != null)
+                  _buildSummaryBadge(
+                    label: isMl ? 'ബോർഡ് അംഗം' : 'Board Member',
+                    value: profile.isBoardMember == true
+                        ? (isMl ? 'അംഗമാണ്' : 'Yes')
+                        : (isMl ? 'അല്ല' : 'No'),
+                    icon: Icons.badge_outlined,
+                  ),
+                if (profile.rationCardCategory != null)
+                  _buildSummaryBadge(
+                    label: isMl ? 'റേഷൻ കാർഡ്' : 'Ration Card',
+                    value: profile.rationCardCategory!,
+                    icon: Icons.credit_card_rounded,
+                  ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // BUTTON 1: Continue with Saved Details (Deterministic evaluation)
+          ElevatedButton.icon(
+            onPressed: () {
+              widget.controller.continueWithSavedProfile(profile);
+              widget.onSampleLoaded();
+            },
+            icon: const Icon(Icons.arrow_forward_rounded, size: 22),
+            label: Text(
+              isMl ? 'സേവ് ചെയ്ത വിവരങ്ങൾ വച്ച് തുടരുക' : 'Continue with Saved Details',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF006D77),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // BUTTON 2: Edit Household Details (Pre-filled screening, edit only changed fields)
+          OutlinedButton.icon(
+            onPressed: () {
+              widget.controller.editSavedProfile(profile);
+              widget.controller.setStep(0);
+              widget.onStartScreening();
+            },
+            icon: const Icon(Icons.edit_note_rounded, size: 20),
+            label: Text(
+              isMl ? 'വിവരങ്ങൾ മാറ്റുക (Edit Household Details)' : 'Edit Household Details',
+              style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
+          // BUTTON 3: Start New Screening (Clean profile, no silent copying)
+          TextButton.icon(
+            onPressed: () {
+              widget.controller.startNewScreening();
+              widget.onStartScreening();
+            },
+            icon: const Icon(Icons.refresh_rounded, size: 18),
+            label: Text(
+              isMl ? 'മറ്റൊരു കുടുംബത്തിനായി പുതിയ പരിശോധന (Start New Screening)' : 'Start New Screening (Clean Session)',
+              style: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
+  // FIRST-TIME AUTHENTICATED USER (Section 9)
+  // ==========================================
+  Widget _buildFirstTimeAuthenticatedCard(BuildContext context) {
+    final isMl = widget.loc.isMalayalam;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E2833) : const Color(0xFFF0F9FF),
+        border: Border.all(
+          color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+          width: 1.2,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF0284C7), size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isMl ? 'സേവ് ചെയ്ത വിവരങ്ങൾ ഇല്ല' : 'No household profile found',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      isMl
+                          ? 'നിങ്ങൾ ലോഗിൻ ചെയ്തിട്ടുണ്ട് (${widget.authService?.currentUser?.email}). പരിശോധന പൂർത്തിയാക്കുമ്പോൾ വിവരങ്ങൾ തനിയെ സേവ് ആകും.'
+                          : 'Signed in as ${widget.authService?.currentUser?.email}. Complete screening once to save your profile.',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          ElevatedButton.icon(
+            onPressed: () {
+              widget.controller.startNewScreening();
+              widget.onStartScreening();
+            },
+            icon: const Icon(Icons.arrow_forward_rounded, size: 22),
+            label: Text(
+              widget.loc.tr('startScreening'),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF006D77),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
+  // GUEST / UNAUTHENTICATED EXPERIENCE
+  // ==========================================
+  Widget _buildGuestUserCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isMl = widget.loc.isMalayalam;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Primary Start Screening Button
+        ElevatedButton.icon(
+          onPressed: () {
+            widget.controller.startNewScreening();
+            widget.onStartScreening();
+          },
+          icon: const Icon(Icons.arrow_forward_rounded, size: 24),
+          label: Text(
+            widget.loc.tr('startScreening'),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isDark ? const Color(0xFFFFD166) : const Color(0xFF006D77),
+            foregroundColor: isDark ? Colors.black : Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        // Sign In Callout Card
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF262626) : const Color(0xFFF9FAFB),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? const Color(0xFF404040) : const Color(0xFFE5E7EB),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.cloud_sync_outlined, color: Color(0xFF006D77), size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  isMl
+                      ? 'വിവരങ്ങൾ പിന്നീട് ഉപയോഗിക്കാൻ സൗജന്യമായി അക്കൗണ്ട് തുറക്കാം.'
+                      : 'Sign in to save your household profile across visits.',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              FilledButton.tonal(
+                onPressed: _openAuthDialog,
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  visualDensity: VisualDensity.compact,
+                ),
+                child: Text(
+                  isMl ? 'ലോഗിൻ' : 'Sign In',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryBadge({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFF006D77).withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: const Color(0xFF006D77)),
+          const SizedBox(width: 6),
+          Text(
+            '$label: ',
+            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatOccupation(String? occ, bool isMl) {
+    if (occ == 'fishing') {
+      return isMl ? 'മത്സ്യത്തൊഴിലാളി' : 'Fishing';
+    } else if (occ == 'plantation') {
+      return isMl ? 'തോട്ടം തൊഴിലാളി' : 'Plantation';
+    } else if (occ == 'other') {
+      return isMl ? 'മറ്റ് തൊഴിൽ' : 'Other';
+    }
+    return isMl ? 'തിരഞ്ഞെടുത്തിട്ടില്ല' : 'Not set';
   }
 }

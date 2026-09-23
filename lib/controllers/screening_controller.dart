@@ -3,11 +3,15 @@ import '../engine/eligibility_engine.dart';
 import '../models/eligibility_result.dart';
 import '../models/household_profile.dart';
 import '../models/scheme.dart';
+import '../services/auth_service.dart';
+import '../services/profile_repository.dart';
 import '../services/scheme_repository.dart';
 
 class ScreeningController extends ChangeNotifier {
   final SchemeRepository repository;
   final EligibilityEngine engine;
+  final ProfileRepository? profileRepository;
+  final AuthService? authService;
 
   HouseholdProfile _profile = HouseholdProfile.empty();
   List<EligibilityResult> _results = [];
@@ -20,6 +24,8 @@ class ScreeningController extends ChangeNotifier {
   ScreeningController({
     required this.repository,
     this.engine = const EligibilityEngine(),
+    this.profileRepository,
+    this.authService,
   });
 
   HouseholdProfile get profile => _profile;
@@ -105,6 +111,69 @@ class ScreeningController extends ChangeNotifier {
     _profile = sample.profile;
     _currentStep = 0;
     evaluateCurrentProfile();
+  }
+
+  /// Saves current in-memory profile to remote profile repository if authenticated.
+  Future<void> saveCurrentProfileToRemote() async {
+    if (profileRepository != null && (authService?.isAuthenticated ?? false)) {
+      try {
+        await profileRepository!.saveProfile(_profile);
+      } catch (e) {
+        debugPrint('Profile save notice: $e');
+      }
+    }
+  }
+
+  /// Loads saved profile from remote repository.
+  Future<HouseholdProfile?> loadProfileFromRemote() async {
+    if (profileRepository != null && (authService?.isAuthenticated ?? false)) {
+      try {
+        return await profileRepository!.loadProfile();
+      } catch (e) {
+        debugPrint('Profile load notice: $e');
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /// Checks if the authenticated user has a saved profile in the repository.
+  Future<bool> hasSavedProfile() async {
+    if (profileRepository != null && (authService?.isAuthenticated ?? false)) {
+      try {
+        return await profileRepository!.hasProfile();
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  /// Loads the saved profile and deterministically evaluates eligibility.
+  /// Used for "Continue with Saved Details".
+  void continueWithSavedProfile(HouseholdProfile savedProfile) {
+    _profile = savedProfile;
+    _currentStep = 0;
+    evaluateCurrentProfile();
+  }
+
+  /// Loads the saved profile into memory for editing only changed fields.
+  /// Used for "Edit Household Details".
+  void editSavedProfile(HouseholdProfile savedProfile) {
+    _profile = savedProfile;
+    _currentStep = 0;
+    notifyListeners();
+  }
+
+  /// Starts a completely clean new screening. Old profile values are NOT silently copied.
+  /// Used for "Start New Screening".
+  void startNewScreening() {
+    _profile = HouseholdProfile.empty();
+    _currentStep = 0;
+    _hasRunScreening = false;
+    _results = [];
+    _selectedScheme = null;
+    notifyListeners();
   }
 
   /// Resets the screening session in memory (preserves user privacy).
