@@ -18,9 +18,8 @@ class AlertRepository {
     _alerts = List.from(alerts);
   }
 
-  /// Loads community safety alerts from Firestore if available, with offline asset fallback.
-  Future<void> loadAlerts() async {
-    // 1. First load local seed/demo alerts to guarantee immediate offline usability
+  /// Loads only local JSON asset alerts (no network calls). Fast and safe for parallel startup.
+  Future<void> loadLocalAlerts() async {
     try {
       final jsonString = await rootBundle.loadString('assets/data/safety_alerts.json');
       final list = json.decode(jsonString) as List<dynamic>;
@@ -30,14 +29,15 @@ class AlertRepository {
     } catch (_) {
       _alerts = [];
     }
-
-    // 2. Attempt to synchronize with Cloud Firestore if online
-    try {
-      await fetchLiveAlerts();
-    } catch (_) {
-      // Offline fallback preserved
-    }
   }
+
+  /// Loads community safety alerts from local asset, then attempts Firestore sync.
+  Future<void> loadAlerts() async {
+    await loadLocalAlerts();
+    // Attempt to synchronize with Cloud Firestore if online (non-blocking)
+    fetchLiveAlerts().catchError((_) {});
+  }
+
 
   /// Filters alerts deterministically by sector, district, and category.
   List<SafetyAlert> getAlertsFor({

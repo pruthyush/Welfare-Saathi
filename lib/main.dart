@@ -22,6 +22,7 @@ import 'widgets/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Firebase without blocking startup if it fails
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -33,18 +34,21 @@ void main() async {
   final authService = FirebaseAuthService();
   final profileRepository = FirestoreProfileRepository(authService: authService);
 
+  // Parallelize all data loading — run concurrently instead of sequentially
   final repository = SchemeRepository();
-  await repository.loadData();
-
   final alertRepository = AlertRepository();
-  await alertRepository.loadAlerts();
-  // Fetch live alerts from Firestore if available
+  final loc = LocalizationService();
+
+  await Future.wait([
+    repository.loadData(),
+    alertRepository.loadLocalAlerts(), // load local only — no blocking Firestore call
+    loc.loadTranslations(),
+  ]);
+
+  // Fetch live Firestore alerts asynchronously in background (non-blocking)
   alertRepository.fetchLiveAlerts().catchError((e) {
     debugPrint('Live alert fetch notice: $e');
   });
-
-  final loc = LocalizationService();
-  await loc.loadTranslations();
 
   final controller = ScreeningController(
     repository: repository,
